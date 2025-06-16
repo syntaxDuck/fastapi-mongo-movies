@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from bson import ObjectId
-from pydantic import BaseModel, EmailStr, Field, HttpUrl
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, ValidationError
 
 
 class User(BaseModel):
@@ -46,24 +46,24 @@ class Comment(BaseModel):
 
 class Movie(BaseModel):
     id: str = Field(..., alias="_id")
-    plot: str = None
-    genres: list[str] = None
-    runtime: int = None
-    cast: list[str] = None
+    plot: str
+    genres: list[str]
+    runtime: int
+    cast: list[str]
     num_mflix_comments: Optional[int] = None
     poster: Optional[HttpUrl] = None
-    title: str = None
-    fullplot: str = None
-    countries: list[str] = None
-    released: datetime = None
-    directors: list[str] = None
-    writers: list[str] = None
-    awards: dict = None
+    title: str
+    fullplot: Optional[str] = None
+    countries: list[str]
+    released: datetime
+    directors: list[str]
+    writers: Optional[list[str]] = None
+    awards: dict
     lastupdated: datetime
-    year: int = None
-    imdb: dict = None
-    type: str = None
-    tomatoes: dict = None
+    year: int
+    imdb: dict
+    type: str
+    tomatoes: dict
 
     @classmethod
     def validate_id(cls, v):
@@ -76,4 +76,7 @@ class Movie(BaseModel):
         """Convert MongoDB dict to Pydantic model."""
         if "_id" in data:
             data["_id"] = str(data["_id"])
-        return cls(**data)
+        try:
+            return cls(**data)
+        except ValidationError:
+            return None

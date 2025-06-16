@@ -1,6 +1,6 @@
 import asyncio
 from config import config
-from .database import MongoDBConfig, MongoDBClientHandler
+from database import MongoDBConfig, MongoDBClientHandler
 
 
 async def main():

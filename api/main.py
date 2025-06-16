@@ -57,12 +57,13 @@ async def read_movies(
     if not movies:
         raise HTTPException(status_code=404, detail="Movies not found")
 
-    # Return only the first 1000 movies
-    return [Movie.from_mongo(movie) for movie in movies]
+    processed_movies = [Movie.from_mongo(movie) for movie in movies]
+    processed_movies = [movie for movie in processed_movies if movie is not None]
+    return processed_movies
 
 
 @app.get("/comments", response_model=list[Comment])
-async def read_movies(
+async def read_comments(
     movie_id: Optional[str] = Query(None, description="Filter by username"),
     limit: int = Query(
         10, description="Limit the number of results"

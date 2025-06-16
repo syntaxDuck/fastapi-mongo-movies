@@ -18,7 +18,6 @@ def fetch_comments(movie_id: str, page: int):
 def process_movies(movies: list):
     default_img = "https://thumbs.dreamstime.com/b/film-real-25021714.jpg"
     for movie in movies:
-        print(movie["poster"])
         if movie["poster"]:
             response = requests.head(movie["poster"], allow_redirects=False)
             if response.status_code != 200:
