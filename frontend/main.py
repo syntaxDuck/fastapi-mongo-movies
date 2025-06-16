@@ -1,7 +1,8 @@
 from fasthtml.common import *
 from .components import movie_details, movie_list, rating, detail
-from .data import fetch_movies, process_movies, fetch_comments, MOVIE_PAGE_SIZE
+from .data import fetch_movies, process_movies, fetch_comments
 from .helper import build_movie_list
+from config import config
 
 hdrs = []
 hdrs.append(Link(rel="stylesheet", href="frontend/assets/styles.css"))
@@ -103,9 +104,8 @@ def get_comments(movie_id: str):
 @app.get("/movies")
 def get_movies():
     global movies
-    global MOVIE_PAGE_SIZE
 
-    page = len(movies) // MOVIE_PAGE_SIZE
+    page = len(movies) // config.MOVIE_PAGE_SIZE
     raw_movies = fetch_movies(page)
     new_movies = process_movies(raw_movies)
     movies += new_movies

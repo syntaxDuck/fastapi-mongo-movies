@@ -1,6 +1,6 @@
 import asyncio
-from config import settings
-from database import MongoDBConfig, MongoDBConnection
+from config import config
+from .database import MongoDBConfig, MongoDBClientHandler
 
 
 async def main():
@@ -20,10 +20,10 @@ async def main():
     - None
     """
     # Assuming settings is already defined with USER, PASS, and HOST
-    config = MongoDBConfig(
-        settings.USER,
-        settings.PASS,
-        settings.HOST,
+    db_config = MongoDBConfig(
+        config.DB_USER,
+        config.DB_PASS,
+        config.DB_HOST,
         appName="Cluster0",
         tls="true",
         tlsAllowInvalidCertificates="true",
@@ -39,12 +39,12 @@ async def main():
     # Define different queries
     queries = [
         {"name": {"$regex": "^M"}},  # Users older than 30
-        {"naem": {"$regex": "^J"}},  # Users younger than 20
+        {"name": {"$regex": "^J"}},  # Users younger than 20
         {"name": {"$regex": "^A"}},  # Users whose names start with 'A'
     ]
 
     # Start fetching data concurrently
-    async with MongoDBConnection(config) as mongo_connection:
+    async with MongoDBClientHandler(config) as mongo_connection:
         # tasks = [mongo_connection.fetch_documents(db_name, collection_name, query) for query in queries]
         # Wait for all tasks to complete
         # results = await asyncio.gather(*tasks)

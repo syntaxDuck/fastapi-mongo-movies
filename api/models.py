@@ -50,8 +50,8 @@ class Movie(BaseModel):
     genres: list[str] = None
     runtime: int = None
     cast: list[str] = None
-    num_mflix_comments: int = None
-    poster: HttpUrl = None
+    num_mflix_comments: Optional[int] = None
+    poster: Optional[HttpUrl] = None
     title: str = None
     fullplot: str = None
     countries: list[str] = None

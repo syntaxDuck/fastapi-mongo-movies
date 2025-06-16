@@ -4,21 +4,22 @@ from bson import ObjectId
 from fastapi import Depends, FastAPI, HTTPException, Query
 from .models import Movie, User, Comment
 
-from backend import MongoDBConfig, MongoDBConnection, settings
+from backend.database import MongoDBConfig, MongoDBClientHandler
+from config import config
 
 app = FastAPI()
 
 
 # Dependency to get the MongoDB connection
-async def get_mongo_connection() -> MongoDBConnection:
-    config = MongoDBConfig(
-        username=settings.USER,
-        password=settings.PASS,
-        host=settings.HOST,
+async def get_mongo_connection() -> MongoDBClientHandler:
+    db_config = MongoDBConfig(
+        username=config.DB_USER,
+        password=config.DB_PASS,
+        host=config.DB_HOST,
         tls="true",
         tlsAllowInvalidCertificates="true",
     )
-    mongo_connection = MongoDBConnection(config)
+    mongo_connection = MongoDBClientHandler(db_config)
     await mongo_connection.client
     return mongo_connection
 
@@ -34,7 +35,7 @@ async def read_movies(
     skip: int = Query(
         0, description="Number of records to skip"
     ),  # Default to skip 0 records
-    mongo: MongoDBConnection = Depends(get_mongo_connection),
+    mongo: MongoDBClientHandler = Depends(get_mongo_connection),
 ):
     filter_criteria = {}
 
@@ -69,7 +70,7 @@ async def read_movies(
     skip: int = Query(
         0, description="Number of records to skip"
     ),  # Default to skip 0 records
-    mongo: MongoDBConnection = Depends(get_mongo_connection),
+    mongo: MongoDBClientHandler = Depends(get_mongo_connection),
 ):
     filter_criteria = {}
 
@@ -93,7 +94,7 @@ async def read_movies(
 
 @app.post("/users/")
 async def create_user(
-    user: User, mongo_conn: MongoDBConnection = Depends(get_mongo_connection)
+    user: User, mongo_conn: MongoDBClientHandler = Depends(get_mongo_connection)
 ):
     try:
         # Check if the user with the same email already exists
@@ -134,7 +135,7 @@ async def read_users(
     skip: int = Query(
         0, description="Number of records to skip"
     ),  # Default to skip 0 records
-    mongo: MongoDBConnection = Depends(get_mongo_connection),
+    mongo: MongoDBClientHandler = Depends(get_mongo_connection),
 ):
     filter_criteria = {}
 

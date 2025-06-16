@@ -24,21 +24,17 @@ class MongoDBConfig:
         self._host = host
         self._options = kwargs
 
-    def build_mongo_atlas_uri(self) -> str:
+    def get_db_uri(self) -> str:
         """
         Builds a MongoDB Atlas URI based on the provided configuration.
 
         Returns:
             str: The MongoDB Atlas URI.
         """
-        # URL-encode the username and password
         encoded_username = quote(self._username)
         encoded_password = quote(self._password)
 
         base_uri = f"mongodb+srv://{encoded_username}:{encoded_password}@{self._host}/"
-
-        # if self.dbname:
-        #     base_uri += f"/{self.dbname}"
 
         if self._options:
             query_params = urlencode(self._options)
@@ -47,7 +43,7 @@ class MongoDBConfig:
         return base_uri
 
 
-class MongoDBConnection:
+class MongoDBClientHandler:
     def __init__(self, config: MongoDBConfig) -> None:
         """
         Initializes a MongoDB connection object.
@@ -55,9 +51,10 @@ class MongoDBConnection:
         Args:
             config (MongoDBConfig): The MongoDB configuration object.
         """
-        self._config = config
-        self._client: AsyncIOMotorClient = None
-        self._databases: list[str] = []
+        self._config: MongoDBConfig = config
+        from typing import Optional
+        self._client: Optional[AsyncIOMotorClient] = None
+        self._databases: Optional[list[str]] = None
 
     @property
     async def client(self) -> AsyncIOMotorClient:
@@ -70,16 +67,18 @@ class MongoDBConnection:
         if self._client is None:
             await self._initialize_client()
         return self._client
-
     @client.setter
-    def client(self, config: MongoDBConfig) -> None:
+    async def client(self, config: MongoDBConfig) -> None:
         """
-        Sets the client configuration and resets the connection.
+        Asynchronously sets the client configuration and resets the connection.
 
         Args:
             config (MongoDBConfig): The MongoDB configuration object.
         """
         self._config = config
+        if self._client:
+            self._client.close()
+        self._client = None
         self._client = None
 
     @property
@@ -90,7 +89,7 @@ class MongoDBConnection:
         Returns:
             list: A list of all database names in the server.
         """
-        if not self._databases:
+        if self._databases is None:
             await self._initialize_client()
             self._databases = await self.list_databases()
         return self._databases
@@ -103,13 +102,13 @@ class MongoDBConnection:
         """
         Asynchronously establishes a connection to a MongoDB server.
         """
-        uri = self._config.build_mongo_atlas_uri()
+        uri = self._config.get_db_uri()
         self._client = AsyncIOMotorClient(uri)
 
         try:
             await self.ping_server()
         except PyMongoError as e:
-            print(f"Failed to connect to MongoDB: {e}")
+            print(f"Failed to connect to MongoDB at host '{self._config._host}': {e}")
             self._client = None
 
     async def ping_server(self) -> None:
@@ -123,7 +122,7 @@ class MongoDBConnection:
             await self._client.admin.command("ping")
             # print("Ping successful...")
         except PyMongoError as e:
-            print(f"Ping failed: {e}")
+            print(f"Ping failed for server {self._config.get_db_uri()}: {e}")
 
     async def list_databases(self) -> list[str]:
         """
@@ -138,7 +137,7 @@ class MongoDBConnection:
         try:
             return await self._client.list_database_names()
         except PyMongoError as e:
-            print(f"Error listing databases: {e}")
+            print(f"Error listing databases on host '{self._config._host}': {e}")
             return []
 
     async def fetch_documents(
@@ -172,7 +171,7 @@ class MongoDBConnection:
             )
             return await cursor.to_list(length=None)
         except PyMongoError as e:
-            print(f"Error fetching documents: {e}")
+            print(f"Error fetching documents from database '{database_name}', collection '{collection_name}': {e}")
             return []
 
     async def insert_documents(
@@ -190,7 +189,7 @@ class MongoDBConnection:
             # else:
             result = await collection.insert_one(documents)
         except PyMongoError as e:
-            print(f"Error inserting documents: {e}")
+            print(f"Error inserting documents into database '{database_name}', collection '{collection_name}': {e}")
         finally:
             return result
 
@@ -204,21 +203,26 @@ class MongoDBConnection:
         if self._client is None:
             await self._initialize_client()
 
+        result = None
         try:
             collection: AsyncIOMotorCollection = self._client[database_name][
                 collection_name
             ]
             result = await collection.update_many(filter_query, update_query)
         except PyMongoError as e:
-            print(f"Error updating document: {e}")
+            print(f"Error updating document in database '{database_name}', collection '{collection_name}': {e}")
         finally:
             return result
-
     async def delete_documents(
-        self, database_name: str, collection_name: str, filter_query: dict
+        self,
+        database_name: str,
+        collection_name: str,
+        filter_query: dict,
     ):
+        result = None  # Initialize result to None
+
         if self._client is None:
-            self._initialize_client()
+            await self._initialize_client()
 
         try:
             collection: AsyncIOMotorCollection = self._client[database_name][
@@ -226,8 +230,9 @@ class MongoDBConnection:
             ]
             result = await collection.delete_many(filter_query)
         except PyMongoError as e:
-            print(f"Error deleting document: {e}")
+            print(f"Error deleting documents from database '{database_name}', collection '{collection_name}': {e}")
         finally:
+            return result
             return result
 
     async def __aenter__(self):
@@ -238,6 +243,12 @@ class MongoDBConnection:
         if self._client:
             self._client.close()
 
-    def __del__(self):
+    async def close(self):
+        """
+        Asynchronously closes the MongoDB client connection if the event loop is running.
+        """
         if self._client:
-            self._client.close()
+            try:
+                await self._client.close()
+            except RuntimeError as e:
+                print(f"Error closing MongoDB client: {e}")
