@@ -11,7 +11,8 @@ class Config:
     DB_USER: str = os.getenv("DB_USER")
     DB_PASS: str = os.getenv("DB_PASS")
     API_URL: str = os.getenv("API_URL")
-    PAGE_SIZE: int = int(os.getenv("MOVIE_PAGE_SIZE"))
+    MOVIE_LIST_PAGE_SIZE: int = 10
+    COMMENT_PAGE_SIZE: int = 10
 
 
 config = Config()

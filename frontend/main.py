@@ -5,7 +5,7 @@ from .components.movie_list import MovieList
 from .data import fetch_movies, process_movies, fetch_comments
 from .helper import build_movie_list
 from config import config
-from api.models import MovieQuery as MovieQuery
+from api.models import MovieQuery as MovieQuery, CommentQuery as CommentQuery
 
 hdrs = []
 hdrs.append(Link(rel="stylesheet", href="frontend/assets/styles.css"))
@@ -44,7 +44,7 @@ def details(index: int):
 
 @app.get("/comments/{movie_id}")
 def get_comments(movie_id: str):
-    raw_comments = fetch_comments(movie_id, 0)
+    raw_comments = fetch_comments(CommentQuery(movie_id=movie_id))
     return Ul(*raw_comments)
 
 
@@ -52,9 +52,13 @@ def get_comments(movie_id: str):
 def get_movies():
     global movies
 
-    page = len(movies) // config.PAGE_SIZE
+    page = len(movies) // config.MOVIE_LIST_PAGE_SIZE
     raw_movies = fetch_movies(
-        MovieQuery(type="movie", skip=page * config.PAGE_SIZE, limit=config.PAGE_SIZE)
+        MovieQuery(
+            type="movie",
+            skip=page * config.MOVIE_LIST_PAGE_SIZE,
+            limit=config.MOVIE_LIST_PAGE_SIZE,
+        )
     )
     new_movies = process_movies(raw_movies)
     movies += new_movies

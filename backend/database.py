@@ -213,6 +213,7 @@ class MongoDBClientHandler:
             print(f"Error updating document in database '{database_name}', collection '{collection_name}': {e}")
         finally:
             return result
+        
     async def delete_documents(
         self,
         database_name: str,
@@ -232,7 +233,6 @@ class MongoDBClientHandler:
         except PyMongoError as e:
             print(f"Error deleting documents from database '{database_name}', collection '{collection_name}': {e}")
         finally:
-            return result
             return result
 
     async def __aenter__(self):

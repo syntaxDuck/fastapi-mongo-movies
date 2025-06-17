@@ -29,12 +29,12 @@ class User(BaseModel):
         return cls(**data)
 
 class CommentQuery(BaseModel):
-    id: str = Query(None, alias="_id", description="Filter by comment ID")
-    name: str = Query(None, description="Filter by comment name")
-    email: EmailStr = Query(None, description="Filter by comment email")
-    movie_id: str = Query(None, alias="movie_id", description="Filter by movie ID")
-    limit: int = Query(10, description="Number of comments to return")
-    skip: int = Query(0, description="Number of records to skip")
+    id: Optional[str] = Query(None, alias="_id", description="Filter by comment ID")
+    name: Optional[str] = Query(None, description="Filter by comment name")
+    email: Optional[EmailStr] = Query(None, description="Filter by comment email")
+    movie_id: Optional[str] = Query(None, alias="movie_id", description="Filter by movie ID")
+    limit: Optional[int] = Query(10, description="Number of comments to return")
+    skip: Optional[int] = Query(0, description="Number of records to skip")
 
 class Comment(BaseModel):
     id: str = Field(..., alias="_id")

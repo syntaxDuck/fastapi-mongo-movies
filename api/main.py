@@ -9,7 +9,6 @@ from config import config
 
 app = FastAPI()
 
-
 async def get_mongo_connection() -> MongoDBClientHandler:
     db_config = MongoDBConfig(
         username=config.DB_USER,
@@ -55,26 +54,20 @@ async def read_movies(
 
 @app.get("/comments", response_model=list[Comment])
 async def read_comments(
-    movie_id: Optional[str] = Query(None, description="Filter by username"),
-    limit: int = Query(
-        10, description="Limit the number of results"
-    ),  # Default limit to 10
-    skip: int = Query(
-        0, description="Number of records to skip"
-    ),  # Default to skip 0 records
+    query: Annotated[CommentQuery, Depends(CommentQuery)],
     mongo: MongoDBClientHandler = Depends(get_mongo_connection),
 ):
     filter_criteria = {}
 
-    if movie_id:
-        filter_criteria["movie_id"] = ObjectId(f"{movie_id}")
+    if query.movie_id:
+        filter_criteria["movie_id"] = ObjectId(f"{query.movie_id}")
 
     comments = await mongo.fetch_documents(
         database_name="sample_mflix",
         collection_name="comments",
         filter_query=filter_criteria,
-        limit=limit,
-        skip=skip,
+        limit=query.limit,
+        skip=query.skip,
     )
 
     if not comments:
@@ -82,39 +75,6 @@ async def read_comments(
 
     # Return only the first 1000 movies
     return [Comment.from_mongo(comment) for comment in comments]
-
-
-@app.post("/users/")
-async def create_user(
-    user: User, mongo_conn: MongoDBClientHandler = Depends(get_mongo_connection)
-):
-    try:
-        # Check if the user with the same email already exists
-        existing_users = await mongo_conn.fetch_documents(
-            database_name="sample_mflix",
-            collection_name="users",
-            filter_query={"email": user.email},
-        )
-
-        if existing_users:
-            raise HTTPException(
-                status_code=400, detail="User with this email already exists"
-            )
-
-        # Insert the new user
-        result = await mongo_conn.insert_documents(
-            database_name="sample_mflix",
-            collection_name="users",
-            documents=user.model_dump(),
-        )
-        if result.inserted_id:
-            return {"message": f"User created successfully: {result.inserted_id}"}
-        else:
-            raise HTTPException(status_code=500, detail="Failed to insert user")
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/users", response_model=list[User])
 async def read_users(
@@ -151,6 +111,36 @@ async def read_users(
 
     return [User.from_mongo(user) for user in users]
 
+@app.post("/users/")
+async def create_user(
+    user: User, mongo_conn: MongoDBClientHandler = Depends(get_mongo_connection)
+):
+    try:
+        # Check if the user with the same email already exists
+        existing_users = await mongo_conn.fetch_documents(
+            database_name="sample_mflix",
+            collection_name="users",
+            filter_query={"email": user.email},
+        )
+
+        if existing_users:
+            raise HTTPException(
+                status_code=400, detail="User with this email already exists"
+            )
+
+        # Insert the new user
+        result = await mongo_conn.insert_documents(
+            database_name="sample_mflix",
+            collection_name="users",
+            documents=user.model_dump(),
+        )
+        if result.inserted_id:
+            return {"message": f"User created successfully: {result.inserted_id}"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to insert user")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # @app.put("/users/", response_model=dict)
 # async def update_user(

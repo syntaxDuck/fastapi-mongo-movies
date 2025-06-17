@@ -10,6 +10,7 @@ def build_movie_list(movies):
                 Img(
                     src=movie["poster"],
                 ),
+                Span(movie["title"], cls="movie-hover-text"),
                 cls="movie",
                 hx_get=f"/details/{count}",
                 hx_target=".content",

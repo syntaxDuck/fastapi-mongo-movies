@@ -2,16 +2,16 @@ import requests
 from config import config
 from api.models import MovieQuery, CommentQuery
 
+
 def fetch_movies(query: MovieQuery = MovieQuery()):
     url = f"{config.API_URL}/movies"
     data = requests.get(url, params=query.model_dump(exclude_none=True, by_alias=True))
     return data.json()
 
 
-def fetch_comments(movie_id: str, page: int, limit: int = config.PAGE_SIZE):
-    url = f"{config.API_URL}/comments?limit={limit}&skip={page*limit}"
-    params = {"movie_id": movie_id}
-    data = requests.get(url, params=params)
+def fetch_comments(query: CommentQuery = CommentQuery()):
+    url = f"{config.API_URL}/comments"
+    data = requests.get(url, params=query.model_dump(exclude_none=True, by_alias=True))
     return data.json()
 
 
