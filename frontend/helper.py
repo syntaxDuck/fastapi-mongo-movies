@@ -13,7 +13,7 @@ def build_movie_list(movies):
                 cls="movie",
                 hx_get=f"/details/{count}",
                 hx_target=".content",
-                hx_swap="outerHTML",
+                hx_swap="innerHTML",
                 hx_trigger="click",
             )
         )

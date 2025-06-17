@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import Optional, Annotated
 
 from bson import ObjectId
 from fastapi import Depends, FastAPI, HTTPException, Query
-from .models import Movie, User, Comment
+from .models import Movie, User, Comment, UserQuery, CommentQuery, MovieQuery
 
 from backend.database import MongoDBConfig, MongoDBClientHandler
 from config import config
@@ -10,7 +10,6 @@ from config import config
 app = FastAPI()
 
 
-# Dependency to get the MongoDB connection
 async def get_mongo_connection() -> MongoDBClientHandler:
     db_config = MongoDBConfig(
         username=config.DB_USER,
@@ -26,32 +25,24 @@ async def get_mongo_connection() -> MongoDBClientHandler:
 
 @app.get("/movies", response_model=list[Movie])
 async def read_movies(
-    _id: Optional[str] = Query(None, description="Filter by username"),
-    title: Optional[str] = Query(None, description="Filter by title"),
-    type: Optional[str] = Query(None, description="Filter by title"),
-    limit: int = Query(
-        10, description="Limit the number of results"
-    ),  # Default limit to 10
-    skip: int = Query(
-        0, description="Number of records to skip"
-    ),  # Default to skip 0 records
+    query: Annotated[MovieQuery, Depends(MovieQuery)],
     mongo: MongoDBClientHandler = Depends(get_mongo_connection),
 ):
     filter_criteria = {}
 
-    if _id:
-        filter_criteria["_id"] = ObjectId(f"{_id}")
-    if title:
-        filter_criteria["title"] = title
-    if type:
-        filter_criteria["type"] = type
+    if query.id is not None:
+        filter_criteria["_id"] = ObjectId(f"{query.id}")
+    if query.title is not None:
+        filter_criteria["title"] = query.title
+    if query.type is not None:
+        filter_criteria["type"] = query.type
 
     movies = await mongo.fetch_documents(
         database_name="sample_mflix",
         collection_name="movies",
         filter_query=filter_criteria,
-        limit=limit,
-        skip=skip,
+        limit=query.limit,
+        skip=query.skip,
     )
 
     if not movies:

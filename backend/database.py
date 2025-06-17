@@ -145,8 +145,8 @@ class MongoDBClientHandler:
         database_name: str,
         collection_name: str,
         filter_query: dict = None,
-        limit: int = None,
-        skip: int = None,
+        limit: int = 10,
+        skip: int = 0,
     ) -> list[dict]:
         """
         Asynchronously queries the specified collection and returns the documents.
@@ -167,7 +167,7 @@ class MongoDBClientHandler:
                 collection_name
             ]
             cursor: AsyncIOMotorCursor = (
-                collection.find(filter_query).limit(limit).skip(skip)
+                collection.find(filter_query).skip(skip).limit(limit)
             )
             return await cursor.to_list(length=None)
         except PyMongoError as e:
