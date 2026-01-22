@@ -1,4 +1,4 @@
-import requests
+# import requests
 from config import config
 from api.models import MovieQuery, CommentQuery
 
