@@ -1,0 +1,14 @@
+[project]
+name = "fastapi-mongo-movies-backend"
+version = "0.1.0"
+description = "Backend FastAPI application with MongoDB"
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic",
+    "fastapi",
+    "uvicorn",
+    "motor",
+    "pydantic-settings",
+    "python-dotenv",
+]
+

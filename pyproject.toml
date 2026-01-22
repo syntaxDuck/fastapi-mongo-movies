@@ -1,0 +1,15 @@
+[project]
+name = "fastapi-mongo-movies"
+version = "0.1.0"
+description = "FastAPI application with MongoDB for movie data"
+requires-python = ">=3.12"
+dependencies = [
+    "motor",
+    "python-dotenv",
+    "uvicorn",
+    "fastapi",
+    "pydantic[email]",
+    "python-fasthtml",
+    "requests",
+]
+
