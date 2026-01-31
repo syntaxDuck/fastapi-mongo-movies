@@ -1,4 +1,4 @@
-from fasthtml.common import *
+from fasthtml.common import Li, Img, Span
 
 
 def build_movie_list(movies):
@@ -8,7 +8,7 @@ def build_movie_list(movies):
         list_movies.append(
             Li(
                 Img(
-                    src=movie["poster"],
+                    src=movie.get("poster", "https://via.placeholder.com/150x200"),
                 ),
                 Span(movie["title"], cls="movie-hover-text"),
                 cls="movie",

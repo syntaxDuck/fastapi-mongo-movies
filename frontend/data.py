@@ -1,17 +1,24 @@
-# import requests
-from config import config
-from api.models import MovieQuery, CommentQuery
+import requests
+from app.core.config import settings
 
 
-def fetch_movies(query: MovieQuery = MovieQuery()):
-    url = f"{config.API_URL}/movies"
-    data = requests.get(url, params=query.model_dump(exclude_none=True, by_alias=True))
+def fetch_movies(query_params: dict | None = None):
+    """Fetch movies from the API."""
+    if query_params is None:
+        query_params = {}
+
+    url = f"{settings.API_URL}/movies"
+    data = requests.get(url, params=query_params)
     return data.json()
 
 
-def fetch_comments(query: CommentQuery = CommentQuery()):
-    url = f"{config.API_URL}/comments"
-    data = requests.get(url, params=query.model_dump(exclude_none=True, by_alias=True))
+def fetch_comments(query_params: dict | None = None):
+    """Fetch comments from the API."""
+    if query_params is None:
+        query_params = {}
+
+    url = f"{settings.API_URL}/comments"
+    data = requests.get(url, params=query_params)
     return data.json()
 
 

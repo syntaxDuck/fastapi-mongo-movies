@@ -1,5 +1,6 @@
-from fasthtml.common import *
+from fasthtml.common import Div, H1, P, Img, B, Hr
 from .ganeric import TomatoesCriticRating, TomatoesViewerRating, ImdbRating
+
 
 def MovieDetail(name, key, item):
     if key not in item or item[key] is None:
@@ -10,8 +11,9 @@ def MovieDetail(name, key, item):
 
     return (P(B(f"{name}:  "), ", ".join(item[key])),)
 
+
 def MovieDetailsHeader(movie):
-    data = f'{movie["year"]}・{movie["runtime"] // 60}h {movie["runtime"] % 60}m'
+    data = f"{movie['year']}・{movie['runtime'] // 60}h {movie['runtime'] % 60}m"
     return (
         Div(
             H1(movie["title"]),
@@ -44,13 +46,14 @@ def MovieDetailsBody(movie):
         cls="movie-details-body",
     )
 
+
 def MoviePlot(movie):
     if movie["fullplot"] is not None and len(movie["fullplot"]) > 0:
         plot = P(movie["fullplot"])
     else:
         plot = P(movie["plot"])
 
-    return Div( 
+    return Div(
         plot,
         cls="movie-details-plot",
     )

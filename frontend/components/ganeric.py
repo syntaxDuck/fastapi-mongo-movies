@@ -1,4 +1,4 @@
-from fasthtml.common import *
+from fasthtml.common import Nav, Ul, Li, Div, Img, B, P
 
 
 def NavBar():
