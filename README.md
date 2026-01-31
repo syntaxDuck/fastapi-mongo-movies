@@ -15,11 +15,17 @@ A FastAPI application with MongoDB for movie data management, featuring a multi-
 
 ```
 fastapi-mongo-movies/
-├── api/                 # FastAPI REST API endpoints
-├── backend/            # Database connection and business logic
+├── app/                 # 🏗️ Restructured clean architecture
+│   ├── api/            # FastAPI REST API endpoints
+│   ├── services/        # Business logic layer
+│   ├── repositories/    # Data access abstraction
+│   ├── models/          # Database entities
+│   ├── schemas/         # API request/response models
+│   ├── core/           # Configuration & database
+│   └── main.py         # Application entry point
 ├── frontend/           # FastHTML web interface
-├── config/             # Configuration management
-└── main.py            # Application entry point
+├── legacy/             # 📦 Original code structure (archived)
+└── main.py            # Service launcher
 ```
 
 ## Tech Stack
@@ -69,20 +75,25 @@ DB_HOST=your_mongodb_host
 
 ## Running the Application
 
-### Option 1: Run all services together
+### Option 1: Run all services together (Recommended)
 ```bash
 uv run python main.py
 ```
 
 This will start:
-- API service on port 8000
-- Frontend service on port 8080
+- 🚀 API service on port 8000 (new clean architecture)
+- 🌐 Frontend service on port 8080
 
 ### Option 2: Run services individually
 
-**API Service:**
+**New API Service (Restructured):**
 ```bash
-uv run uvicorn api.main:app --reload --port 8000
+uv run uvicorn app.main:app --reload --port 8000
+```
+
+**Legacy API Service (Deprecated):**
+```bash
+uv run uvicorn legacy.api.main:app --reload --port 8000
 ```
 
 **Frontend Service:**
@@ -92,9 +103,32 @@ uv run uvicorn frontend.main:app --reload --port 8080
 
 ## API Endpoints
 
-### Movies
-- `GET /movies` - List movies with filtering and pagination
+### Movies (New Architecture)
+- `GET /movies/` - List movies with filtering and pagination
+- `GET /movies/{movie_id}` - Get specific movie by ID
+- `GET /movies/type/{type}` - Get movies by type
+- `GET /movies/year/{year}` - Get movies by year
+- `GET /movies/genre/{genre}` - Get movies by genre
 - Query parameters: `id`, `title`, `type`, `limit`, `skip`
+
+### Users
+- `GET /users/` - List users with filtering
+- `POST /users/` - Create new user
+- `GET /users/{user_id}` - Get specific user by ID
+- `GET /users/email/{email}` - Get users by email
+- `GET /users/name/{name}` - Get users by name
+- Query parameters: `_id`, `name`, `email`, `limit`, `skip`
+
+### Comments
+- `GET /comments/` - List comments with filtering
+- `GET /comments/{comment_id}` - Get specific comment by ID
+- `GET /comments/movie/{movie_id}` - Get comments by movie
+- `GET /comments/email/{email}` - Get comments by email
+- `GET /comments/name/{name}` - Get comments by name
+- Query parameters: `movie_id`, `limit`, `skip`
+
+### Legacy API (Deprecated)
+- `GET /movies` - Old endpoint (still functional)
 
 ### Users
 - `GET /users` - List users with filtering
@@ -151,10 +185,40 @@ To add a new dependency:
 uv add <package-name>
 ```
 
-For backend-specific dependencies:
+### Logging
+
+The application includes comprehensive logging:
+
+#### Environment Variables
 ```bash
-cd backend
-uv add <package-name>
+# Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+export LOG_LEVEL=INFO
+
+# Enable/disable console logging
+export LOG_TO_CONSOLE=true
+
+# Enable/disable file logging  
+export LOG_TO_FILE=true
+
+# Log format (simple, detailed)
+export LOG_FORMAT=detailed
+```
+
+#### Log Files
+- `logs/app.log` - All application logs
+- `logs/errors.log` - Error and critical logs only
+
+#### Log Levels by Component
+- **app.core.database**: DEBUG (query details)
+- **app.repositories**: INFO
+- **app.services**: INFO  
+- **app.api**: INFO
+- **uvicorn.access**: WARNING
+
+#### Testing Logging
+```bash
+# Test logging configuration
+uv run python test_logging.py
 ```
 
 ### Running Tests
