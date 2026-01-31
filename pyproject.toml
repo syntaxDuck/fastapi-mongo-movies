@@ -14,3 +14,81 @@ dependencies = [
     "uvicorn>=0.40.0",
     "requests>=2.32.5",
 ]
+
+[tool.setuptools.packages.find]
+include = ["app*", "frontend*", "config*"]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4.3",
+    "pytest-asyncio>=0.21.1",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.25.2",
+    "respx>=0.20.2",
+    "mongomock>=4.1.2",
+    "pytest-mock>=3.12.0",
+    "faker>=20.1.0",
+    "factory-boy>=3.3.0",
+]
+
+# Test configuration for pytest coverage
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--cov=app",
+    "--cov=frontend",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests", 
+    "slow: Slow tests",
+    "movie: Movie related tests",
+    "user: User related tests",
+    "comment: Comment related tests",
+    "database: Database related tests",
+    "frontend: Frontend related tests",
+    "api: API related tests",
+    "backend: Backend related tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["app", "frontend"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+    "*/virtualenv/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"

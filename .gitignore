@@ -4,3 +4,6 @@
 **/.DS_Store
 .sesskey
 
+*coverage*
+*.egg-info
+run_*
