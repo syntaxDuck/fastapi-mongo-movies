@@ -17,7 +17,7 @@ class Settings(BaseSettings):
         default="http://localhost:8000", description="Base URL for API"
     )
     FRONTEND_URL: str = Field(
-        default="http://localhost:8080", description="Base URL for frontend"
+        default="http://localhost:3000", description="Base URL for frontend"
     )
 
     # Server settings
@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     FRONTEND_HOST: str = Field(
         default="0.0.0.0", description="Host to bind the frontend server"
     )
-    FRONTEND_PORT: int = Field(default=8080, description="Port for the frontend server")
+    FRONTEND_PORT: int = Field(default=3000, description="Port for the frontend server")
 
     # Application behavior
     DEBUG: bool = Field(default=False, description="Enable debug mode")
@@ -82,7 +82,11 @@ class Settings(BaseSettings):
 
     # CORS settings
     CORS_ORIGINS: list[str] = Field(
-        default=["http://localhost:8080", "http://localhost:8000"],
+        default=[
+            "http://localhost:8080",
+            "http://localhost:8000",
+            "http://localhost:3000",
+        ],
         description="Allowed CORS origins",
     )
     CORS_ALLOW_CREDENTIALS: bool = Field(
