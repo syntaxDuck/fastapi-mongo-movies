@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Movie } from '../types';
 import { movieService } from '../services/api';
-import './MovieList.css';
+import styles from '../styles/components/MovieList.module.css';
 
 interface MovieListProps {
   filter?: {
@@ -70,15 +70,15 @@ const MovieList: React.FC<MovieListProps> = ({ filter }) => {
   };
 
   const MovieCardSkeleton: React.FC = () => (
-    <div className="movie skeleton">
-      <div className="skeleton-poster"></div>
+    <div className={`${styles.movie} skeleton`}>
+      <div className={styles.skeletonPoster}></div>
     </div>
   );
 
   if (initialLoad && loading) {
     return (
-      <div className="movie-list-container">
-        <div className="movie-list">
+      <div className={styles.movieListContainer}>
+        <div className={styles.movieList}>
           {Array.from({ length: 6 }, (_, i) => (
             <MovieCardSkeleton key={`skeleton-${i}`} />
           ))}
@@ -88,32 +88,28 @@ const MovieList: React.FC<MovieListProps> = ({ filter }) => {
   }
 
   if (error) {
-    return <div className="error">Failed to load movies</div>;
-  }
-
-  if (error) {
-    return <div className="error">{error}</div>;
+    return <div className={styles.error}>{error}</div>;
   }
 
   return (
-    <div className="movie-list-container">
-      <div className="movie-list">
+    <div className={styles.movieListContainer}>
+      <div className={styles.movieList}>
         {movies.map((movie, index) => (
-          <div key={`${movie._id}-${index}`} className="movie">
-            <Link to={`/movie/${movie._id}`}>
+          <div key={`${movie._id}-${index}`} className={styles.movie}>
+            <Link to={`/movie/${movie._id}`} className={styles.movieLink}>
               <img
                 src={movie.poster}
                 alt={movie.title}
                 onError={handleImageError}
-                className="movie-poster"
+                className={styles.moviePoster}
                 loading="lazy"
               />
-              <div className="movie-hover-text">{movie.title}</div>
+              <div className={styles.movieHoverText}>{movie.title}</div>
               {movie.year && (
-                <div className="movie-year">{movie.year}</div>
+                <div className={styles.movieYear}>{movie.year}</div>
               )}
               {movie.imdb?.rating && (
-                <div className="movie-rating">⭐ {movie.imdb.rating}</div>
+                <div className={styles.movieRating}>⭐ {movie.imdb.rating}</div>
               )}
             </Link>
           </div>
@@ -121,11 +117,11 @@ const MovieList: React.FC<MovieListProps> = ({ filter }) => {
       </div>
       
       {hasMore && (
-        <div className="load-more-container">
+        <div className={styles.loadMoreContainer}>
           <button 
             onClick={loadMore} 
             disabled={loading}
-            className="load-more-btn"
+            className={styles.loadMoreBtn}
           >
             {loading ? 'Loading...' : 'Load More Movies ▷'}
           </button>
@@ -133,7 +129,7 @@ const MovieList: React.FC<MovieListProps> = ({ filter }) => {
       )}
       
       {!hasMore && movies.length > 0 && (
-        <div className="no-more">
+        <div className={styles.noMore}>
           <p>📽️ You've reached the end!</p>
           <p>No more movies to load</p>
         </div>

@@ -1,0 +1,45 @@
+/* Global Styles Index - Only global styles */
+
+/* Import global stylesheets in correct order */
+
+/* 1. Design System - CSS Custom Properties and Base Styles */
+@import './design-system.css';
+
+/* 2. Layout Components */
+@import './layout.css';
+
+/* 3. Utility Classes and Animations */
+@import './utilities.css';
+
+/* Global Styles Index - Only global styles */
+
+/* Import global stylesheets in correct order */
+
+/* 1. Design System - CSS Custom Properties and Base Styles */
+@import './design-system.css';
+
+/* 2. Layout Components */
+@import './layout.css';
+
+/* 3. Utility Classes and Animations */
+@import './utilities.css';
+
+/* 
+🎉 CSS MODULES MIGRATION COMPLETE! 🎉
+
+Component-specific styles are now handled via CSS Modules:
+- Rating → Rating.module.css
+- NavBar → NavBar.module.css  
+- MovieList → MovieList.module.css
+- MovieDetails → MovieDetails.module.css
+- Home → Home.module.css
+
+Benefits achieved:
+✅ Component isolation (no class conflicts)
+✅ Better tree-shaking (smaller bundles)
+✅ Explicit dependencies (clear what each component needs)
+✅ Production optimization (hashed class names)
+
+This file now only contains global/shared styles.
+Individual components import their own .module.css files.
+*/

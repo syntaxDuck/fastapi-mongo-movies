@@ -1,0 +1,60 @@
+/* Rating Component Styles - CSS Modules */
+
+.ratingInfo {
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--space-2);
+}
+
+.ratingInfo strong {
+  font-size: 1.1rem;
+  margin-bottom: var(--space-1);
+  color: var(--text-primary);
+}
+
+.ratingInfo p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.tomatoesCriticRating,
+.tomatoesViewerRating,
+.imdbRating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2) var(--space-4);
+    box-shadow: var(--shadow-md);
+    color: var(--text-primary);
+    transition: all var(--transition-normal);
+}
+
+.tomatoesCriticRating:hover,
+.tomatoesViewerRating:hover,
+.imdbRating:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    background: var(--bg-hover);
+}
+
+.imdbRating img {
+    max-width: 50%;
+    height: fit-content;
+    border-radius: var(--radius-md);
+}
+
+.tomatoesCriticRating img {
+    max-width: 40%;
+    height: fit-content;
+    border-radius: var(--radius-md);
+}
+
+.tomatoesViewerRating img {
+    max-width: 30%;
+    height: fit-content;
+    border-radius: var(--radius-md);
+}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import './NavBar.css';
+import styles from '../styles/components/NavBar.module.css';
 
 const NavBar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,32 +20,35 @@ const NavBar: React.FC = () => {
     setIsMenuOpen(false);
   };
 
+  const getNavLinkClassName = ({ isActive }: { isActive: boolean }) => 
+    `${styles.navLink} ${isActive ? styles.active : ''}`;
+
   return (
-    <nav className="nav-bar">
-      <div className="nav-container">
-        <div className="nav-brand">
-          <NavLink to="/" className="brand-link">
+    <nav className={styles.navBar}>
+      <div className={styles.navContainer}>
+        <div className={styles.navBrand}>
+          <NavLink to="/" className={styles.brandLink}>
             🎬 MovieDB
           </NavLink>
         </div>
 
-        <div className="nav-search">
-          <form onSubmit={handleSearch} className="search-form">
+        <div className={styles.navSearch}>
+          <form onSubmit={handleSearch} className={styles.searchForm}>
             <input
               type="text"
               placeholder="Search movies..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
+              className={styles.searchInput}
             />
-            <button type="submit" className="search-btn">
+            <button type="submit" className={styles.searchBtn}>
               🔍
             </button>
           </form>
         </div>
 
         <button
-          className={`nav-toggle ${isMenuOpen ? 'active' : ''}`}
+          className={`${styles.navToggle} ${isMenuOpen ? styles.active : ''}`}
           onClick={toggleMenu}
           aria-label="Toggle navigation menu"
         >
@@ -54,75 +57,75 @@ const NavBar: React.FC = () => {
           <span></span>
         </button>
 
-        <ul className={`nav-list ${isMenuOpen ? 'open' : ''}`}>
-          <li>
+        <ul className={`${styles.navList} ${isMenuOpen ? styles.open : ''}`}>
+          <li className={styles.navListItem}>
             <NavLink 
               to="/" 
-              className={({ isActive }) => isActive ? 'active' : ''}
+              className={getNavLinkClassName}
               onClick={closeMenu}
             >
               🏠 Home
             </NavLink>
           </li>
-          <li>
+          <li className={styles.navListItem}>
             <NavLink 
               to="/movies" 
-              className={({ isActive }) => isActive ? 'active' : ''}
+              className={getNavLinkClassName}
               onClick={closeMenu}
             >
               🎭 Movies
             </NavLink>
           </li>
-          <li>
+          <li className={styles.navListItem}>
             <NavLink 
               to="/genres" 
-              className={({ isActive }) => isActive ? 'active' : ''}
+              className={getNavLinkClassName}
               onClick={closeMenu}
             >
               🎨 Genres
             </NavLink>
           </li>
-          <li>
+          <li className={styles.navListItem}>
             <NavLink 
               to="/directors" 
-              className={({ isActive }) => isActive ? 'active' : ''}
+              className={getNavLinkClassName}
               onClick={closeMenu}
             >
               🎬 Directors
             </NavLink>
           </li>
-          <li>
+          <li className={styles.navListItem}>
             <NavLink 
               to="/top-rated" 
-              className={({ isActive }) => isActive ? 'active' : ''}
+              className={getNavLinkClassName}
               onClick={closeMenu}
             >
               ⭐ Top Rated
             </NavLink>
           </li>
-          <li>
+          <li className={styles.navListItem}>
             <NavLink 
               to="/recent" 
-              className={({ isActive }) => isActive ? 'active' : ''}
+              className={getNavLinkClassName}
               onClick={closeMenu}
             >
               🆕 Recent
             </NavLink>
           </li>
-          <li>
+          <li className={styles.navListItem}>
             <NavLink 
               to="/about" 
-              className={({ isActive }) => isActive ? 'active' : ''}
+              className={getNavLinkClassName}
               onClick={closeMenu}
             >
               ℹ️ About
             </NavLink>
           </li>
-          <li className="nav-divider"></li>
-          <li>
+          <li className={styles.navDivider}></li>
+          <li className={styles.navListItem}>
             <NavLink 
               to="/debug" 
-              className={({ isActive }) => isActive ? 'active' : ''}
+              className={getNavLinkClassName}
               onClick={closeMenu}
             >
               🐛 Debug

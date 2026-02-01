@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Movie } from '../types';
 import { movieService } from '../services/api';
 import { ImdbRating, TomatoesCriticRating, TomatoesViewerRating } from './Rating';
-import './MovieDetails.css';
+import styles from '../styles/components/MovieDetails.module.css';
 
 const MovieDetail: React.FC<{ name: string; key: string; item: any }> = ({ name, key: itemKey, item }) => {
   if (!item || item[itemKey] === undefined || item[itemKey] === null) {
@@ -20,9 +20,9 @@ const MovieDetailsHeader: React.FC<{ movie: Movie }> = ({ movie }) => {
   const data = `${movie.year}・${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m`;
   
   return (
-    <div className="movie-details-header">
+    <div className={styles.movieDetailsHeader}>
       <h1>{movie.title}</h1>
-      <div className="movie-details-meta">
+      <div className={styles.movieDetailsMeta}>
         <p>{data}</p>
       </div>
     </div>
@@ -39,14 +39,14 @@ const MovieDetailsBody: React.FC<{ movie: Movie }> = ({ movie }) => {
   };
 
   return (
-    <div className="movie-details-body">
+    <div className={styles.movieDetailsBody}>
       <img
         src={movie.poster}
         alt={movie.title}
         onError={handleImageError}
-        className="movie-details-poster"
+        className={styles.movieDetailsPoster}
       />
-      <div className="movie-details-info">
+      <div className={styles.movieDetailsInfo}>
         <MovieDetail name="Genres" key="genres" item={movie} />
         <hr />
         <MovieDetail name="Directors" key="directors" item={movie} />
@@ -57,7 +57,7 @@ const MovieDetailsBody: React.FC<{ movie: Movie }> = ({ movie }) => {
         <hr />
         <MovieDetail name="Countries" key="countries" item={movie} />
         <hr />
-        <div className="movie-details-ratings">
+        <div className={styles.movieDetailsRatings}>
           {imdb}
           {tomatoesCritic}
           {tomatoesViewer}
@@ -71,7 +71,7 @@ const MoviePlot: React.FC<{ movie: Movie }> = ({ movie }) => {
   const plotText = movie.fullplot && movie.fullplot.trim().length > 0 ? movie.fullplot : movie.plot;
   
   return (
-    <div className="movie-details-plot">
+    <div className={styles.movieDetailsPlot}>
       <p>{plotText}</p>
     </div>
   );
@@ -104,7 +104,15 @@ const MovieDetails: React.FC = () => {
   }, [movieId]);
 
   if (loading) {
-    return <div className="loading">Loading movie details...</div>;
+    return <div className={styles.loading}>Loading movie details...</div>;
+  }
+
+  if (error) {
+    return <div className={styles.error}>Failed to load movie details</div>;
+  }
+
+  if (!movie) {
+    return <div className={styles.error}>Movie not found</div>;
   }
 
   if (error) {
@@ -116,7 +124,7 @@ const MovieDetails: React.FC = () => {
   }
 
   return (
-    <div className="movie-details">
+    <div className={styles.movieDetails}>
       <MovieDetailsHeader movie={movie} />
       <MovieDetailsBody movie={movie} />
       <MoviePlot movie={movie} />

@@ -1,5 +1,5 @@
 import React from 'react';
-import './Rating.css';
+import styles from '../styles/components/Rating.module.css';
 
 interface RatingProps {
   rating: number;
@@ -17,7 +17,7 @@ export const Rating: React.FC<RatingProps> = ({
   altText 
 }) => {
   return (
-    <div className={styleClass}>
+    <div className={styles[styleClass]}>
       <img 
         src={source} 
         alt={altText}
@@ -26,7 +26,7 @@ export const Rating: React.FC<RatingProps> = ({
           e.currentTarget.style.display = 'none';
         }}
       />
-      <div className="rating-info">
+      <div className={styles.ratingInfo}>
         <strong>{rating.toFixed(1)} / 10</strong>
         <p>{reviewCount ? `Votes: ${reviewCount}` : 'No votes'}</p>
       </div>
@@ -41,7 +41,7 @@ export const TomatoesCriticRating: React.FC<{ tomatoes?: any }> = ({ tomatoes })
         rating={tomatoes.critic.rating}
         reviewCount={tomatoes.critic.numReviews}
         source="/assets/tomato.png"
-        styleClass="tomatoes-critic-rating"
+        styleClass="tomatoesCriticRating"
         altText="Rotten Tomatoes Critic Rating"
       />
     );
@@ -56,7 +56,7 @@ export const TomatoesViewerRating: React.FC<{ tomatoes?: any }> = ({ tomatoes })
         rating={tomatoes.viewer.rating}
         reviewCount={tomatoes.viewer.numReviews}
         source="/assets/popcorn.png"
-        styleClass="tomatoes-viewer-rating"
+        styleClass="tomatoesViewerRating"
         altText="Rotten Tomatoes Viewer Rating"
       />
     );
@@ -71,7 +71,7 @@ export const ImdbRating: React.FC<{ movie?: any }> = ({ movie }) => {
         rating={movie.imdb.rating}
         reviewCount={movie.imdb.votes}
         source="/assets/imdb.png"
-        styleClass="imdb-rating"
+        styleClass="imdbRating"
         altText="IMDb Rating"
       />
     );

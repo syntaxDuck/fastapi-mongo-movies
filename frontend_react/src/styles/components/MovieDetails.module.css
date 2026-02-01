@@ -1,4 +1,6 @@
-.movie-details {
+/* MovieDetails Component Styles - CSS Modules */
+
+.movieDetails {
     padding: var(--space-6);
     width: 100%;
     display: flex;
@@ -11,14 +13,14 @@
     animation: fadeInUp var(--transition-normal) ease-out;
 }
 
-.movie-details hr {
+.movieDetails hr {
     margin: var(--space-4) 0;
     border: none;
     border-top: 1px solid var(--border-primary);
     opacity: 0.6;
 }
 
-.movie-details-header {
+.movieDetailsHeader {
     display: flex;
     flex-direction: column;
     margin-bottom: var(--space-8);
@@ -26,12 +28,12 @@
 }
 
 @media (min-width: 768px) {
-    .movie-details-header {
+    .movieDetailsHeader {
         text-align: left;
     }
 }
 
-.movie-details-header h1 {
+.movieDetailsHeader h1 {
     margin: 0 0 var(--space-4) 0;
     font-size: 2.5rem;
     font-weight: 800;
@@ -41,12 +43,12 @@
 }
 
 @media (max-width: 768px) {
-    .movie-details-header h1 {
+    .movieDetailsHeader h1 {
         font-size: 2rem;
     }
 }
 
-.movie-details-meta {
+.movieDetailsMeta {
     color: var(--text-secondary);
     font-size: 1.125rem;
     font-weight: 500;
@@ -57,7 +59,7 @@
     border: 1px solid var(--border-primary);
 }
 
-.movie-details-body {
+.movieDetailsBody {
     display: flex;
     gap: var(--space-8);
     margin-bottom: var(--space-8);
@@ -65,19 +67,19 @@
 }
 
 @media (min-width: 768px) {
-    .movie-details-body {
+    .movieDetailsBody {
         flex-direction: row;
     }
 }
 
-.movie-details-body p {
+.movieDetailsBody p {
     margin: 0 0 var(--space-4) 0;
     color: var(--text-secondary);
     font-size: 1rem;
     line-height: 1.6;
 }
 
-.movie-details-poster {
+.movieDetailsPoster {
     width: 100%;
     max-width: 300px;
     border-radius: var(--radius-xl);
@@ -88,25 +90,25 @@
 }
 
 @media (min-width: 768px) {
-    .movie-details-poster {
+    .movieDetailsPoster {
         width: 40%;
         margin: 0;
         max-width: 400px;
     }
 }
 
-.movie-details-poster:hover {
+.movieDetailsPoster:hover {
     transform: scale(1.02);
 }
 
-.movie-details-info {
+.movieDetailsInfo {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
 }
 
-.movie-details-info strong {
+.movieDetailsInfo strong {
     color: var(--text-primary);
     min-width: 120px;
     display: inline-block;
@@ -117,7 +119,7 @@
     opacity: 0.8;
 }
 
-.movie-details-ratings {
+.movieDetailsRatings {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
@@ -128,14 +130,14 @@
 }
 
 @media (min-width: 640px) {
-    .movie-details-ratings {
+    .movieDetailsRatings {
         flex-direction: row;
         justify-content: space-around;
         align-items: center;
     }
 }
 
-.movie-details-plot {
+.movieDetailsPlot {
     flex-grow: 1;
     color: var(--text-secondary);
     font-size: 1.125rem;
@@ -148,7 +150,7 @@
     overflow: hidden;
 }
 
-.movie-details-plot::before {
+.movieDetailsPlot::before {
     content: '📖';
     position: absolute;
     top: var(--space-4);
@@ -190,8 +192,7 @@
   background: rgba(239, 68, 68, 0.05);
 }
 
-/* Tab-like sections for better organization */
-.movie-section {
+.movieSection {
     margin: var(--space-8) 0;
     padding: var(--space-6);
     background: var(--bg-secondary);
@@ -199,7 +200,7 @@
     border: 1px solid var(--border-primary);
 }
 
-.movie-section h3 {
+.movieSection h3 {
     margin: 0 0 var(--space-4) 0;
     color: var(--text-primary);
     font-size: 1.25rem;
@@ -211,28 +212,28 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .movie-details {
+    .movieDetails {
         padding: var(--space-4);
     }
     
-    .movie-details-header {
+    .movieDetailsHeader {
         text-align: center;
     }
     
-    .movie-details-header h1 {
+    .movieDetailsHeader h1 {
         font-size: 1.75rem;
     }
     
-    .movie-details-poster {
+    .movieDetailsPoster {
         max-width: 250px;
     }
     
-    .movie-details-ratings {
+    .movieDetailsRatings {
         flex-direction: column;
         gap: var(--space-3);
     }
     
-    .movie-details-info strong {
+    .movieDetailsInfo strong {
         min-width: 80px;
         font-size: 0.8rem;
     }
