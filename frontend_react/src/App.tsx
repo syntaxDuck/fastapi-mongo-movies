@@ -1,36 +1,46 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
-import NavBar from './components/NavBar';
-import MovieList from './components/MovieList';
-import MovieDetails from './components/MovieDetails';
-import ApiDebug from './components/ApiDebug';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  NavLink,
+} from "react-router-dom";
+import NavBar from "./components/NavBar";
+import MovieList from "./components/MovieList";
+import MovieDetails from "./components/MovieDetails";
+import ApiDebug from "./components/ApiDebug";
 
 // Import consolidated stylesheet
-import './styles/index.css';
+import "./styles/index.css";
 
 // Placeholder components for routes not yet implemented
-import HomeStyles from './styles/pages/Home.module.css';
+import HomeStyles from "./styles/pages/Home.module.css";
 
 const Home: React.FC = () => {
   return (
-    <div className="content fade-in">
+    <div className="fade-in">
       <div className={HomeStyles.heroSection}>
-        <h1 className={HomeStyles.heroTitle}>
-          🎬 Welcome to MovieDB
-        </h1>
+        <h1 className={HomeStyles.heroTitle}>🎬 Welcome to MovieDB</h1>
         <p className={HomeStyles.heroSubtitle}>
-          Explore our curated collection of movies from the MongoDB sample_mflix dataset
+          Explore our curated collection of movies from the MongoDB sample_mflix
+          dataset
         </p>
         <div className={HomeStyles.heroActions}>
-          <NavLink to="/movies" className={`${HomeStyles.btnPrimary} btn-hover-lift`}>
+          <NavLink
+            to="/movies"
+            className={`${HomeStyles.btnPrimary} btn-hover-lift`}
+          >
             Browse Movies
           </NavLink>
-          <NavLink to="/top-rated" className={`${HomeStyles.btnSecondary} btn-hover-lift`}>
+          <NavLink
+            to="/top-rated"
+            className={`${HomeStyles.btnSecondary} btn-hover-lift`}
+          >
             Top Rated
           </NavLink>
         </div>
       </div>
-      
+
       <div className={HomeStyles.featuresGrid}>
         <div className={`${HomeStyles.featureCard} card-hover`}>
           <div className={HomeStyles.featureIcon}>🎭</div>
@@ -53,57 +63,59 @@ const Home: React.FC = () => {
 };
 
 const Users: React.FC = () => (
-  <div className="content">
+  <div>
     <h1>Users</h1>
     <p>User management functionality coming soon...</p>
   </div>
 );
 
 const Comments: React.FC = () => (
-  <div className="content">
+  <div>
     <h1>Comments</h1>
     <p>Comments section coming soon...</p>
   </div>
 );
 
 const Genres: React.FC = () => (
-  <div className="content">
+  <div>
     <h1>Browse by Genre</h1>
     <MovieList />
   </div>
 );
 
 const Directors: React.FC = () => (
-  <div className="content">
+  <div>
     <h1>Browse by Director</h1>
     <p>Director browsing coming soon...</p>
   </div>
 );
 
 const TopRated: React.FC = () => (
-  <div className="content">
+  <div>
     <h1>Top Rated Movies</h1>
     <MovieList filter={{ minRating: 8 }} />
   </div>
 );
 
 const Recent: React.FC = () => (
-  <div className="content">
+  <div>
     <h1>Recent Movies</h1>
     <MovieList filter={{ minYear: 2020 }} />
   </div>
 );
 
 const About: React.FC = () => (
-  <div className="content">
+  <div>
     <h1>About</h1>
-    <p>This is a FastAPI MongoDB Movies application built with React frontend.</p>
+    <p>
+      This is a FastAPI MongoDB Movies application built with React frontend.
+    </p>
     <p>It demonstrates clean architecture with separation of concerns.</p>
   </div>
 );
 
 const Debug: React.FC = () => (
-  <div className="content">
+  <div>
     <ApiDebug />
   </div>
 );

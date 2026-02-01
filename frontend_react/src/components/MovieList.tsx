@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Movie } from '../types';
-import { movieService } from '../services/api';
-import styles from '../styles/components/MovieList.module.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { Movie } from "../types";
+import { movieService } from "../services/api";
+import styles from "../styles/components/MovieList.module.css";
 
 interface MovieListProps {
   filter?: {
@@ -14,6 +14,8 @@ interface MovieListProps {
   };
 }
 
+//TODO: Improve styleing 
+//BUG: Unable to load more movies 
 const MovieList: React.FC<MovieListProps> = ({ filter }) => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,35 +25,38 @@ const MovieList: React.FC<MovieListProps> = ({ filter }) => {
   const [initialLoad, setInitialLoad] = useState(true);
   const pageSize = 20;
 
-  const loadMovies = useCallback(async (pageNum: number, reset = false) => {
-    try {
-      setLoading(true);
-      const params = {
-        type: 'movie',
-        skip: pageNum * pageSize,
-        limit: pageSize,
-        ...filter
-      };
-      
-      const newMovies = await movieService.fetchMovies(params);
-      
-      if (reset) {
-        setMovies(newMovies);
-      } else {
-        setMovies(prev => [...prev, ...newMovies]);
+  const loadMovies = useCallback(
+    async (pageNum: number, reset = false) => {
+      try {
+        setLoading(true);
+        const params = {
+          type: "movie",
+          skip: pageNum * pageSize,
+          limit: pageSize,
+          ...filter,
+        };
+
+        const newMovies = await movieService.fetchMovies(params);
+
+        if (reset) {
+          setMovies(newMovies);
+        } else {
+          setMovies((prev) => [...prev, ...newMovies]);
+        }
+
+        setHasMore(newMovies.length === pageSize);
+        setError(null);
+        setInitialLoad(false);
+      } catch (err) {
+        setError("Failed to load movies");
+        console.error("Error loading movies:", err);
+        setInitialLoad(false);
+      } finally {
+        setLoading(false);
       }
-      
-      setHasMore(newMovies.length === pageSize);
-      setError(null);
-      setInitialLoad(false);
-    } catch (err) {
-      setError('Failed to load movies');
-      console.error('Error loading movies:', err);
-      setInitialLoad(false);
-    } finally {
-      setLoading(false);
-    }
-  }, [filter, pageSize]);
+    },
+    [filter, pageSize],
+  );
 
   useEffect(() => {
     setPage(0);
@@ -66,7 +71,8 @@ const MovieList: React.FC<MovieListProps> = ({ filter }) => {
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = 'https://thumbs.dreamstime.com/b/film-real-25021714.jpg';
+    e.currentTarget.src =
+      "https://thumbs.dreamstime.com/b/film-real-25021714.jpg";
   };
 
   const MovieCardSkeleton: React.FC = () => (
@@ -115,19 +121,19 @@ const MovieList: React.FC<MovieListProps> = ({ filter }) => {
           </div>
         ))}
       </div>
-      
+
       {hasMore && (
         <div className={styles.loadMoreContainer}>
-          <button 
-            onClick={loadMore} 
+          <button
+            onClick={loadMore}
             disabled={loading}
             className={styles.loadMoreBtn}
           >
-            {loading ? 'Loading...' : 'Load More Movies ▷'}
+            {loading ? "Loading..." : "Load More Movies ▷"}
           </button>
         </div>
       )}
-      
+
       {!hasMore && movies.length > 0 && (
         <div className={styles.noMore}>
           <p>📽️ You've reached the end!</p>

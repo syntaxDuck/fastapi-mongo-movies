@@ -1,24 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Movie } from '../types';
-import { movieService } from '../services/api';
-import { ImdbRating, TomatoesCriticRating, TomatoesViewerRating } from './Rating';
-import styles from '../styles/components/MovieDetails.module.css';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { Movie } from "../types";
+import { movieService } from "../services/api";
+import {
+  ImdbRating,
+  TomatoesCriticRating,
+  TomatoesViewerRating,
+} from "./Rating";
+import styles from "../styles/components/MovieDetails.module.css";
 
-const MovieDetail: React.FC<{ name: string; key: string; item: any }> = ({ name, key: itemKey, item }) => {
+const MovieDetail: React.FC<{ name: string; key: string; item: any }> = ({
+  name,
+  key: itemKey,
+  item,
+}) => {
   if (!item || item[itemKey] === undefined || item[itemKey] === null) {
-    return <p><strong>{name}:</strong> N/A</p>;
+    return (
+      <p>
+        <strong>{name}:</strong> N/A
+      </p>
+    );
   }
 
   const value = item[itemKey];
-  const displayValue = Array.isArray(value) ? value.join(', ') : value;
+  const displayValue = Array.isArray(value) ? value.join(", ") : value;
 
-  return <p><strong>{name}:</strong> {displayValue}</p>;
+  return (
+    <p>
+      <strong>{name}:</strong> {displayValue}
+    </p>
+  );
 };
 
 const MovieDetailsHeader: React.FC<{ movie: Movie }> = ({ movie }) => {
   const data = `${movie.year}・${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m`;
-  
+
   return (
     <div className={styles.movieDetailsHeader}>
       <h1>{movie.title}</h1>
@@ -35,7 +51,8 @@ const MovieDetailsBody: React.FC<{ movie: Movie }> = ({ movie }) => {
   const imdb = ImdbRating({ movie });
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src = 'https://thumbs.dreamstime.com/b/film-real-25021714.jpg';
+    e.currentTarget.src =
+      "https://thumbs.dreamstime.com/b/film-real-25021714.jpg";
   };
 
   return (
@@ -68,8 +85,11 @@ const MovieDetailsBody: React.FC<{ movie: Movie }> = ({ movie }) => {
 };
 
 const MoviePlot: React.FC<{ movie: Movie }> = ({ movie }) => {
-  const plotText = movie.fullplot && movie.fullplot.trim().length > 0 ? movie.fullplot : movie.plot;
-  
+  const plotText =
+    movie.fullplot && movie.fullplot.trim().length > 0
+      ? movie.fullplot
+      : movie.plot;
+
   return (
     <div className={styles.movieDetailsPlot}>
       <p>{plotText}</p>
@@ -86,15 +106,15 @@ const MovieDetails: React.FC = () => {
   useEffect(() => {
     const loadMovie = async () => {
       if (!movieId) return;
-      
+
       try {
         setLoading(true);
         const movieData = await movieService.getMovieById(movieId);
         setMovie(movieData);
         setError(null);
       } catch (err) {
-        setError('Failed to load movie details');
-        console.error('Error loading movie:', err);
+        setError("Failed to load movie details");
+        console.error("Error loading movie:", err);
       } finally {
         setLoading(false);
       }

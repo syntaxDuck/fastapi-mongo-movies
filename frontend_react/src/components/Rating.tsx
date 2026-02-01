@@ -1,5 +1,5 @@
-import React from 'react';
-import styles from '../styles/components/Rating.module.css';
+import React from "react";
+import styles from "../styles/components/Rating.module.css";
 
 interface RatingProps {
   rating: number;
@@ -9,33 +9,39 @@ interface RatingProps {
   altText: string;
 }
 
-export const Rating: React.FC<RatingProps> = ({ 
-  rating, 
-  reviewCount, 
-  source, 
-  styleClass, 
-  altText 
+export const Rating: React.FC<RatingProps> = ({
+  rating,
+  reviewCount,
+  source,
+  styleClass,
+  altText,
 }) => {
   return (
     <div className={styles[styleClass]}>
-      <img 
-        src={source} 
+      <img
+        src={source}
         alt={altText}
         onError={(e) => {
           // Handle broken images
-          e.currentTarget.style.display = 'none';
+          e.currentTarget.style.display = "none";
         }}
       />
       <div className={styles.ratingInfo}>
         <strong>{rating.toFixed(1)} / 10</strong>
-        <p>{reviewCount ? `Votes: ${reviewCount}` : 'No votes'}</p>
+        <p>{reviewCount ? `Votes: ${reviewCount}` : "No votes"}</p>
       </div>
     </div>
   );
 };
 
-export const TomatoesCriticRating: React.FC<{ tomatoes?: any }> = ({ tomatoes }) => {
-  if (tomatoes && tomatoes?.critic?.rating !== undefined && tomatoes?.critic !== null) {
+export const TomatoesCriticRating: React.FC<{ tomatoes?: any }> = ({
+  tomatoes,
+}) => {
+  if (
+    tomatoes &&
+    tomatoes?.critic?.rating !== undefined &&
+    tomatoes?.critic !== null
+  ) {
     return (
       <Rating
         rating={tomatoes.critic.rating}
@@ -49,8 +55,14 @@ export const TomatoesCriticRating: React.FC<{ tomatoes?: any }> = ({ tomatoes })
   return null;
 };
 
-export const TomatoesViewerRating: React.FC<{ tomatoes?: any }> = ({ tomatoes }) => {
-  if (tomatoes && tomatoes?.viewer?.rating !== undefined && tomatoes?.viewer !== null) {
+export const TomatoesViewerRating: React.FC<{ tomatoes?: any }> = ({
+  tomatoes,
+}) => {
+  if (
+    tomatoes &&
+    tomatoes?.viewer?.rating !== undefined &&
+    tomatoes?.viewer !== null
+  ) {
     return (
       <Rating
         rating={tomatoes.viewer.rating}

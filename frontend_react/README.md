@@ -20,11 +20,13 @@ This is the React frontend for the FastAPI MongoDB Movies application.
 ### Installation
 
 1. Navigate to the frontend_react directory:
+
    ```bash
    cd frontend_react
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
@@ -38,7 +40,7 @@ The app will be available at `http://localhost:3000`
 
 ### Configuration
 
-The React app is configured to proxy API requests to the FastAPI backend running on `http://localhost:8000`. 
+The React app is configured to proxy API requests to the FastAPI backend running on `http://localhost:8000`.
 
 You can override this by setting the `REACT_APP_API_URL` environment variable:
 

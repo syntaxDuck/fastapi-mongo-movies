@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import styles from '../styles/components/NavBar.module.css';
+import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
+import styles from "../styles/components/NavBar.module.css";
 
 const NavBar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -13,15 +13,15 @@ const NavBar: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement search functionality
-    console.log('Searching for:', searchQuery);
+    console.log("Searching for:", searchQuery);
   };
 
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
 
-  const getNavLinkClassName = ({ isActive }: { isActive: boolean }) => 
-    `${styles.navLink} ${isActive ? styles.active : ''}`;
+  const getNavLinkClassName = ({ isActive }: { isActive: boolean }) =>
+    `${styles.navLink} ${isActive ? styles.active : ""}`;
 
   return (
     <nav className={styles.navBar}>
@@ -48,7 +48,7 @@ const NavBar: React.FC = () => {
         </div>
 
         <button
-          className={`${styles.navToggle} ${isMenuOpen ? styles.active : ''}`}
+          className={`${styles.navToggle} ${isMenuOpen ? styles.active : ""}`}
           onClick={toggleMenu}
           aria-label="Toggle navigation menu"
         >
@@ -57,19 +57,15 @@ const NavBar: React.FC = () => {
           <span></span>
         </button>
 
-        <ul className={`${styles.navList} ${isMenuOpen ? styles.open : ''}`}>
+        <ul className={`${styles.navList} ${isMenuOpen ? styles.open : ""}`}>
           <li className={styles.navListItem}>
-            <NavLink 
-              to="/" 
-              className={getNavLinkClassName}
-              onClick={closeMenu}
-            >
+            <NavLink to="/" className={getNavLinkClassName} onClick={closeMenu}>
               🏠 Home
             </NavLink>
           </li>
           <li className={styles.navListItem}>
-            <NavLink 
-              to="/movies" 
+            <NavLink
+              to="/movies"
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
@@ -77,8 +73,8 @@ const NavBar: React.FC = () => {
             </NavLink>
           </li>
           <li className={styles.navListItem}>
-            <NavLink 
-              to="/genres" 
+            <NavLink
+              to="/genres"
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
@@ -86,8 +82,8 @@ const NavBar: React.FC = () => {
             </NavLink>
           </li>
           <li className={styles.navListItem}>
-            <NavLink 
-              to="/directors" 
+            <NavLink
+              to="/directors"
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
@@ -95,8 +91,8 @@ const NavBar: React.FC = () => {
             </NavLink>
           </li>
           <li className={styles.navListItem}>
-            <NavLink 
-              to="/top-rated" 
+            <NavLink
+              to="/top-rated"
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
@@ -104,8 +100,8 @@ const NavBar: React.FC = () => {
             </NavLink>
           </li>
           <li className={styles.navListItem}>
-            <NavLink 
-              to="/recent" 
+            <NavLink
+              to="/recent"
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
@@ -113,8 +109,8 @@ const NavBar: React.FC = () => {
             </NavLink>
           </li>
           <li className={styles.navListItem}>
-            <NavLink 
-              to="/about" 
+            <NavLink
+              to="/about"
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
@@ -123,8 +119,8 @@ const NavBar: React.FC = () => {
           </li>
           <li className={styles.navDivider}></li>
           <li className={styles.navListItem}>
-            <NavLink 
-              to="/debug" 
+            <NavLink
+              to="/debug"
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
