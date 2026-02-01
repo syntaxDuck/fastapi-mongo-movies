@@ -70,7 +70,6 @@ class MovieRepository(BaseRepository):
 
         limit = kwargs.get("limit", 10)
         skip = kwargs.get("skip", 0)
-        logger.info(filter_query)
         return await self.find_many(filter_query, limit, skip)
 
 

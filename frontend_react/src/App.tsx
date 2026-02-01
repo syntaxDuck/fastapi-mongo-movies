@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import MovieList from './components/MovieList';
 import MovieDetails from './components/MovieDetails';
@@ -8,10 +8,41 @@ import './App.css';
 
 // Placeholder components for routes not yet implemented
 const Home: React.FC = () => (
-  <div className="content">
-    <h1>Welcome to FastAPI Movies</h1>
-    <p>Explore our collection of movies from the MongoDB sample_mflix dataset.</p>
-    <p>Use the navigation above to browse movies by different categories.</p>
+  <div className="content fade-in">
+    <div className="hero-section">
+      <h1 className="hero-title">
+        🎬 Welcome to MovieDB
+      </h1>
+      <p className="hero-subtitle">
+        Explore our curated collection of movies from the MongoDB sample_mflix dataset
+      </p>
+      <div className="hero-actions">
+        <NavLink to="/movies" className="btn-primary btn-hover-lift">
+          Browse Movies
+        </NavLink>
+        <NavLink to="/top-rated" className="btn-secondary btn-hover-lift">
+          Top Rated
+        </NavLink>
+      </div>
+    </div>
+    
+    <div className="features-grid">
+      <div className="feature-card card-hover">
+        <div className="feature-icon">🎭</div>
+        <h3>Extensive Collection</h3>
+        <p>Discover thousands of movies across all genres and decades</p>
+      </div>
+      <div className="feature-card card-hover">
+        <div className="feature-icon">⭐</div>
+        <h3>Curated Ratings</h3>
+        <p>IMDb and Rotten Tomatoes ratings to help you choose</p>
+      </div>
+      <div className="feature-card card-hover">
+        <div className="feature-icon">🔍</div>
+        <h3>Smart Search</h3>
+        <p>Find exactly what you're looking for with powerful filters</p>
+      </div>
+    </div>
   </div>
 );
 
@@ -77,7 +108,7 @@ const App: React.FC = () => {
       <div className="app">
         <NavBar />
         <div className="view-port">
-          <div className="content">
+          <main className="content">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/movies" element={<MovieList />} />
@@ -91,7 +122,7 @@ const App: React.FC = () => {
               <Route path="/about" element={<About />} />
               <Route path="/debug" element={<Debug />} />
             </Routes>
-          </div>
+          </main>
         </div>
       </div>
     </Router>
