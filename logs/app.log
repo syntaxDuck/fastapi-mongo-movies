@@ -1,6 +1,0 @@
-2026-01-31 18:09:02 - root - INFO - Application logging initialized
-2026-01-31 18:09:02 - root - INFO - Application logging initialized
-2026-01-31 18:09:02 - app.api.main - INFO - Creating FastAPI application
-2026-01-31 18:09:02 - app.api.main - INFO - Including API routers
-2026-01-31 18:09:02 - app.api.main - INFO - FastAPI application created successfully
-2026-01-31 18:09:02 - app.main - INFO - FastAPI MongoDB Movies application ready
