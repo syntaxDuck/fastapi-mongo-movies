@@ -12,10 +12,14 @@ def main():
     api_proc = subprocess.Popen(
         ["uvicorn", "app.main:app", "--reload", "--port", "8000"]
     )
-    # Launch frontend service (unchanged)
-    frontend_proc = subprocess.Popen(
-        ["uvicorn", "frontend.main:app", "--reload", "--port", "8080"]
-    )
+
+    # # Launch fastHtml Fonrtend Service
+    # frontend_proc = subprocess.Popen(
+    #     ["uvicorn", "frontend_fastHtml.main:app", "--reload", "--port", "8080"]
+    # )
+
+    # Launch React Fonrtend Service
+    frontend_proc = subprocess.Popen(["npm", "--prefix", "frontend_react", "start"])
 
     try:
         print("🚀 Starting services...")

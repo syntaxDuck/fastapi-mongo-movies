@@ -49,7 +49,7 @@ class MovieResponse(BaseModel):
     title: str
     fullplot: Optional[str] = None
     countries: list[str]
-    released: datetime
+    released: Optional[datetime] = None
     directors: list[str]
     writers: Optional[list[str]] = None
     awards: dict
