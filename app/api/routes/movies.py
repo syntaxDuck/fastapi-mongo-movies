@@ -65,7 +65,55 @@ async def get_movies(
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@router.get("/type/{movie_type}", response_model=List[MovieResponse])
+@router.get("/genres")
+async def get_movie_genres(
+    movie_service: MovieService = Depends(get_movie_service),
+):
+    """Get movie genres."""
+    try:
+        genres = await movie_service.get_all_genres()
+        return genres
+
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/genres/{movie_genre}", response_model=List[MovieResponse])
+async def get_movies_by_genre(
+    movie_genre: str,
+    limit: int = Query(10, ge=1, le=100),
+    skip: int = Query(0, ge=0),
+    movie_service: MovieService = Depends(get_movie_service),
+):
+    """Get movies by genre."""
+    try:
+        movies = await movie_service.get_movies_by_genre(movie_genre, limit, skip)
+        return [MovieResponse.from_dict(movie) for movie in movies]
+
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/types")
+async def get_movie_types(
+    movie_service: MovieService = Depends(get_movie_service),
+):
+    """Get movie types."""
+    try:
+        genres = await movie_service.get_all_types()
+        return genres
+
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/types/{movie_type}", response_model=List[MovieResponse])
 async def get_movies_by_type(
     movie_type: str,
     limit: int = Query(10, ge=1, le=100),
@@ -93,24 +141,6 @@ async def get_movies_by_year(
     """Get movies by release year."""
     try:
         movies = await movie_service.get_movies_by_year(year, limit, skip)
-        return [MovieResponse.from_dict(movie) for movie in movies]
-
-    except NotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-
-@router.get("/genre/{genre}", response_model=List[MovieResponse])
-async def get_movies_by_genre(
-    genre: str,
-    limit: int = Query(10, ge=1, le=100),
-    skip: int = Query(0, ge=0),
-    movie_service: MovieService = Depends(get_movie_service),
-):
-    """Get movies by genre."""
-    try:
-        movies = await movie_service.get_movies_by_genre(genre, limit, skip)
         return [MovieResponse.from_dict(movie) for movie in movies]
 
     except NotFoundError as e:

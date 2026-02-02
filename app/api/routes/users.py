@@ -1,8 +1,8 @@
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from ...schemas.movie import UserResponse, UserQuery, UserCreate, MessageResponse
-from ...services.movie_service import UserService
-from ...repositories.movie_repository import UserRepository
+from ...services.user_service import UserService
+from ...repositories.user_repository import UserRepository
 from ...core.exceptions import NotFoundError, DuplicateResourceError
 
 router = APIRouter(prefix="/users", tags=["users"])

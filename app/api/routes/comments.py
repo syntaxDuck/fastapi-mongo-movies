@@ -1,8 +1,12 @@
+"""
+Comment Repository layer using context manager pattern.
+"""
+
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from ...schemas.movie import CommentResponse, CommentQuery
-from ...services.movie_service import CommentService
-from ...repositories.movie_repository import CommentRepository
+from ...services.comment_service import CommentService
+from ...repositories.comment_repository import CommentRepository
 from ...core.exceptions import NotFoundError
 
 router = APIRouter(prefix="/comments", tags=["comments"])
