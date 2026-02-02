@@ -1,5 +1,5 @@
 """
-Repository layer using context manager pattern.
+Movie Repository layer using context manager pattern.
 """
 
 from typing import Dict, Any, List, Optional
@@ -20,164 +20,81 @@ class MovieRepository(BaseRepository):
         self, entity_id: str, id_field: str = "_id", **kwargs
     ) -> Optional[Dict[str, Any]]:
         """Find a movie by its ID."""
-        return await super().find_by_id(entity_id, id_field, **kwargs)
+        logger.debug(
+            f"MovieRepository.find_by_id() called with entity_id={entity_id}, id_field={id_field}"
+        )
+        return await self.find_by_id(entity_id, id_field, **kwargs)
 
     async def find_by_title(self, title: str, **kwargs) -> List[Dict[str, Any]]:
         """Find movies by title (exact match)."""
+        logger.debug(f"MovieRepository.find_by_title() called with title={title}")
         filter_query = {"title": title}
         return await self.find_many(filter_query, **kwargs)
 
     async def find_by_type(self, movie_type: str, **kwargs) -> List[Dict[str, Any]]:
         """Find movies by type (e.g., 'movie', 'series')."""
+        logger.debug(
+            f"MovieRepository.find_by_type() called with movie_type={movie_type}"
+        )
         filter_query = {"type": movie_type}
         return await self.find_many(filter_query, **kwargs)
 
-    async def find_by_genre(
-        self, genre: str, limit: int = 10, skip: int = 0, **kwargs
-    ) -> List[Dict[str, Any]]:
+    async def find_by_genre(self, genre: str, **kwargs) -> List[Dict[str, Any]]:
         """Find movies by genre."""
+        logger.debug(
+            f"MovieRepository.find_by_genre() called with genre={genre}, kwargs={kwargs}"
+        )
         filter_query = {"genres": {"$in": [genre]}}
-        return await self.find_many(filter_query, limit, skip, **kwargs)
+        return await self.find_many(filter_query, **kwargs)
 
-    async def find_by_year(
-        self, year: int, limit: int = 10, skip: int = 0, **kwargs
-    ) -> List[Dict[str, Any]]:
+    async def find_by_year(self, year: int, **kwargs) -> List[Dict[str, Any]]:
         """Find movies by release year."""
+        logger.debug(
+            f"MovieRepository.find_by_year() called with year={year}, kwargs={kwargs}"
+        )
         filter_query = {"year": year}
-        return await self.find_many(filter_query, limit, skip, **kwargs)
+        return await self.find_many(filter_query, **kwargs)
 
     async def search_movies(self, **kwargs) -> List[Dict[str, Any]]:
         """Search movies with multiple filters."""
+        logger.debug(f"MovieRepository.search_movies() called with kwargs: {kwargs}")
         filter_query = {}
 
         if kwargs.get("movie_id", None):
             try:
                 filter_query["_id"] = ObjectId(kwargs["movie_id"])
-            except Exception:
-                pass
+                logger.debug(f"Added movie_id filter: {kwargs['movie_id']}")
+            except Exception as e:
+                logger.warning(
+                    f"Failed to convert movie_id to ObjectId: {kwargs.get('movie_id')}, error: {e}"
+                )
 
         if kwargs.get("title", None):
             filter_query["title"] = kwargs["title"]
+            logger.debug(f"Added title filter: {kwargs['title']}")
 
         if kwargs.get("movie_type", None):
             filter_query["type"] = kwargs["movie_type"]
+            logger.debug(f"Added movie_type filter: {kwargs['movie_type']}")
 
         if kwargs.get("genres", None):
             filter_query["genres"] = {"$in": kwargs["genres"]}
+            logger.debug(f"Added genres filter: {kwargs['genres']}")
 
         if kwargs.get("year", None):
             filter_query["year"] = kwargs["year"]
+            logger.debug(f"Added year filter: {kwargs['year']}")
 
         limit = kwargs.get("limit", 10)
         skip = kwargs.get("skip", 0)
-        return await self.find_many(filter_query, limit, skip)
+        logger.debug(
+            f"Final filter_query: {filter_query}, limit: {limit}, skip: {skip}"
+        )
+        return await self.find_many(filter_query, limit=limit, skip=skip)
 
-
-class UserRepository(BaseRepository):
-    """Repository for user data operations."""
-
-    def __init__(self) -> None:
-        super().__init__("sample_mflix", "users")
-
-    async def find_by_id(
-        self, entity_id: str, id_field: str = "_id"
-    ) -> Optional[Dict[str, Any]]:
-        """Find a user by their ID."""
-        return await super().find_by_id(entity_id, id_field)
-
-    async def find_by_email(self, email: str, **kwargs) -> List[Dict[str, Any]]:
-        """Find users by email."""
-        filter_query = {"email": email}
-        return await self.find_many(filter_query, **kwargs)
-
-    async def find_by_name(self, name: str, **kwargs) -> List[Dict[str, Any]]:
-        """Find users by name."""
-        filter_query = {"name": name}
-        return await self.find_many(filter_query, **kwargs)
-
-    async def email_exists(self, email: str) -> bool:
-        """Check if a user with given email exists."""
-        users = await self.find_by_email(email)
-        return len(users) > 0
-
-    async def search_users(self, **kwargs) -> List[Dict[str, Any]]:
-        """Search users with multiple filters."""
-        filter_query = {}
-
-        if "user_id" in kwargs:
-            try:
-                filter_query["_id"] = ObjectId(kwargs["user_id"])
-            except Exception:
-                pass
-
-        if "name" in kwargs:
-            filter_query["name"] = kwargs["name"]
-
-        if "email" in kwargs:
-            filter_query["email"] = kwargs["email"]
-
-        return await self.find_many(filter_query, **kwargs)
-
-
-class CommentRepository(BaseRepository):
-    """Repository for comment data operations."""
-
-    def __init__(self) -> None:
-        super().__init__("sample_mflix", "comments")
-
-    async def find_by_id(
-        self, entity_id: str, id_field: str = "_id", **kwargs
-    ) -> Optional[Dict[str, Any]]:
-        """Find a comment by its ID."""
-        return await super().find_by_id(entity_id, id_field, **kwargs)
-
-    async def find_by_movie_id(
-        self, movie_id: str, limit: int = 10, skip: int = 0, **kwargs
-    ) -> List[Dict[str, Any]]:
-        """Find comments by movie ID."""
-        limit = kwargs.get("limit", 10)
-        skip = kwargs.get("skip", 0)
-        try:
-            filter_query = {"movie_id": ObjectId(movie_id)}
-        except Exception:
-            return []
-
-        return await self.find_many(filter_query, limit, skip, **kwargs)
-
-    async def find_by_email(
-        self, email: str, limit: int = 10, skip: int = 0, **kwargs
-    ) -> List[Dict[str, Any]]:
-        """Find comments by email."""
-        filter_query = {"email": email}
-        return await self.find_many(filter_query, limit, skip, **kwargs)
-
-    async def find_by_name(
-        self, name: str, limit: int = 10, skip: int = 0, **kwargs
-    ) -> List[Dict[str, Any]]:
-        """Find comments by name."""
-        filter_query = {"name": name}
-        return await self.find_many(filter_query, limit, skip, **kwargs)
-
-    async def search_comments(self, **kwargs) -> List[Dict[str, Any]]:
-        """Search comments with multiple filters."""
-        filter_query = {}
-
-        if "comment_id" in kwargs:
-            try:
-                filter_query["_id"] = ObjectId(kwargs["comment_id"])
-            except Exception:
-                pass
-
-        if "movie_id" in kwargs:
-            try:
-                filter_query["movie_id"] = ObjectId(kwargs["movie_id"])
-            except Exception:
-                pass
-
-        if "name" in kwargs:
-            filter_query["name"] = kwargs["name"]
-
-        if "email" in kwargs:
-            filter_query["email"] = kwargs["email"]
-
-        return await self.find_many(filter_query, **kwargs)
+    async def get_all(self, field: str) -> List[str]:
+        """Get all unique values in a field in movies."""
+        logger.debug(f"MovieRepository.get_all() called - Getting all movie {field}")
+        values = await self.find_distinct(field)
+        logger.debug(f"MovieRepository.get_all() found {len(values)} {field}")
+        return values

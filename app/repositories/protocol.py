@@ -15,20 +15,14 @@ class RepositoryProtocol(Protocol):
     async def find_by_id(
         self, entity_id: str, id_field: str = "_id"
     ) -> Optional[Dict[str, Any]]: ...
-
     async def find_many(
-        self,
-        filter_query: Optional[Dict[str, Any]] = None,
-        limit: int = 10,
-        skip: int = 0,
+        self, filter_query: Optional[Dict[str, Any]] = None, **kwargs
     ) -> List[Dict[str, Any]]: ...
-
+    async def find_distinct(self, field: str) -> List[str]: ...
     async def create_one(self, document: Dict[str, Any]) -> Optional[str]: ...
-
     async def update_many(
         self, filter_query: Dict[str, Any], update_query: Dict[str, Any]
     ) -> Optional[int]: ...
-
     async def delete_many(self, filter_query: Dict[str, Any]) -> Optional[int]: ...
 
 
