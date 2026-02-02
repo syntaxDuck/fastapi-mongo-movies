@@ -64,6 +64,59 @@ export const movieService = {
     const data = await response.json();
     return processMovies([data])[0];
   },
+
+  async getMovieByGenre(genre: string, params?: {
+    type?: string;
+    skip?: number;
+    limit?: number;
+  }): Promise<Movie[]> {
+    const queryParams = new URLSearchParams();
+
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          queryParams.append(key, value.toString());
+        }
+      });
+    }
+
+    const response = await fetch(`${API_BASE_URL}/movies/genres/${genre}/?${queryParams.toString()}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API Error:", response.status, errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`,
+      );
+    }
+
+    const data = await response.json();
+    return processMovies(data);
+  },
+
+  async getMovieGenres(): Promise<Array<string>> {
+    const response = await fetch(`${API_BASE_URL}/movies/genres`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API Error:", response.status, errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`,
+      );
+    }
+
+    return response.json();
+  }
 };
 
 export const commentService = {

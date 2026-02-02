@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import MovieList from "./components/MovieList";
+import GenreList from "./components/GenreList";
 import MovieDetails from "./components/MovieDetails";
 import ApiDebug from "./components/ApiDebug";
 
@@ -79,7 +80,7 @@ const Comments: React.FC = () => (
 const Genres: React.FC = () => (
   <div>
     <h1>Browse by Genre</h1>
-    <MovieList />
+    <GenreList />
   </div>
 );
 
