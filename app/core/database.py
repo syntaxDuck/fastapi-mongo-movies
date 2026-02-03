@@ -17,20 +17,19 @@ class DatabaseConfig:
     """MongoDB configuration object."""
 
     def __init__(
-        self, username: str, password: str, host: str, app_name: str, **kwargs
+        self, username: str, password: str, host: str, db_name: str, **kwargs
     ) -> None:
         self._username = username
         self._password = password
         self._host = host
+        self._db_name = db_name
         self._options = kwargs
-        self._options["appName"] = app_name
+        self._options["appName"] = db_name
 
-    # mongodb+srv://kamcomer96code:<db_password>@cluster0.hbc7yul.mongodb.net/?appName=Cluster0
     def get_connection_uri(self) -> str:
         """Builds a MongoDB URI based on the provided configuration."""
         encoded_username = quote(str(self._username))
         encoded_password = quote(str(self._password))
-
         base_uri = f"mongodb+srv://{encoded_username}:{encoded_password}@{self._host}/"
         if self._options:
             query_params = urlencode(self._options)
@@ -53,7 +52,7 @@ class DatabaseManager:
                 username=settings.DB_USER,
                 password=settings.DB_PASS,
                 host=settings.DB_HOST,
-                app_name=settings.DB_APP_NAME,
+                db_name=settings.DB_NAME,
                 tls=settings.MONGODB_TLS,
                 tlsAllowInvalidCertificates=settings.MONGODB_TLS_ALLOW_INVALID_CERTS,
             )
@@ -128,4 +127,3 @@ async def get_database_client():
     except Exception as e:
         logger.error(f"Unexpected error getting database client: {e}")
         raise
-    # Note: Don't close the client - connection pool manages its lifetime

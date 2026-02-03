@@ -1,5 +1,6 @@
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import ValidationError
 from ...schemas.movie import MovieResponse, MovieQuery
 from ...services.movie_service import MovieService
 from ...repositories.movie_repository import MovieRepository
@@ -94,6 +95,9 @@ async def get_movies_by_genre(
 
     except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except ValidationError as e:
+        logger.error(f"Error validating Movie data: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
     except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")
 

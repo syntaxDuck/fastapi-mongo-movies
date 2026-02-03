@@ -23,7 +23,7 @@ class MovieRepository(BaseRepository):
         logger.debug(
             f"MovieRepository.find_by_id() called with entity_id={entity_id}, id_field={id_field}"
         )
-        return await self.find_by_id(entity_id, id_field, **kwargs)
+        return await super().find_by_id(entity_id, id_field, **kwargs)
 
     async def find_by_title(self, title: str, **kwargs) -> List[Dict[str, Any]]:
         """Find movies by title (exact match)."""
@@ -92,9 +92,9 @@ class MovieRepository(BaseRepository):
         )
         return await self.find_many(filter_query, limit=limit, skip=skip)
 
-    async def get_all(self, field: str) -> List[str]:
+    async def get_genres(self) -> List[str]:
         """Get all unique values in a field in movies."""
-        logger.debug(f"MovieRepository.get_all() called - Getting all movie {field}")
-        values = await self.find_distinct(field)
-        logger.debug(f"MovieRepository.get_all() found {len(values)} {field}")
+        logger.debug("MovieRepository.get_genres() called - Getting all movie genres")
+        values = await self.find_distinct("gerne")
+        logger.debug(f"MovieRepository.get_genres() found {len(values)} genres")
         return values

@@ -57,25 +57,32 @@ class BaseRepository:
                 return None
 
     async def find_many(
-        self, filter_query: Optional[Dict[str, Any]] = None, **kwargs
+        self,
+        filter_query: Optional[Dict[str, Any]] = None,
+        limit: Optional[int] = 10,
+        skip: Optional[int] = 0,
+        **kwargs,
     ) -> List[Dict[str, Any]]:
         """Find multiple documents matching filter using context manager."""
         if filter_query is None:
             filter_query = {}
 
-        logger.debug(
-            f"Finding {self.collection_name} with filter: {filter_query}, kwargs: {kwargs}"
-        )
+        # Handle parameter priority (kwargs can override defaults)
+        final_limit = limit if limit is not None else kwargs.get("limit", 10)
+        final_skip = skip if skip is not None else kwargs.get("skip", 0)
 
-        limit = kwargs.get("limit", None)
-        skip = kwargs.get("skip", None)
+        logger.debug(
+            f"Finding {self.collection_name} with filter: {filter_query}, limit: {final_limit}, skip: {final_skip}"
+        )
 
         async with get_database_client() as client:
             try:
                 collection = await self.get_collection(client)
-                cursor = collection.find(filter_query).skip(skip).limit(limit)
+                cursor = (
+                    collection.find(filter_query).skip(final_skip).limit(final_limit)
+                )
                 documents = await cursor.to_list(length=None)
-                logger.debug(f"Found {len(documents)} {self.collection_name} documents")
+                logger.info(f"Found {len(documents)} {self.collection_name} documents")
                 return documents
             except Exception as e:
                 logger.error(
@@ -83,16 +90,22 @@ class BaseRepository:
                 )
                 return []
 
-    async def find_distinct(self, field: str) -> List[str]:
+    async def find_distinct(
+        self, field: str, filter_query: Optional[Dict[str, Any]] = None
+    ) -> List[str]:
         """Get all distinct values of a field."""
+        if filter_query is None:
+            filter_query = {}
 
         logger.debug(f"Getting distinct {field}")
 
         async with get_database_client() as client:
             try:
                 collection = await self.get_collection(client)
-                distinct_values = await collection.distinct(field)
-                logger.debug(f"Found {len(distinct_values)} distinct {field}")
+                distinct_values = await collection.distinct(field, filter_query)
+                logger.info(
+                    f"Found {len(distinct_values)} distinct {field} values in {self.collection_name}"
+                )
                 return distinct_values
             except Exception as e:
                 logger.error(

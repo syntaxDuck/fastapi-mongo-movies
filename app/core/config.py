@@ -1,4 +1,3 @@
-from typing import Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -8,25 +7,25 @@ class Settings(BaseSettings):
 
     # Database settings
     DB_HOST: str = Field(default="", description="MongoDB host URL")
-    DB_APP_NAME: str = Field(default="", description="MongoDB database name")
+    DB_NAME: str = Field(default="", description="MongoDB database name")
     DB_USER: str = Field(default="", description="MongoDB username")
     DB_PASS: str = Field(default="", description="MongoDB password")
 
-    # Application settings
-    API_URL: str = Field(
-        default="http://localhost:8000", description="Base URL for API"
-    )
+    # Frontend settings
     FRONTEND_URL: str = Field(
         default="http://localhost:3000", description="Base URL for frontend"
     )
-
-    # Server settings
-    API_HOST: str = Field(default="0.0.0.0", description="Host to bind the API server")
-    API_PORT: int = Field(default=8000, description="Port for the API server")
     FRONTEND_HOST: str = Field(
         default="0.0.0.0", description="Host to bind the frontend server"
     )
     FRONTEND_PORT: int = Field(default=3000, description="Port for the frontend server")
+
+    # API settings
+    API_URL: str = Field(
+        default="http://localhost:8000", description="Base URL for API"
+    )
+    API_HOST: str = Field(default="0.0.0.0", description="Host to bind the API server")
+    API_PORT: int = Field(default=8000, description="Port for the API server")
 
     # Application behavior
     DEBUG: bool = Field(default=False, description="Enable debug mode")
@@ -35,6 +34,9 @@ class Settings(BaseSettings):
     )
 
     # Pagination settings
+    DEFAULT_LIST_PAGE_SIZE: int = Field(
+        default=10, ge=1, le=100, description="Number of movies per page"
+    )
     MOVIE_LIST_PAGE_SIZE: int = Field(
         default=10, ge=1, le=100, description="Number of movies per page"
     )
@@ -53,19 +55,10 @@ class Settings(BaseSettings):
         default="true", description="Allow invalid TLS certificates"
     )
     MONGODB_CONNECTION_TIMEOUT: int = Field(
-        default=30, ge=1, le=300, description="MongoDB connection timeout in seconds"
+        default=10, ge=1, le=30, description="MongoDB connection timeout in seconds"
     )
     MONGODB_MAX_POOL_SIZE: int = Field(
         default=10, ge=1, le=100, description="Maximum MongoDB connection pool size"
-    )
-
-    # Security settings
-    SECRET_KEY: Optional[str] = Field(
-        default=None, description="Secret key for JWT tokens"
-    )
-    ALGORITHM: str = Field(default="HS256", description="JWT algorithm")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
-        default=30, ge=1, le=1440, description="Access token expiration in minutes"
     )
 
     # Logging settings
@@ -96,18 +89,8 @@ class Settings(BaseSettings):
         default=["GET", "POST", "PUT", "DELETE"], description="Allowed CORS methods"
     )
 
-    # Performance settings
-    ENABLE_CACHING: bool = Field(default=False, description="Enable response caching")
-    CACHE_TTL: int = Field(
-        default=300, ge=1, le=3600, description="Cache time-to-live in seconds"
-    )
-
     # Feature flags
-    ENABLE_METRICS: bool = Field(
-        default=False, description="Enable application metrics"
-    )
     ENABLE_DOCS: bool = Field(default=True, description="Enable API documentation")
-    RATE_LIMITING: bool = Field(default=False, description="Enable rate limiting")
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -121,8 +104,8 @@ class Settings(BaseSettings):
     def database_url(self) -> str:
         """Construct MongoDB connection URL."""
         return (
-            f"mongodb+srv://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}"
-            f"/{self.DB_APP_NAME}?tls={self.MONGODB_TLS}"
+            f"mongodb+srv://{self.DB_USER}:*****@{self.DB_HOST}"
+            f"/?{self.DB_NAME}&tls={self.MONGODB_TLS}"
             f"&tlsAllowInvalidCertificates={self.MONGODB_TLS_ALLOW_INVALID_CERTS}"
         )
 

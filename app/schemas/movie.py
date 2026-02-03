@@ -39,24 +39,24 @@ class MovieResponse(BaseModel):
     """Response model for movie data."""
 
     id: str = Field(..., alias="_id")
-    plot: str
-    genres: list[str]
-    runtime: int
-    cast: list[str]
+    plot: Optional[str] = None
+    genres: Optional[list[str]] = None
+    runtime: Optional[int] = None
+    cast: Optional[list[str]] = None
     num_mflix_comments: Optional[int] = None
     poster: Optional[HttpUrl] = None
     title: str
     fullplot: Optional[str] = None
-    countries: list[str]
+    countries: Optional[list[str]] = None
     released: Optional[datetime] = None
-    directors: list[str]
+    directors: Optional[list[str]] = None
     writers: Optional[list[str]] = None
-    awards: dict
-    lastupdated: datetime
-    year: int
-    imdb: dict
-    type: str
-    tomatoes: dict
+    awards: Optional[dict] = None
+    lastupdated: Optional[datetime] = None
+    year: Optional[int] = None
+    imdb: Optional[dict] = None
+    type: Optional[str] = None
+    tomatoes: Optional[dict] = None
 
     @classmethod
     def from_dict(cls, data: dict) -> "MovieResponse":
