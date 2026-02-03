@@ -13,26 +13,50 @@ const GenreList: React.FC = () => {
   const loadGenres = useCallback(
     async (reset = false) => {
       try {
+
         setLoading(true);
-
-        const genres = await movieService.getMovieGenres();
-        var genreCovers: { genre: string, movie: Movie }[] = []
-        for (const genre of genres) {
+        const genre_types = await movieService.getMovieGenres();
+        const movies: Movie[] = [];
+        for (const genre of genre_types) {
           try {
-            const movie = await movieService.getMovieByGenre(genre, { limit: 1 })
-            console.log(movie)
-          }
-          catch {
-          }
+            const movie_batch: Movie[] = (await movieService.getMovieByGenre(genre, { limit: 5 }))
 
-          // genreCovers.push({ genre: genre, movie: movie[0] })
+            for (const movie of movie_batch) {
+              try {
+
+
+                const movie_exists = movies.some(item => {
+                  return item._id === movie._id
+                });
+
+                //TODO: Kind of a patch right now, should probably verify these poster links on the backend
+                const valid_poster = await new Promise((resolve) => {
+                  const img = new Image();
+                  img.onload = () => resolve(true); // Image loaded successfully
+                  img.onerror = () => resolve(false); // Image failed to load (404, invalid format, etc.)
+                  img.src = movie.poster;
+                });
+
+                if (!movie_exists && valid_poster)
+                  movies.push(movie);
+
+              } catch (e) {
+                continue
+              }
+            }
+          } catch { }
         }
 
+        const genres: { genre: string, movie: Movie }[] = genre_types.map((key, index) => {
+          return { genre: key, movie: movies[index] };
+        })
 
         if (reset) {
-          setGenres(genreCovers)
+          setGenres(prev =>
+            reset ? genres : [...prev, ...genres]
+          );
         } else {
-          setGenres((prev) => [...prev, ...genreCovers]);
+          setGenres((prev) => [...prev, ...genres]);
         }
 
         setError(null);
@@ -45,10 +69,8 @@ const GenreList: React.FC = () => {
         setLoading(false);
       }
     },
-    [],
+    []
   );
-
-
 
   useEffect(() => {
     setInitialLoad(true);
@@ -85,26 +107,26 @@ const GenreList: React.FC = () => {
   return (
     <div className={styles.movieListContainer}>
       <div className={styles.movieList}>
-        {/* {genres.map((genre, index) => ( */}
-        {/*   <div key={`${genre._id}-${index}`} className={styles.genre}> */}
-        {/*     <Link to={`/genre/${genre._id}`} className={styles.genreLink}> */}
-        {/*       <img */}
-        {/*         src={genre.poster} */}
-        {/*         alt={genre.title} */}
-        {/*         onError={handleImageError} */}
-        {/*         className={styles.genrePoster} */}
-        {/*         loading="lazy" */}
-        {/*       /> */}
-        {/*       <div className={styles.genreHoverText}>{genre.title}</div> */}
-        {/*       {genre.year && ( */}
-        {/*         <div className={styles.genreYear}>{genre.year}</div> */}
-        {/*       )} */}
-        {/*       {genre.imdb?.rating && ( */}
-        {/*         <div className={styles.genreRating}>⭐ {genre.imdb.rating}</div> */}
-        {/*       )} */}
-        {/*     </Link> */}
-        {/*   </div> */}
-        {/* ))} */}
+        {genres.map((genre, index) => (
+          <div key={`${genre.genre}-${index}`} className={styles.movie}>
+            <Link to={`/genre/${genre.genre}`} className={styles.movieLink}>
+              <img
+                src={genre.movie.poster}
+                alt={genre.movie.title}
+                onError={handleImageError}
+                className={styles.moviePoster}
+                loading="lazy"
+              />
+              <div className={styles.movieHoverText}>{genre.movie.title}</div>
+              {genre.movie.year && (
+                <div className={styles.movieYear}>{genre.movie.year}</div>
+              )}
+              {genre.movie.imdb?.rating && (
+                <div className={styles.movieRating}>⭐ {genre.movie.imdb?.rating}</div>
+              )}
+            </Link>
+          </div>
+        ))}
       </div>
     </div>
   );

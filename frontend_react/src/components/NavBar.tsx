@@ -10,9 +10,9 @@ const NavBar: React.FC = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  // TODO: Implement search functionality
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement search functionality
     console.log("Searching for:", searchQuery);
   };
 
