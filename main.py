@@ -1,41 +1,54 @@
 import subprocess
+import argparse
+import os
 
 
 def main():
     """Main entry point that launches both API and frontend services."""
-    # Create logs directory
-    import os
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-b", "--backend", action="store_true", help="Start backend service"
+    )
+    parser.add_argument(
+        "-f", "--frontend", action="store_true", help="Start frontend service"
+    )
+    args = parser.parse_args()
 
     os.makedirs("logs", exist_ok=True)
 
-    # Launch new restructured API service
-    api_proc = subprocess.Popen(
-        ["uvicorn", "app.main:app", "--reload", "--port", "8000"]
-    )
+    if not args.backend and not args.frontend:
+        args.backend = args.frontend = True
 
-    # # Launch fastHtml Fonrtend Service
-    # frontend_proc = subprocess.Popen(
-    #     ["uvicorn", "frontend_fastHtml.main:app", "--reload", "--port", "8080"]
-    # )
+    api_proc = None
+    if args.backend:
+        api_proc = subprocess.Popen(
+            ["uvicorn", "app.main:app", "--reload", "--port", "8000"]
+        )
 
-    # Launch React Fonrtend Service
-    frontend_proc = subprocess.Popen(["npm", "--prefix", "frontend_react", "start"])
+    frontend_proc = None
+    if args.frontend:
+        frontend_proc = subprocess.Popen(["npm", "--prefix", "frontend_react", "start"])
 
     try:
-        print("🚀 Starting services...")
-        print("📡 API service: http://localhost:8000")
-        print("🌐 Frontend service: http://localhost:8080")
-        print("📚 API Docs: http://localhost:8000/docs")
-        print("📝 Logs directory: ./logs/")
+        print("Starting services...")
+        print("API service: http://localhost:8000")
+        print("Frontend service: http://localhost:8080")
+        print("API Docs: http://localhost:8000/docs")
+        print("Logs directory: ./logs/")
         print("Press Ctrl+C to stop all services")
 
-        api_proc.wait()
-        frontend_proc.wait()
+        if api_proc:
+            api_proc.wait()
+
+        if frontend_proc:
+            frontend_proc.wait()
     except KeyboardInterrupt:
-        print("\n🛑 Stopping services...")
-        api_proc.terminate()
-        frontend_proc.terminate()
-        print("✅ All services stopped")
+        print("\nStopping services...")
+        if api_proc:
+            api_proc.terminate()
+        if frontend_proc:
+            frontend_proc.terminate()
+        print("All services stopped")
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["app*", "frontend*", "config*"]
+include = ["app*"]
 
 [project.optional-dependencies]
 test = [
