@@ -3,6 +3,8 @@ Movie Service layer for business logic using proper protocol-based dependency in
 """
 
 from typing import List, Optional, Dict, Any
+
+from app.schemas.movie import MovieResponse
 from ..repositories.protocol import MovieRepositoryProtocol
 from ..core.exceptions import NotFoundError
 from ..core.logging import get_logger
@@ -37,7 +39,7 @@ class MovieService:
         year: Optional[int] = None,
         limit: int = 10,
         skip: int = 0,
-    ) -> List[Dict[str, Any]]:
+    ) -> List[MovieResponse]:
         """Get movies with optional filtering."""
         logger.debug(
             f"Getting movies with filters: movie_id={movie_id}, title={title}, "
