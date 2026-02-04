@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, Field, HttpUrl
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator
 
 
 # Movie schemas
@@ -57,6 +57,15 @@ class MovieResponse(BaseModel):
     imdb: Optional[dict] = None
     type: Optional[str] = None
     tomatoes: Optional[dict] = None
+
+    @field_validator("year", mode="before")
+    @classmethod
+    def clean_year(cls, v):
+        if isinstance(v, str):
+            digits = "".join(filter(str.isdigit, v))
+            if digits:
+                return int(digits)
+        return v
 
     @classmethod
     def from_dict(cls, data: dict) -> "MovieResponse":
