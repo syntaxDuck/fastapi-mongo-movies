@@ -12,6 +12,7 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/movies", tags=["movies"])
 
 
+# TODO: Create utility endpoint that will comb through all movies in dataset and mark the ones with valid posters
 async def get_movie_repository() -> MovieRepository:
     """Dependency to get movie repository instance."""
     return MovieRepository()
@@ -56,7 +57,8 @@ async def get_movies(
         )
 
         logger.info(f"Successfully retrieved {len(movies)} movies")
-        return [MovieResponse.from_dict(movie) for movie in movies]
+        # return [MovieResponse.from_dict(movie) for movie in movies]
+        return movies
 
     except NotFoundError as e:
         logger.warning(f"Movies not found: {e}")
