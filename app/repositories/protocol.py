@@ -4,6 +4,8 @@ Repository protocol definitions for type safety and dependency injection.
 
 from typing import Protocol, Dict, Any, List, Optional, runtime_checkable
 
+from app.schemas.movie import MovieResponse
+
 
 @runtime_checkable
 class RepositoryProtocol(Protocol):
@@ -36,7 +38,7 @@ class RepositoryProtocol(Protocol):
 class MovieRepositoryProtocol(RepositoryProtocol, Protocol):
     """Protocol for movie-specific repository operations."""
 
-    async def search_movies(self, **kwargs) -> List[Dict[str, Any]]: ...
+    async def search_movies(self, **kwargs) -> List[MovieResponse]: ...
     async def find_by_type(self, movie_type: str, **kwargs) -> List[Dict[str, Any]]: ...
     async def find_by_year(self, year: int, **kwargs) -> List[Dict[str, Any]]: ...
     async def find_by_genre(self, genre: str, **kwargs) -> List[Dict[str, Any]]: ...

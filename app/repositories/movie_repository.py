@@ -6,10 +6,12 @@ from typing import Dict, Any, List, Optional
 from bson import ObjectId
 from .base import BaseRepository
 from app.core.logging import get_logger
+from app.schemas.movie import MovieResponse
 
 logger = get_logger(__name__)
 
 
+# TODO: Create helper method to keep track of faulty movie records
 class MovieRepository(BaseRepository):
     """Repository for movie data operations."""
 
@@ -55,7 +57,7 @@ class MovieRepository(BaseRepository):
         filter_query = {"year": year}
         return await self.find_many(filter_query, **kwargs)
 
-    async def search_movies(self, **kwargs) -> List[Dict[str, Any]]:
+    async def search_movies(self, **kwargs) -> List[MovieResponse]:
         """Search movies with multiple filters."""
         logger.debug(f"MovieRepository.search_movies() called with kwargs: {kwargs}")
         filter_query = {}
@@ -90,7 +92,8 @@ class MovieRepository(BaseRepository):
         logger.debug(
             f"Final filter_query: {filter_query}, limit: {limit}, skip: {skip}"
         )
-        return await self.find_many(filter_query, limit=limit, skip=skip)
+        movies = await self.find_many(filter_query, limit=limit, skip=skip)
+        return [MovieResponse.from_dict(movie) for movie in movies]
 
     async def get_genres(self) -> List[str]:
         """Get all unique values in a field in movies."""
