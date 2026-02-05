@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "../styles/components/Rating.module.css";
+import styles from "../../styles/components/movies/MovieRating.module.css";
 
 interface RatingProps {
   rating: number;

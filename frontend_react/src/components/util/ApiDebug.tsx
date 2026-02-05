@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { movieService } from "../services/api";
+import { movieService } from "../../services/api";
 
 const ApiDebug: React.FC = () => {
   const [logs, setLogs] = useState<string[]>([]);

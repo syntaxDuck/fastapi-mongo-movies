@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Movie } from "../types";
-import { movieService } from "../services/api";
+import { Movie } from "../../types";
+import { movieService } from "../../services/api";
 import {
   ImdbRating,
   TomatoesCriticRating,
   TomatoesViewerRating,
-} from "./Rating";
-import styles from "../styles/components/MovieDetails.module.css";
+} from "./MovieRating";
+import styles from "../../styles/components/movies/MovieDetails.module.css";
 
 const MovieDetail: React.FC<{ name: string; key: string; item: any }> = ({
   name,
@@ -97,7 +97,10 @@ const MoviePlot: React.FC<{ movie: Movie }> = ({ movie }) => {
   );
 };
 
-const MovieDetails: React.FC = () => {
+interface MovieDetailsProps {
+  id?: string
+}
+const MovieDetails: React.FC<MovieDetailsProps> = ({ id }) => {
   const { movieId } = useParams<{ movieId: string }>();
   const [movie, setMovie] = useState<Movie | null>(null);
   const [loading, setLoading] = useState(true);
@@ -109,7 +112,7 @@ const MovieDetails: React.FC = () => {
 
       try {
         setLoading(true);
-        const movieData = await movieService.getMovieById(movieId);
+        const movieData = await movieService.getMovieById((id ? id : movieId));
         setMovie(movieData);
         setError(null);
       } catch (err) {

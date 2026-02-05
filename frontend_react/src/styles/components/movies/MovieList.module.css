@@ -18,17 +18,18 @@
   margin-top: 0; /* No extra top margin since viewport already accounts for navbar */
 }
 
-/* @media (min-width: 1024px) { */
-/*   .movieListContainer { */
-/*     width: 320px; */
-/*     position: fixed; */
-/*     left: var(--space-6); */
-/*     top: calc(64px + var(--space-6)); */
-/*     height: calc(100vh - 64px - var(--space-6)); */
-/*     border-radius: var(--radius-xl); */
-/*     margin: 0; */
-/*   } */
-/* } */
+@media (min-width: 1024px) {
+  .movieListContainer {
+    width: 480px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    /* height: calc(100vh - 64px - var(--space-6)); */
+    border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+    margin: 0;
+  }
+}
 
 .movieList {
   margin: 0;
@@ -51,13 +52,13 @@
   }
 }
 
-/* Sidebar layout on desktop */
-/* @media (min-width: 1024px) { */
-/*   .movieList { */
-/*     grid-template-columns: 1fr; */
-/*     gap: var(--space-3); */
-/*   } */
-/* } */
+Sidebar layout on desktop
+@media (min-width: 1024px) {
+  .movieList {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+}
 
 .movie {
   background: var(--bg-card);

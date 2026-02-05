@@ -151,7 +151,7 @@
 }
 
 .movieDetailsPlot::before {
-  content: "📖";
+  content: "Read";
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
