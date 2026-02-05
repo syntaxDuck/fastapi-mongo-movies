@@ -340,17 +340,63 @@ The application uses the MongoDB sample_mflix dataset with the following collect
 
 This project is licensed under the MIT License.
 
+## Docker Deployment
+
+### Quick Start with Docker
+```bash
+# Copy environment template and configure
+cp .env.docker .env
+# Edit .env with your MongoDB credentials
+
+# Start all services
+./deploy.sh
+
+# Or use docker-compose directly
+docker-compose up -d
+
+# Production deployment
+./deploy.sh --prod
+```
+
+### Docker Commands
+```bash
+# Development environment
+./deploy.sh
+
+# Production environment  
+./deploy.sh --prod
+
+# Rebuild images
+./deploy.sh --build
+
+# Stop services
+./deploy.sh --down
+
+# View logs
+./deploy.sh --logs
+```
+
+### Docker Services
+- **Backend**: FastAPI on port 8000
+- **Frontend**: React on port 3000 (dev) / 80 (prod)
+- **Database**: MongoDB on port 27017
+- **Documentation**: See `DOCKER.md` for detailed guide
+
 ## Troubleshooting
 
 ### Common Issues
 
 1. **MongoDB Connection**: Ensure your MongoDB credentials are correct in `.env` file
-2. **Port Conflicts**: Make sure ports 8000 (API) and 3000 (frontend) are available
+2. **Port Conflicts**: Make sure ports 8000 and 3000 are available
 3. **Dependencies**: 
    - Backend: Run `uv sync` if you encounter missing package errors
    - Frontend: Run `npm install` in frontend directory
 4. **TypeScript Errors**: Check `frontend/src/types.ts` for proper type definitions
 5. **Build Failures**: Clear `node_modules` and `npm install` again
+6. **Docker Issues**: 
+   - Check Docker installation: `docker --version`
+   - Check Docker Compose: `docker-compose --version`
+   - Restart Docker service if needed
 
 ### Getting Help
 
@@ -358,12 +404,7 @@ This project is licensed under the MIT License.
 - **Frontend Dev Tools**: Use React Developer Tools for component inspection
 - **Network Issues**: Check browser console for API connection errors
 - **Database Issues**: Verify MongoDB connection strings and permissions
-
-### Development Tips
-
-- The backend runs on port 8000, frontend on port 3000
-- CORS is configured to allow frontend-backend communication
-- Use browser dev tools to inspect API requests and responses
 - Check logs in `logs/` directory for backend debugging
 - React hot reload provides instant frontend updates during development
+- **Docker Logs**: `./deploy.sh --logs` or `docker-compose logs -f`
 

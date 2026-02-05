@@ -1,0 +1,86 @@
+# Docker Compose for Development
+version: '3.8'
+
+services:
+  # Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: fastapi-movies-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_HOST=mongodb
+      - MONGODB_TLS=${MONGODB_TLS:-true}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_TO_CONSOLE=${LOG_TO_CONSOLE:-true}
+      - LOG_TO_FILE=${LOG_TO_FILE:-true}
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - mongodb
+    networks:
+      - movies-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../Dockerfile.frontend
+    container_name: fastapi-movies-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - movies-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MongoDB Service
+  mongodb:
+    image: mongo:7.0
+    container_name: fastapi-movies-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_PASS:-password}
+      - MONGO_INITDB_DATABASE=mflix
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - movies-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Networks
+networks:
+  movies-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  mongodb_data:
+    driver: local
