@@ -71,6 +71,14 @@ uv run python -m py_compile frontend/**/*.py
 
 ## Code Style Guidelines
 
+### Emoji Usage Policy
+- **STRICTLY PROHIBITED**: No emojis in Python source code, logging statements, or test files
+- **Logging**: Use text-based prefixes like "SUCCESS:", "ERROR:", "TEST:", "STATS:"
+- **Documentation**: Emojis may be used sparingly for visual clarity (max 1-2 per section)
+- **Frontend**: Emojis may be used sparingly in UI components (prefer text labels or proper icon libraries)
+- **CSS**: Avoid emoji in content properties; use text or remove decorative elements
+- **Priority**: Function over decoration - ensure code remains professional and accessible
+
 ### Import Organization
 ```python
 # Standard library imports first

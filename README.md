@@ -15,7 +15,7 @@ A FastAPI application with MongoDB for movie data management, featuring a multi-
 
 ```
 fastapi-mongo-movies/
-├── app/                 # 🏗️ Restructured clean architecture
+├── app/                 # Restructured clean architecture
 │   ├── api/            # FastAPI REST API endpoints
 │   ├── services/        # Business logic layer
 │   ├── repositories/    # Data access abstraction
@@ -24,7 +24,7 @@ fastapi-mongo-movies/
 │   ├── core/           # Configuration & database
 │   └── main.py         # Application entry point
 ├── frontend/           # FastHTML web interface
-├── legacy/             # 📦 Original code structure (archived)
+├── legacy/             # Original code structure (archived)
 └── main.py            # Service launcher
 ```
 
@@ -81,8 +81,8 @@ uv run python main.py
 ```
 
 This will start:
-- 🚀 API service on port 8000 (new clean architecture)
-- 🌐 Frontend service on port 8080
+- API service on port 8000 (new clean architecture)
+- Frontend service on port 8080
 
 ### Option 2: Run services individually
 
