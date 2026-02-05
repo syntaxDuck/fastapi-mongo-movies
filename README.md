@@ -1,41 +1,71 @@
 # FastAPI Mongo Movies
 
-A FastAPI application with MongoDB for movie data management, featuring a multi-service architecture with separate API, frontend, and backend components.
+A FastAPI application with MongoDB for movie data management, featuring a clean architecture with separate API and frontend components.
 
 ## Features
 
 - **Movie Catalog**: Browse and search movies from MongoDB sample_mflix database
 - **User Management**: Create and manage user accounts
 - **Comments System**: View and manage movie comments
-- **Multi-Service Architecture**: Separate API, frontend, and backend services
-- **FastHTML Frontend**: Modern web interface using Python-FastHTML
+- **Genre Browsing**: Explore movies by genre with interactive cards
+- **Search Functionality**: Full-text search across movie titles and descriptions
+- **Responsive Design**: Mobile-first design with desktop optimizations
+- **Clean Architecture**: Layered service-repository pattern with dependency injection
+- **React Frontend**: Modern web interface using React with TypeScript
 - **Async Operations**: Full async/await support for database operations
 
 ## Architecture
 
 ```
 fastapi-mongo-movies/
-├── app/                 # Restructured clean architecture
-│   ├── api/            # FastAPI REST API endpoints
-│   ├── services/        # Business logic layer
-│   ├── repositories/    # Data access abstraction
-│   ├── models/          # Database entities
-│   ├── schemas/         # API request/response models
-│   ├── core/           # Configuration & database
-│   └── main.py         # Application entry point
-├── frontend/           # FastHTML web interface
-├── legacy/             # Original code structure (archived)
-└── main.py            # Service launcher
+├── app/                          # Backend clean architecture
+│   ├── api/                       # FastAPI REST API endpoints
+│   │   └── routes/               # Route definitions
+│   ├── services/                   # Business logic layer
+│   ├── repositories/               # Data access abstraction
+│   │   └── protocol.py          # Repository interfaces
+│   ├── schemas/                   # API request/response models
+│   ├── core/                      # Configuration, database, exceptions
+│   └── main.py                   # Backend application entry point
+├── frontend/                      # React frontend application
+│   ├── public/                    # Static assets
+│   ├── src/                      # Source code
+│   │   ├── components/           # React components
+│   │   │   ├── genres/          # Genre-related components
+│   │   │   ├── movies/          # Movie-related components
+│   │   │   ├── util/            # Utility components
+│   │   │   └── views/           # Page view components
+│   │   ├── services/             # API service layer
+│   │   ├── styles/               # CSS modules and styling
+│   │   ├── types.ts              # TypeScript type definitions
+│   │   └── App.tsx              # Main application component
+│   ├── build/                    # Production build output
+│   └── package.json              # Frontend dependencies
+├── tests/                        # Test suites
+│   ├── backend/                  # Backend tests
+│   ├── frontend/                 # Frontend tests
+│   └── fixtures/                # Test data fixtures
+├── scripts/                      # Utility scripts
+├── logs/                         # Application logs
+└── main.py                      # Service launcher
 ```
 
 ## Tech Stack
 
-- **Backend**: FastAPI, Python 3.12+
+### Backend
+- **API Framework**: FastAPI with Python 3.12+
 - **Database**: MongoDB with Motor (async driver)
-- **Frontend**: Python-FastHTML
 - **Validation**: Pydantic with email support
 - **Environment**: Python-dotenv for configuration
-- **Server**: Uvicorn
+- **Server**: Uvicorn with hot reload
+
+### Frontend
+- **Framework**: React 18 with TypeScript
+- **Styling**: CSS Modules with custom design system
+- **Routing**: React Router DOM
+- **Build Tool**: Create React App
+- **State Management**: React hooks and context
+- **HTTP Client**: Fetch API with custom service layer
 
 ## Prerequisites
 
@@ -51,16 +81,21 @@ git clone <repository-url>
 cd fastapi-mongo-movies
 ```
 
-2. Install dependencies using uv:
+2. Install backend dependencies using uv:
 ```bash
 uv sync
 ```
 
-3. Install backend dependencies:
+3. Install frontend dependencies:
 ```bash
-cd backend
-uv sync
+cd frontend
+npm install
 cd ..
+```
+
+4. Install test dependencies (optional):
+```bash
+uv sync --group test
 ```
 
 ## Configuration
@@ -75,41 +110,51 @@ DB_HOST=your_mongodb_host
 
 ## Running the Application
 
-### Option 1: Run all services together (Recommended)
+### Option 1: Run both services together (Recommended)
 ```bash
+# Terminal 1 - Start backend
 uv run python main.py
-```
 
-This will start:
-- API service on port 8000 (new clean architecture)
-- Frontend service on port 8080
+# Terminal 2 - Start frontend  
+cd frontend && npm start
+```
 
 ### Option 2: Run services individually
 
-**New API Service (Restructured):**
+**Backend API Service:**
 ```bash
 uv run uvicorn app.main:app --reload --port 8000
 ```
 
-**Legacy API Service (Deprecated):**
+**Frontend Development Server:**
 ```bash
-uv run uvicorn legacy.api.main:app --reload --port 8000
+cd frontend
+npm start
 ```
 
-**Frontend Service:**
+**Production Build:**
 ```bash
-uv run uvicorn frontend.main:app --reload --port 8080
+cd frontend
+npm run build
 ```
+
+### Access Points
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs
+- **Frontend Application**: http://localhost:3000
+- **Frontend Production Build**: Serve `frontend/build/` directory
 
 ## API Endpoints
 
-### Movies (New Architecture)
-- `GET /movies/` - List movies with filtering and pagination
+### Movies
+- `GET /movies/` - List movies with filtering, search, and pagination
 - `GET /movies/{movie_id}` - Get specific movie by ID
-- `GET /movies/type/{type}` - Get movies by type
-- `GET /movies/year/{year}` - Get movies by year
-- `GET /movies/genre/{genre}` - Get movies by genre
-- Query parameters: `id`, `title`, `type`, `limit`, `skip`
+- `GET /movies/type/{movie_type}` - Get movies by type
+- `GET /movies/year/{year}` - Get movies by release year
+- `GET /movies/genres` - Get all available movie genres
+- `GET /movies/genres/{genre}` - Get movies by genre
+- `GET /movies/types` - Get all available movie types
+- Query parameters: `_id`, `title`, `search`, `type`, `limit`, `skip`, `include_invalid_posters`
 
 ### Users
 - `GET /users/` - List users with filtering
@@ -180,10 +225,36 @@ uv run uvicorn frontend.main:app --reload --port 8080
 
 ### Adding Dependencies
 
-To add a new dependency:
+**Backend Dependencies:**
 ```bash
 uv add <package-name>
 ```
+
+**Frontend Dependencies:**
+```bash
+cd frontend
+npm install <package-name>
+```
+
+### Frontend Development
+
+The React frontend uses a component-based architecture with:
+- **Feature-based organization**: Components grouped by functionality
+- **CSS Modules**: Scoped styling with design system variables
+- **TypeScript**: Full type safety throughout the application
+- **Responsive Design**: Mobile-first approach with desktop enhancements
+
+**Component Structure:**
+- `genres/`: Genre browsing and selection components
+- `movies/`: Movie display, lists, and details components  
+- `util/`: Reusable utility components
+- `views/`: Page-level view components
+
+**Styling:**
+- Design system with CSS custom properties
+- Component-scoped CSS modules
+- Responsive breakpoints and utilities
+- Dark theme with accessibility focus
 
 ### Logging
 
@@ -223,9 +294,30 @@ uv run python test_logging.py
 
 ### Running Tests
 
-If you have tests configured:
+**Backend Tests:**
 ```bash
+# Run all backend tests
 uv run pytest
+
+# Run tests by category
+uv run pytest -m unit
+uv run pytest -m integration
+uv run pytest -m api
+
+# Run with coverage
+uv run pytest --cov=app --cov-report=html
+```
+
+**Frontend Tests:**
+```bash
+cd frontend
+npm test
+```
+
+**Combined Tests:**
+```bash
+# Run both backend and frontend tests
+uv run pytest && cd frontend && npm test
 ```
 
 ## Database Schema
@@ -252,13 +344,26 @@ This project is licensed under the MIT License.
 
 ### Common Issues
 
-1. **MongoDB Connection**: Ensure your MongoDB credentials are correct in the `.env` file
-2. **Port Conflicts**: Make sure ports 8000 and 8080 are available
-3. **Dependencies**: Run `uv sync` if you encounter missing package errors
+1. **MongoDB Connection**: Ensure your MongoDB credentials are correct in `.env` file
+2. **Port Conflicts**: Make sure ports 8000 (API) and 3000 (frontend) are available
+3. **Dependencies**: 
+   - Backend: Run `uv sync` if you encounter missing package errors
+   - Frontend: Run `npm install` in frontend directory
+4. **TypeScript Errors**: Check `frontend/src/types.ts` for proper type definitions
+5. **Build Failures**: Clear `node_modules` and `npm install` again
 
 ### Getting Help
 
-- Check the API documentation at `http://localhost:8000/docs`
-- Verify MongoDB connection and credentials
-- Ensure all dependencies are installed with `uv sync`
+- **API Documentation**: http://localhost:8000/docs (when backend is running)
+- **Frontend Dev Tools**: Use React Developer Tools for component inspection
+- **Network Issues**: Check browser console for API connection errors
+- **Database Issues**: Verify MongoDB connection strings and permissions
+
+### Development Tips
+
+- The backend runs on port 8000, frontend on port 3000
+- CORS is configured to allow frontend-backend communication
+- Use browser dev tools to inspect API requests and responses
+- Check logs in `logs/` directory for backend debugging
+- React hot reload provides instant frontend updates during development
 

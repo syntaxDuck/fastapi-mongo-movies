@@ -6,9 +6,10 @@ This file contains development guidelines, commands, and conventions for agentic
 
 FastAPI MongoDB Movies is a clean architecture application with:
 - **Backend**: FastAPI with MongoDB (Motor async driver)
-- **Frontend**: Python-FastHTML
+- **Frontend**: React with TypeScript and CSS Modules
 - **Database**: MongoDB with sample_mflix dataset
 - **Architecture**: Layered service-repository pattern with dependency injection
+- **Styling**: Custom design system with CSS modules and responsive breakpoints
 
 ## Development Commands
 
@@ -23,19 +24,26 @@ uv sync --group test
 
 ### Running the Application
 ```bash
-# Run all services together (recommended)
+# Backend only
 uv run python main.py
+# OR: uv run uvicorn app.main:app --reload --port 8000
 
-# Run API service only
-uv run uvicorn app.main:app --reload --port 8000
+# Frontend only (React development server)
+cd frontend && npm start
 
-# Run frontend service only
-uv run uvicorn frontend.main:app --reload --port 8080
+# Both services (recommended)
+# Terminal 1: uv run python main.py
+# Terminal 2: cd frontend && npm start
+
+# Frontend production build
+cd frontend && npm run build
 ```
 
 ### Testing Commands
+
+#### Backend Tests
 ```bash
-# Run all tests with coverage
+# Run all backend tests with coverage
 uv run pytest
 
 # Run specific test file
@@ -46,19 +54,27 @@ uv run pytest -m unit
 uv run pytest -m integration
 uv run pytest -m api
 uv run pytest -m backend
-uv run pytest -m frontend
 
 # Run single test
 uv run pytest tests/test_services.py::TestMovieService::test_get_movie_by_id_success
 
-# Run tests with coverage for specific modules
-uv run pytest --cov=app --cov=frontend
-
-# Quick test without coverage
-uv run pytest -x -v
-
 # Generate coverage report
-uv run pytest --cov=app --cov=frontend --cov-report=html
+uv run pytest --cov=app --cov-report=html
+```
+
+#### Frontend Tests
+```bash
+# Run frontend tests from frontend directory
+cd frontend && npm test
+
+# Run with coverage
+cd frontend && npm run test:coverage
+```
+
+#### Combined Tests
+```bash
+# Run both backend and frontend tests
+uv run pytest && cd frontend && npm test
 ```
 
 ### Linting and Type Checking
@@ -281,30 +297,63 @@ async def some_function():
 - **app.api**: INFO
 - **uvicorn.access**: WARNING
 
-## Frontend Patterns (FastHTML)
+## Frontend Patterns (React + TypeScript)
 
 ### Component Structure
-```python
-def MovieComponent(movie_data):
-    """Reusable movie component."""
-    return Div(
-        H3(movie_data["title"]),
-        P(movie_data["plot"]),
-        cls="movie-card"
-    )
+```typescript
+interface MovieCardProps {
+  movie: Movie;
+  onSelect?: (movie: Movie) => void;
+}
+
+const MovieCard: React.FC<MovieCardProps> = ({ movie, onSelect }) => {
+  return (
+    <div className={styles.movieCard} onClick={() => onSelect?.(movie)}>
+      <img src={movie.poster} alt={movie.title} />
+      <h3>{movie.title}</h3>
+    </div>
+  );
+};
 ```
 
-### Route Handlers
-```python
-@rt
-def movie_details(movie_id: str):
-    """Movie details page."""
-    movie = fetch_movie(movie_id)
-    return MovieDetails(movie)
+### CSS Modules
+```typescript
+import styles from './MovieCard.module.css';
+
+// CSS is scoped to component
+// Uses design system CSS custom properties
+```
+
+### Route Structure
+```typescript
+// App.tsx routing with React Router
+<Routes>
+  <Route path="/" element={<Home />} />
+  <Route path="/movies" element={<MovieView />} />
+  <Route path="/movie/:movieId" element={<MovieDetails />} />
+  <Route path="/genres" element={<GenresView />} />
+</Routes>
+```
+
+### Service Layer Pattern
+```typescript
+// API service with TypeScript interfaces
+export const movieService = {
+  async fetchMovies(params?: MovieParams): Promise<Movie[]> {
+    const response = await fetch(`${API_BASE_URL}/movies/?${queryString}`);
+    return response.json();
+  },
+  
+  async getMovieById(movieId: string): Promise<Movie> {
+    const response = await fetch(`${API_BASE_URL}/movies/${movieId}`);
+    return response.json();
+  }
+};
 ```
 
 ## Important Notes
 
+### Backend
 1. **Always use async/await** for database operations
 2. **Validate inputs** in service layer before repository calls
 3. **Use proper exception handling** with custom exceptions
@@ -313,6 +362,16 @@ def movie_details(movie_id: str):
 6. **Follow the existing patterns** in the codebase
 7. **Document public methods** with docstrings
 8. **Use type hints** consistently throughout the codebase
+
+### Frontend
+9. **Use TypeScript interfaces** for all props and data structures
+10. **Follow CSS Modules pattern** with scoped styling
+11. **Use the design system variables** from `design-system.css`
+12. **Implement responsive design** with mobile-first approach
+13. **Handle loading and error states** in all components
+14. **Use proper accessibility** practices (ARIA labels, keyboard navigation)
+15. **Follow component organization** in feature-based directories
+16. **Use React hooks** for state management and side effects
 
 ## Environment Variables
 
