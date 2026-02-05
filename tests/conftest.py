@@ -7,12 +7,12 @@ import asyncio
 from unittest.mock import AsyncMock, MagicMock
 from mongomock import MongoClient
 
-from app.repositories.movie_repository import (
-    MovieRepository,
-    UserRepository,
-    CommentRepository,
-)
-from app.services.movie_service import MovieService, UserService, CommentService
+from app.repositories.movie_repository import MovieRepository
+from app.repositories.user_repository import UserRepository
+from app.repositories.comment_repository import CommentRepository
+from app.services.movie_service import MovieService
+from app.services.user_service import UserService
+from app.services.comment_service import CommentService
 
 
 @pytest.fixture

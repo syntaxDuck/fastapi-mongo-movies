@@ -52,6 +52,7 @@ class TestMovieService:
             year=None,
             limit=10,
             skip=0,
+            include_invalid_posters=False,
         )
 
     @pytest.mark.asyncio

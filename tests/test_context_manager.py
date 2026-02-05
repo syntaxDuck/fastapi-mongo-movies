@@ -3,13 +3,15 @@ Simple test of the new context manager approach.
 """
 
 import asyncio
+import pytest
 from app.core.database import get_database_client
 from app.repositories.movie_repository import MovieRepository
 
 
+@pytest.mark.asyncio
 async def test_context_manager():
     """Test the context manager approach."""
-    print("🧪 Testing context manager approach...")
+    print("TEST: Testing context manager approach...")
 
     try:
         # Test repository that uses context manager
@@ -17,20 +19,20 @@ async def test_context_manager():
 
         # This should work - each call creates its own connection
         async with get_database_client() as client:
-            print("✅ Database connection established")
+            print("SUCCESS: Database connection established")
             # You can now use client directly
             db = client["sample_mflix"]
             stats = await db.command("ping")
-            print(f"📊 Database stats: {stats}")
+            print(f"STATS: Database stats: {stats}")
 
-        print("✅ Connection closed automatically")
+        print("SUCCESS: Connection closed automatically")
 
         # Test repository method
         movies = await movie_repo.find_many(limit=5)
-        print(f"📽 Found {len(movies)} movies using repository")
+        print(f"Movies: Found {len(movies)} movies using repository")
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"ERROR: {e}")
 
 
 if __name__ == "__main__":

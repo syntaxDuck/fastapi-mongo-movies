@@ -146,7 +146,7 @@ class TestDataModuleExtended:
                 "name": "José García",
                 "email": "jose@example.com",
                 "movie_id": "movie456",
-                "text": "¡Excelente película! 👍",
+                "text": "¡Excelente película!",
                 "date": "2023-01-15T10:30:00Z",
             }
         ]
