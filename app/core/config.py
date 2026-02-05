@@ -105,7 +105,7 @@ class Settings(BaseSettings):
         """Construct MongoDB connection URL."""
         return (
             f"mongodb+srv://{self.DB_USER}:*****@{self.DB_HOST}"
-            f"/?{self.DB_NAME}&tls={self.MONGODB_TLS}"
+            f"/{self.DB_NAME}?tls={self.MONGODB_TLS}"
             f"&tlsAllowInvalidCertificates={self.MONGODB_TLS_ALLOW_INVALID_CERTS}"
         )
 

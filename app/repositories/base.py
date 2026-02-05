@@ -67,6 +67,8 @@ class BaseRepository:
         if filter_query is None:
             filter_query = {}
 
+        filter_query = self.convert_id(filter_query)
+
         # Handle parameter priority (kwargs can override defaults)
         final_limit = limit if limit is not None else kwargs.get("limit", 10)
         final_skip = skip if skip is not None else kwargs.get("skip", 0)
@@ -132,6 +134,29 @@ class BaseRepository:
                 logger.error(f"Error creating {self.collection_name} document: {e}")
                 return None
 
+    async def update_one(
+        self, filter_query: Dict[str, Any], update_query: Dict[str, Any]
+    ) -> Optional[int]:
+        """Update multiple documents using context manager."""
+        logger.debug(
+            f"Updating {self.collection_name} with filter: {filter_query}, update: {update_query}"
+        )
+
+        filter_query = self.convert_id(filter_query)
+
+        async with get_database_client() as client:
+            try:
+                collection = await self.get_collection(client)
+                result = await collection.update_one(filter_query, update_query)
+                matched_count = result.matched_count if result else 0
+                logger.info(f"Updated {matched_count} {self.collection_name} documents")
+                return matched_count
+            except Exception as e:
+                logger.error(
+                    f"Error updating {self.collection_name} with filter {filter_query}: {e}"
+                )
+                return None
+
     async def update_many(
         self, filter_query: Dict[str, Any], update_query: Dict[str, Any]
     ) -> Optional[int]:
@@ -169,3 +194,26 @@ class BaseRepository:
                     f"Error deleting {self.collection_name} with filter {filter_query}: {e}"
                 )
                 return None
+
+    @staticmethod
+    def convert_id(query: Dict[str, Any]):
+        id = None
+        if "id" in query:
+            id = query.pop("id", None)
+
+        if "_id" in query:
+            id = query["_id"]
+
+        if id and not isinstance(id, ObjectId):
+            try:
+                id = ObjectId(id)
+            except Exception as e:
+                id = id
+                logger.warning(
+                    f"Failed to convert movie_id to ObjectId: {id}, error: {e}"
+                )
+
+        if id:
+            query["_id"] = id
+
+        return query

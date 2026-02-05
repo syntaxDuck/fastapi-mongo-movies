@@ -1,10 +1,40 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator
+from typing import Any
+from bson import ObjectId
+from app.core.logging import get_logger
+
+logger = get_logger(__name__)
+
+
+class MongoQuery(BaseModel):
+    @staticmethod
+    def convert_id(query: dict[str, Any]):
+        id = None
+        if "id" in query:
+            id = query.pop("id", None)
+
+        if "_id" in query:
+            id = query["_id"]
+
+        if id and not isinstance(id, ObjectId):
+            try:
+                id = ObjectId(id)
+            except Exception as e:
+                id = id
+                logger.warning(
+                    f"Failed to convert movie_id to ObjectId: {id}, error: {e}"
+                )
+
+        if id:
+            query["_id"] = id
+
+        return query
 
 
 # Movie schemas
-class MovieQuery(BaseModel):
+class MovieQuery(MongoQuery, BaseModel):
     """Query parameters for movie endpoints."""
 
     id: Optional[str] = Field(None, alias="_id", description="Filter by movie ID")
@@ -31,6 +61,12 @@ class MovieQuery(BaseModel):
     )
     year: Optional[int] = Field(None, description="Filter by movie year")
     type: Optional[str] = Field(None, description="Filter by movie type")
+    search: Optional[str] = Field(
+        None, description="Search movies by text in title, plot, etc."
+    )
+    include_invalid_posters: Optional[bool] = Field(
+        False, description="Include movies with invalid posters"
+    )
     limit: Optional[int] = Field(10, description="Number of movies to return")
     skip: Optional[int] = Field(0, description="Number of records to skip")
 
@@ -57,6 +93,7 @@ class MovieResponse(BaseModel):
     imdb: Optional[dict] = None
     type: Optional[str] = None
     tomatoes: Optional[dict] = None
+    valid_poster: Optional[bool] = None
 
     @field_validator("year", mode="before")
     @classmethod

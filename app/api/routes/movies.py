@@ -35,6 +35,7 @@ async def get_movies(
 
     - **id**: Filter by movie ID
     - **title**: Filter by movie title (exact match)
+    - **search**: Search movies by text in title, plot, etc.
     - **type**: Filter by movie type (e.g., 'movie', 'series')
     - **genres**: Filter by movie genres
     - **year**: Filter by release year
@@ -46,18 +47,27 @@ async def get_movies(
     )
 
     try:
-        movies = await movie_service.get_movies(
-            movie_id=query.id,
-            title=query.title,
-            movie_type=query.type,
-            genres=query.genres,
-            year=query.year,
-            limit=query.limit or 10,
-            skip=query.skip or 0,
-        )
+        # If search parameter is provided, use text search
+        if query.search:
+            movies = await movie_service.search_movies_by_text(
+                search_text=query.search,
+                limit=query.limit or 10,
+                skip=query.skip or 0,
+                include_invalid_posters=query.include_invalid_posters or False,
+            )
+        else:
+            movies = await movie_service.get_movies(
+                movie_id=query.id,
+                title=query.title,
+                movie_type=query.type,
+                genres=query.genres,
+                year=query.year,
+                limit=query.limit or 10,
+                skip=query.skip or 0,
+                include_invalid_posters=query.include_invalid_posters or False,
+            )
 
         logger.info(f"Successfully retrieved {len(movies)} movies")
-        # return [MovieResponse.from_dict(movie) for movie in movies]
         return movies
 
     except NotFoundError as e:
@@ -88,11 +98,16 @@ async def get_movies_by_genre(
     movie_genre: str,
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
+    include_invalid_posters: bool = Query(
+        False, description="Include movies with invalid posters"
+    ),
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get movies by genre."""
     try:
-        movies = await movie_service.get_movies_by_genre(movie_genre, limit, skip)
+        movies = await movie_service.get_movies_by_genre(
+            movie_genre, limit, skip, include_invalid_posters
+        )
         return [MovieResponse.from_dict(movie) for movie in movies]
 
     except NotFoundError as e:
@@ -124,11 +139,16 @@ async def get_movies_by_type(
     movie_type: str,
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
+    include_invalid_posters: bool = Query(
+        False, description="Include movies with invalid posters"
+    ),
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get movies by type."""
     try:
-        movies = await movie_service.get_movies_by_type(movie_type, limit, skip)
+        movies = await movie_service.get_movies_by_type(
+            movie_type, limit, skip, include_invalid_posters
+        )
         return [MovieResponse.from_dict(movie) for movie in movies]
 
     except NotFoundError as e:
@@ -142,11 +162,16 @@ async def get_movies_by_year(
     year: int,
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
+    include_invalid_posters: bool = Query(
+        False, description="Include movies with invalid posters"
+    ),
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get movies by release year."""
     try:
-        movies = await movie_service.get_movies_by_year(year, limit, skip)
+        movies = await movie_service.get_movies_by_year(
+            year, limit, skip, include_invalid_posters
+        )
         return [MovieResponse.from_dict(movie) for movie in movies]
 
     except NotFoundError as e:

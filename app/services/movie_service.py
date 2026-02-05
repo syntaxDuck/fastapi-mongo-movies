@@ -39,11 +39,13 @@ class MovieService:
         year: Optional[int] = None,
         limit: int = 10,
         skip: int = 0,
+        include_invalid_posters: bool = False,
     ) -> List[MovieResponse]:
         """Get movies with optional filtering."""
         logger.debug(
             f"Getting movies with filters: movie_id={movie_id}, title={title}, "
-            f"type={movie_type}, genres={genres}, year={year}, limit={limit}, skip={skip}"
+            f"type={movie_type}, genres={genres}, year={year}, limit={limit}, skip={skip}, "
+            f"include_invalid_posters={include_invalid_posters}"
         )
 
         movies = await self.movie_repository.search_movies(
@@ -54,6 +56,7 @@ class MovieService:
             year=year,
             limit=limit,
             skip=skip,
+            include_invalid_posters=include_invalid_posters,
         )
 
         if not movies:
@@ -64,15 +67,22 @@ class MovieService:
         return movies
 
     async def get_movies_by_type(
-        self, movie_type: str, limit: int = 10, skip: int = 0
+        self,
+        movie_type: str,
+        limit: int = 10,
+        skip: int = 0,
+        include_invalid_posters: bool = False,
     ) -> List[Dict[str, Any]]:
         """Get movies by type."""
         logger.debug(
-            f"Getting movies by type: {movie_type}, limit={limit}, skip={skip}"
+            f"Getting movies by type: {movie_type}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
         )
 
         movies = await self.movie_repository.find_by_type(
-            movie_type, limit=limit, skip=skip
+            movie_type,
+            limit=limit,
+            skip=skip,
+            include_invalid_posters=include_invalid_posters,
         )
         if not movies:
             logger.info(f"No movies found of type: {movie_type}")
@@ -82,12 +92,23 @@ class MovieService:
         return movies
 
     async def get_movies_by_year(
-        self, year: int, limit: int = 10, skip: int = 0
+        self,
+        year: int,
+        limit: int = 10,
+        skip: int = 0,
+        include_invalid_posters: bool = False,
     ) -> List[Dict[str, Any]]:
         """Get movies by year."""
-        logger.debug(f"Getting movies by year: {year}, limit={limit}, skip={skip}")
+        logger.debug(
+            f"Getting movies by year: {year}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+        )
 
-        movies = await self.movie_repository.find_by_year(year, limit=limit, skip=skip)
+        movies = await self.movie_repository.find_by_year(
+            year,
+            limit=limit,
+            skip=skip,
+            include_invalid_posters=include_invalid_posters,
+        )
         if not movies:
             logger.info(f"No movies found for year: {year}")
             raise NotFoundError(f"No movies found for year {year}")
@@ -110,16 +131,51 @@ class MovieService:
         return genres
 
     async def get_movies_by_genre(
-        self, genre: str, limit: int = 10, skip: int = 0
+        self,
+        genre: str,
+        limit: int = 10,
+        skip: int = 0,
+        include_invalid_posters: bool = False,
     ) -> List[Dict[str, Any]]:
         """Get movies by genre."""
-        logger.debug(f"Getting movies by genre: {genre}, limit={limit}, skip={skip}")
+        logger.debug(
+            f"Getting movies by genre: {genre}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+        )
 
         movies = await self.movie_repository.find_by_genre(
-            genre, limit=limit, skip=skip
+            genre,
+            limit=limit,
+            skip=skip,
+            include_invalid_posters=include_invalid_posters,
         )
         if not movies:
             logger.info(f"No movies found for genre: {genre}")
 
         logger.info(f"Found {len(movies)} movies for genre: {genre}")
+        return movies
+
+    async def search_movies_by_text(
+        self,
+        search_text: str,
+        limit: int = 10,
+        skip: int = 0,
+        include_invalid_posters: bool = False,
+    ) -> List[Dict[str, Any]]:
+        """Search movies by text search."""
+        logger.debug(
+            f"Searching movies by text: {search_text}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+        )
+
+        movies = await self.movie_repository.text_search(
+            search_text,
+            limit=limit,
+            skip=skip,
+            include_invalid_posters=include_invalid_posters,
+        )
+
+        if not movies:
+            logger.info(f"No movies found for text search: {search_text}")
+            raise NotFoundError(f"No movies found matching '{search_text}'")
+
+        logger.info(f"Found {len(movies)} movies for text search: {search_text}")
         return movies
