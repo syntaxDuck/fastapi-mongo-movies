@@ -6,10 +6,11 @@ import {
   NavLink,
 } from "react-router-dom";
 import NavBar from "./components/NavBar";
-import MovieList from "./components/MovieList";
-import GenreList from "./components/GenreList";
-import MovieDetails from "./components/MovieDetails";
-import ApiDebug from "./components/ApiDebug";
+import MovieList from "./components/movies/MovieList";
+import MovieDetails from "./components/movies/MovieDetails";
+import GenreList from "./components/genres/GenreList";
+import ApiDebug from "./components/util/ApiDebug";
+import MovieView from "./components/views/MovieView";
 
 // Import consolidated stylesheet
 import "./styles/index.css";
@@ -130,7 +131,7 @@ const App: React.FC = () => {
           <main className="content">
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/movies" element={<MovieList />} />
+              <Route path="/movies" element={<MovieView />} />
               <Route path="/movie/:movieId" element={<MovieDetails />} />
               <Route path="/users" element={<Users />} />
               <Route path="/comments" element={<Comments />} />

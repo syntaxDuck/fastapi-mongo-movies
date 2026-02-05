@@ -27,6 +27,7 @@ export interface Movie {
       numReviews: number;
     };
   } | null;
+  valid_poster?: boolean;
 }
 
 export interface Comment {

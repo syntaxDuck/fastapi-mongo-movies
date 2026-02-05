@@ -1,19 +1,22 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import styles from "../styles/components/NavBar.module.css";
 
 const NavBar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // TODO: Implement search functionality
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Searching for:", searchQuery);
+    if (searchQuery.trim()) {
+      navigate(`/movies?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+    closeMenu(); // Close mobile menu after search
   };
 
   const closeMenu = () => {
@@ -28,7 +31,7 @@ const NavBar: React.FC = () => {
       <div className={styles.navContainer}>
         <div className={styles.navBrand}>
           <NavLink to="/" className={styles.brandLink}>
-            🎬 MovieDB
+            MovieDB
           </NavLink>
         </div>
 
@@ -42,7 +45,7 @@ const NavBar: React.FC = () => {
               className={styles.searchInput}
             />
             <button type="submit" className={styles.searchBtn}>
-              🔍
+              Search
             </button>
           </form>
         </div>
@@ -60,7 +63,7 @@ const NavBar: React.FC = () => {
         <ul className={`${styles.navList} ${isMenuOpen ? styles.open : ""}`}>
           <li className={styles.navListItem}>
             <NavLink to="/" className={getNavLinkClassName} onClick={closeMenu}>
-              🏠 Home
+              Home
             </NavLink>
           </li>
           <li className={styles.navListItem}>
@@ -69,7 +72,7 @@ const NavBar: React.FC = () => {
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
-              🎭 Movies
+              Movies
             </NavLink>
           </li>
           <li className={styles.navListItem}>
@@ -78,16 +81,7 @@ const NavBar: React.FC = () => {
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
-              🎨 Genres
-            </NavLink>
-          </li>
-          <li className={styles.navListItem}>
-            <NavLink
-              to="/directors"
-              className={getNavLinkClassName}
-              onClick={closeMenu}
-            >
-              🎬 Directors
+              Genres
             </NavLink>
           </li>
           <li className={styles.navListItem}>
@@ -96,7 +90,7 @@ const NavBar: React.FC = () => {
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
-              ⭐ Top Rated
+              Top Rated
             </NavLink>
           </li>
           <li className={styles.navListItem}>
@@ -105,7 +99,7 @@ const NavBar: React.FC = () => {
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
-              🆕 Recent
+              Recent
             </NavLink>
           </li>
           <li className={styles.navListItem}>
@@ -114,7 +108,7 @@ const NavBar: React.FC = () => {
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
-              ℹ️ About
+              About
             </NavLink>
           </li>
           <li className={styles.navDivider}></li>
@@ -124,7 +118,7 @@ const NavBar: React.FC = () => {
               className={getNavLinkClassName}
               onClick={closeMenu}
             >
-              🐛 Debug
+              Debug
             </NavLink>
           </li>
         </ul>

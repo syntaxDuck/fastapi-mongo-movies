@@ -12,16 +12,19 @@ export const movieService = {
     minYear?: number;
     maxYear?: number;
     minRating?: number;
+    search?: string;
+    include_invalid_posters?: boolean;
   }): Promise<Movie[]> {
     const queryParams = new URLSearchParams();
 
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, value.toString());
-        }
-      });
-    }
+    // Always include include_invalid_posters=false unless explicitly set to true
+    const finalParams = { include_invalid_posters: false, ...params };
+
+    Object.entries(finalParams).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
 
     const response = await fetch(
       `${API_BASE_URL}/movies/?${queryParams.toString()}`,
@@ -33,6 +36,7 @@ export const movieService = {
         },
       },
     );
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error("API Error:", response.status, errorText);
@@ -69,16 +73,18 @@ export const movieService = {
     type?: string;
     skip?: number;
     limit?: number;
+    include_invalid_posters?: boolean;
   }): Promise<Movie[]> {
     const queryParams = new URLSearchParams();
 
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, value.toString());
-        }
-      });
-    }
+    // Always include include_invalid_posters=false unless explicitly set to true
+    const finalParams = { include_invalid_posters: false, ...params };
+
+    Object.entries(finalParams).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
 
     const response = await fetch(`${API_BASE_URL}/movies/genres/${genre}/?${queryParams.toString()}`, {
       method: "GET",
@@ -157,8 +163,7 @@ function processMovies(movies: Movie[]): Movie[] {
   const defaultImg = "https://thumbs.dreamstime.com/b/film-real-25021714.jpg";
 
   return movies.map((movie) => {
-    if (movie.poster) {
-      // Keep the poster as is for now, React will handle broken images
+    if (movie.poster && movie.valid_poster === true) {
       return movie;
     } else {
       return {
