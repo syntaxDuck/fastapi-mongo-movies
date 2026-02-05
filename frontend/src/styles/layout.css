@@ -21,7 +21,8 @@
   margin-top: 64px;
   background: transparent;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   box-sizing: border-box;
 }
 
@@ -70,7 +71,8 @@
   backdrop-filter: blur(20px);
   animation: fadeInUp var(--transition-slow) ease-out;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   min-height: 600px;
 }
 

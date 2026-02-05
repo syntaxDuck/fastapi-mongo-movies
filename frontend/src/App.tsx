@@ -9,7 +9,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import NavBar from "./components/NavBar";
 import MovieList from "./components/movies/MovieList";
 import MovieDetails from "./components/movies/MovieDetails";
-import GenreList from "./components/genres/GenreList";
+
+import GenresView from "./components/genres/GenresView";
+import GenreMoviesView from "./components/genres/GenreMoviesView";
 import ApiDebug from "./components/util/ApiDebug";
 import MovieView from "./components/views/MovieView";
 import HeroPage from "./components/HeroPage";
@@ -88,7 +90,12 @@ const AppWithTransitions: React.FC = () => {
             } />
             <Route path="/genres" element={
               <PageTransition>
-                <GenreList />
+                <GenresView />
+              </PageTransition>
+            } />
+            <Route path="/genres/:genre" element={
+              <PageTransition>
+                <GenreMoviesView />
               </PageTransition>
             } />
             <Route path="/top-rated" element={

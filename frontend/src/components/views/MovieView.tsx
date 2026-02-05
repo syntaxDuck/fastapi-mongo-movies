@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import MovieDetails from "../movies/MovieDetails";
 import MovieList from "../movies/MovieList";
 import styles from "../../styles/components/movies/MovieView.module.css";
@@ -30,10 +31,45 @@ const MovieView: React.FC = () => {
 
   const isDesktop = useMediaQuery('(min-width: 1025px)');
 
-  return (<div className={styles.movieViewContainer}>
-    <MovieList onMovieSelect={handleMovieSelect} />
-    {isDesktop && (<MovieDetails id={selectedMovie} />)}
-  </div>)
+  return (
+    <div className={styles.movieViewContainer}>
+      <MovieList onMovieSelect={handleMovieSelect} />
+      {isDesktop && (
+        <div className={styles.movieDetailsContainer}>
+          {selectedMovie ? (
+            <MovieDetails id={selectedMovie} />
+          ) : (
+            <motion.div 
+              className={styles.selectMoviePrompt}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <div className={styles.promptIcon}>🎬</div>
+              <h2 className={styles.promptTitle}>Select a Movie</h2>
+              <p className={styles.promptText}>
+                Choose a movie from the list to view its details, ratings, and additional information.
+              </p>
+              <div className={styles.promptFeatures}>
+                <div className={styles.feature}>
+                  <span className={styles.featureIcon}>⭐</span>
+                  <span className={styles.featureText}>View Ratings</span>
+                </div>
+                <div className={styles.feature}>
+                  <span className={styles.featureIcon}>📽️</span>
+                  <span className={styles.featureText}>Movie Details</span>
+                </div>
+                <div className={styles.feature}>
+                  <span className={styles.featureIcon}>🎭</span>
+                  <span className={styles.featureText}>Cast & Crew</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default MovieView
