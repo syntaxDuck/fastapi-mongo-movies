@@ -1,0 +1,130 @@
+/* Home Page Styles - CSS Modules */
+
+.heroSection {
+  text-align: center;
+  padding: var(--space-16) var(--space-4);
+  background: linear-gradient(
+    135deg,
+    var(--bg-secondary) 0%,
+    var(--bg-tertiary) 100%
+  );
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-12);
+  border: 1px solid var(--border-primary);
+}
+
+.heroTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0 0 var(--space-6) 0;
+  background: linear-gradient(
+    135deg,
+    var(--text-primary) 0%,
+    var(--text-accent) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 2rem;
+  }
+}
+
+.heroSubtitle {
+  min-width: 100%;
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto var(--space-8) auto;
+  line-height: 1.6;
+}
+
+.heroActions {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btnPrimary,
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all var(--transition-normal);
+  border: 2px solid transparent;
+}
+
+.btnPrimary {
+  background: var(--primary-600);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.btnPrimary:hover {
+  background: var(--primary-700);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btnSecondary {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-secondary);
+}
+
+.btnSecondary:hover {
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+  border-color: var(--primary-500);
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+.featureCard {
+  background: var(--bg-secondary);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-primary);
+  text-align: center;
+  transition: all var(--transition-normal);
+}
+
+.featureCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-secondary);
+}
+
+.featureIcon {
+  font-size: 2.5rem;
+  margin-bottom: var(--space-4);
+  display: block;
+}
+
+.featureCard h3 {
+  margin: 0 0 var(--space-3) 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.featureCard p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
