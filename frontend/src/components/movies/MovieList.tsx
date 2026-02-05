@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { Movie } from "../../types";
 import { movieService } from "../../services/api";
 import styles from "../../styles/components/movies/MovieList.module.css";
 import MovieCard from "./MovieCard";
+import { LoadingWrapper, LoadingSpinners } from "../ui/LoadingComponents";
 
 
 interface MovieListProps {
@@ -82,11 +84,21 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null }) =
   if (initialLoad && loading) {
     return (
       <div className={styles.movieListContainer}>
-        <div className={styles.movieList}>
-          {Array.from({ length: 6 }, (_, i) => (
-            <MovieCard key={`skeleton-${i}`} />
-          ))}
-        </div>
+        <LoadingWrapper 
+          isLoading={true} 
+          children={null}
+          fallback={
+            <div className={styles.movieList}>
+              {Array.from({ length: 6 }, (_, i) => (
+                <div key={`skeleton-${i}`} className={styles.movie} role="status" aria-label={`Loading movie ${i + 1}`}>
+                  <div className={styles.skeletonPoster}>
+                    <LoadingSpinners.Default size="sm" color="gray" type="dots" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          } 
+        />
       </div>
     );
   }
@@ -97,11 +109,51 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null }) =
 
   return (
     <div className={styles.movieListContainer}>
-      <div className={styles.movieList}>
-        {movies.map((movie, index) => (
-          <MovieCard key={`${movie._id}-${index}`} onClick={() => onMovieSelect ? onMovieSelect(movie._id) : null} movie={movie} disableLink={disableCardLink} />
-        ))}
-      </div>
+      <motion.div 
+        className={styles.movieList}
+        layout
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.1,
+              delayChildren: 0.2,
+            },
+          },
+        }}
+      >
+        <AnimatePresence mode="popLayout">
+          {movies.map((movie, index) => (
+            <motion.div
+              key={`${movie._id}-${index}`}
+              layout
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{
+                duration: 0.5,
+                ease: [0.4, 0, 0.2, 1],
+                delay: index * 0.05,
+              }}
+              whileHover={{
+                y: -6,
+                scale: 1.02,
+                transition: { duration: 0.2 },
+              }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <MovieCard 
+                onClick={() => onMovieSelect ? onMovieSelect(movie._id) : null} 
+                movie={movie} 
+                disableLink={disableCardLink} 
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </motion.div>
 
       {hasMore && (
         <div className={styles.loadMoreContainer}>
@@ -109,8 +161,16 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null }) =
             onClick={loadMore}
             disabled={loading}
             className={styles.loadMoreBtn}
+            aria-busy={loading}
           >
-            {loading ? "Loading..." : "Load More Movies ▷"}
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <LoadingSpinners.Inline size="sm" color="white" type="dots" />
+                <span>Loading...</span>
+              </div>
+            ) : (
+              "Load More Movies ▷"
+            )}
           </button>
         </div>
       )}

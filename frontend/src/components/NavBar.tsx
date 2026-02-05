@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import styles from "../styles/components/NavBar.module.css";
 
 const NavBar: React.FC = () => {
@@ -30,9 +31,14 @@ const NavBar: React.FC = () => {
     <nav className={styles.navBar}>
       <div className={styles.navContainer}>
         <div className={styles.navBrand}>
-          <NavLink to="/" className={styles.brandLink}>
-            MovieDB
-          </NavLink>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <NavLink to="/" className={styles.brandLink}>
+              MovieDB
+            </NavLink>
+          </motion.div>
         </div>
 
         <div className={styles.navSearch}>
@@ -50,15 +56,17 @@ const NavBar: React.FC = () => {
           </form>
         </div>
 
-        <button
+        <motion.button
           className={`${styles.navToggle} ${isMenuOpen ? styles.active : ""}`}
           onClick={toggleMenu}
           aria-label="Toggle navigation menu"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
           <span></span>
           <span></span>
           <span></span>
-        </button>
+        </motion.button>
 
         <ul className={`${styles.navList} ${isMenuOpen ? styles.open : ""}`}>
           <li className={styles.navListItem}>

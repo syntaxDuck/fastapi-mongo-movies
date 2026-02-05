@@ -3,8 +3,9 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  NavLink,
+  useLocation,
 } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import NavBar from "./components/NavBar";
 import MovieList from "./components/movies/MovieList";
 import MovieDetails from "./components/movies/MovieDetails";
@@ -12,24 +13,126 @@ import GenreList from "./components/genres/GenreList";
 import ApiDebug from "./components/util/ApiDebug";
 import MovieView from "./components/views/MovieView";
 import HeroPage from "./components/HeroPage";
+import DevelopmentRoutes from "./components/dev/DevelopmentRoutes";
+import SpinnerTest from "./components/dev/SpinnerTest";
 
 // Import consolidated stylesheet
 import "./styles/index.css";
 
-// Placeholder components for routes not yet implemented
-import HomeStyles from "./styles/pages/Home.module.css";
+// Page transition variants
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20,
+    scale: 0.98,
+  },
+  in: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+  },
+  out: {
+    opacity: 0,
+    y: -20,
+    scale: 0.98,
+  },
+};
 
-// const Home: React.FC = () => {
-//   return (
-//     <div className="fade-in">
-//       <div className={HomeStyles.heroSection}>
-//         <h1 className={HomeStyles.heroTitle}>🎬 Welcome to MovieDB</h1>
-//         <p className={HomeStyles.heroSubtitle}>
-//           Explore our curated collection of movies from the MongoDB sample_mflix
-//           dataset
-//         </p>
-//         <div className={HomeStyles.heroActions}>
-//           <NavLink
+const pageTransition = {
+  ease: "easeInOut" as const,
+  duration: 0.4,
+};
+
+// Page transition wrapper component
+const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// App wrapper with location-based transitions
+const AppWithTransitions: React.FC = () => {
+  const location = useLocation();
+  
+  // Development routes - only available in development
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
+  return (
+    <div className="app">
+      <NavBar />
+      <main className="view-port">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={
+              <PageTransition>
+                <HeroPage />
+              </PageTransition>
+            } />
+            <Route path="/movies" element={
+              <PageTransition>
+                <MovieView />
+              </PageTransition>
+            } />
+            <Route path="/movie/:movieId" element={
+              <PageTransition>
+                <MovieDetails />
+              </PageTransition>
+            } />
+            <Route path="/genres" element={
+              <PageTransition>
+                <GenreList />
+              </PageTransition>
+            } />
+            <Route path="/top-rated" element={
+              <PageTransition>
+                <MovieList filter={{ minRating: 8 }} />
+              </PageTransition>
+            } />
+            <Route path="/recent" element={
+              <PageTransition>
+                <MovieList filter={{ minYear: 2020 }} />
+              </PageTransition>
+            } />
+            <Route path="/about" element={
+              <PageTransition>
+                <About />
+              </PageTransition>
+            } />
+            <Route path="/debug" element={
+              <PageTransition>
+                <Debug />
+              </PageTransition>
+            } />
+            
+            {/* Development-only routes */}
+            {isDevelopment && (
+              <>
+                <Route path="/dev" element={
+                  <PageTransition>
+                    <DevelopmentRoutes />
+                  </PageTransition>
+                } />
+                <Route path="/spinners-test" element={
+                  <PageTransition>
+                    <SpinnerTest />
+                  </PageTransition>
+                } />
+              </>
+            )}
+          </Routes>
+        </AnimatePresence>
+      </main>
+    </div>
+  );
+};
 //             to="/movies"
 //             className={`${HomeStyles.btnPrimary} btn-hover-lift`}
 //           >
@@ -64,48 +167,7 @@ import HomeStyles from "./styles/pages/Home.module.css";
 //     </div>
 //   );
 // };
-//
-const Users: React.FC = () => (
-  <div>
-    <h1>Users</h1>
-    <p>User management functionality coming soon...</p>
-  </div>
-);
 
-const Comments: React.FC = () => (
-  <div>
-    <h1>Comments</h1>
-    <p>Comments section coming soon...</p>
-  </div>
-);
-
-const Genres: React.FC = () => (
-  <div>
-    <h1>Browse by Genre</h1>
-    <GenreList />
-  </div>
-);
-
-const Directors: React.FC = () => (
-  <div>
-    <h1>Browse by Director</h1>
-    <p>Director browsing coming soon...</p>
-  </div>
-);
-
-const TopRated: React.FC = () => (
-  <div>
-    <h1>Top Rated Movies</h1>
-    <MovieList filter={{ minRating: 8 }} />
-  </div>
-);
-
-const Recent: React.FC = () => (
-  <div>
-    <h1>Recent Movies</h1>
-    <MovieList filter={{ minYear: 2020 }} />
-  </div>
-);
 
 const About: React.FC = () => (
   <div>
@@ -123,29 +185,12 @@ const Debug: React.FC = () => (
   </div>
 );
 
+
+
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="app">
-        <NavBar />
-        <div className="view-port">
-          <main className="content">
-            <Routes>
-              <Route path="/" element={<HeroPage />} />
-              <Route path="/movies" element={<MovieView />} />
-              <Route path="/movie/:movieId" element={<MovieDetails />} />
-              <Route path="/users" element={<Users />} />
-              <Route path="/comments" element={<Comments />} />
-              <Route path="/genres" element={<Genres />} />
-              <Route path="/directors" element={<Directors />} />
-              <Route path="/top-rated" element={<TopRated />} />
-              <Route path="/recent" element={<Recent />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/debug" element={<Debug />} />
-            </Routes>
-          </main>
-        </div>
-      </div>
+      <AppWithTransitions />
     </Router>
   );
 };

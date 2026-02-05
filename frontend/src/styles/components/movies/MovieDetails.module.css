@@ -1,17 +1,41 @@
-/* MovieDetails Component Styles - CSS Modules */
+/* MovieDetails Component Styles - Premium CSS Modules */
 
 .movieDetails {
-  padding: var(--space-6);
+  padding: var(--space-8);
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
-  /* border: 1px solid var(--border-primary); */
-  backdrop-filter: blur(10px);
-  animation: fadeInUp var(--transition-normal) ease-out;
-  overflow: scroll;
+  background: var(--bg-glass);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-primary);
+  backdrop-filter: blur(20px);
+  
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Custom Scrollbar */
+.movieDetails::-webkit-scrollbar {
+  width: 8px;
+}
+
+.movieDetails::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-full);
+}
+
+.movieDetails::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--bg-secondary);
+}
+
+.movieDetails::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 .movieDetails hr {
@@ -179,15 +203,7 @@
   gap: var(--space-4);
 }
 
-.loading::before {
-  content: "";
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border-primary);
-  border-top-color: var(--primary-600);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
+
 
 .error {
   color: #ef4444;
@@ -239,5 +255,16 @@
   .movieDetailsInfo strong {
     min-width: 80px;
     font-size: 0.8rem;
+  }
+}
+
+/* Desktop layout for MovieDetails */
+@media (min-width: 1024px) {
+  .movieDetails {
+    margin-left: 320px;
+    height: calc(100vh - 64px);
+    max-height: calc(100vh - 64px);
+    border-radius: 0 var(--radius-2xl) var(--radius-2xl) 0;
+    border-left: none;
   }
 }

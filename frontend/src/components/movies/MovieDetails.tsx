@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Movie } from "../../types";
 import { movieService } from "../../services/api";
 import {
@@ -8,6 +9,7 @@ import {
   TomatoesViewerRating,
 } from "./MovieRating";
 import styles from "../../styles/components/movies/MovieDetails.module.css";
+import { CenteredLoading } from "../ui/LoadingComponents";
 
 const MovieDetail: React.FC<{ name: string; key: string; item: any }> = ({
   name,
@@ -138,7 +140,13 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ id = "", movie: propMovie }
   }, [movieId, id, propMovie]);
 
   if (loading) {
-    return <div className={styles.loading}>Loading movie details...</div>;
+    return (
+      <CenteredLoading 
+        message="Loading movie details..." 
+        spinnerProps={{ size: "lg", color: "accent", type: "ring" }}
+        className={styles.loading}
+      />
+    );
   }
 
   if (error) {
@@ -150,11 +158,16 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ id = "", movie: propMovie }
   }
 
   return (
-    <div className={styles.movieDetails}>
+    <motion.div 
+      className={styles.movieDetails}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+    >
       <MovieDetailsHeader movie={movie} />
       <MovieDetailsBody movie={movie} />
       <MoviePlot movie={movie} />
-    </div>
+    </motion.div>
   );
 };
 
