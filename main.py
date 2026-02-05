@@ -27,7 +27,7 @@ def main():
 
     frontend_proc = None
     if args.frontend:
-        frontend_proc = subprocess.Popen(["npm", "--prefix", "frontend_react", "start"])
+        frontend_proc = subprocess.Popen(["npm", "--prefix", "frontend", "start"])
 
     try:
         print("Starting services...")
