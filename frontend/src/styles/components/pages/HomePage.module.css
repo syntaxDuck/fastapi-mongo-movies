@@ -1,4 +1,13 @@
-/* Premium Home Page Styles - CSS Modules */
+/* Premium Home Page Styles - CSS Modules */ 
+
+.homePageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  max-height: 100%;
+  max-width: 100%;
+  margin: var(--space-6);
+}
 
 .heroSection {
   text-align: center;
@@ -8,7 +17,6 @@
     radial-gradient(circle at 70% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
     linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 50%, var(--bg-quaternary) 100%);
   border-radius: var(--radius-2xl);
-  margin-bottom: var(--space-16);
   border: 1px solid var(--border-primary);
   backdrop-filter: blur(20px);
   position: relative;
@@ -175,8 +183,7 @@
 .featuresGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: var(--space-8);
-  margin-top: var(--space-12);
+  gap: var(--space-6);
   position: relative;
   z-index: 2;
 }

@@ -6,7 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import NavBar from "./components/NavBar";
+import NavBar from "./components/ui/NavBar";
 import MovieList from "./components/movies/MovieList";
 import MovieDetails from "./components/movies/MovieDetails";
 
@@ -14,7 +14,7 @@ import GenresView from "./components/genres/GenresView";
 import GenreMoviesView from "./components/genres/GenreMoviesView";
 import ApiDebug from "./components/util/ApiDebug";
 import MovieView from "./components/views/MovieView";
-import HeroPage from "./components/HeroPage";
+import HomePage from "./components/pages/HomePage";
 import DevelopmentRoutes from "./components/dev/DevelopmentRoutes";
 import SpinnerTest from "./components/dev/SpinnerTest";
 
@@ -63,7 +63,7 @@ const PageTransition: React.FC<{ children: React.ReactNode }> = ({ children }) =
 // App wrapper with location-based transitions
 const AppWithTransitions: React.FC = () => {
   const location = useLocation();
-  
+
   // Development routes - only available in development
   const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -75,7 +75,7 @@ const AppWithTransitions: React.FC = () => {
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={
               <PageTransition>
-                <HeroPage />
+                <HomePage />
               </PageTransition>
             } />
             <Route path="/movies" element={
@@ -118,7 +118,7 @@ const AppWithTransitions: React.FC = () => {
                 <Debug />
               </PageTransition>
             } />
-            
+
             {/* Development-only routes */}
             {isDevelopment && (
               <>
@@ -141,32 +141,32 @@ const AppWithTransitions: React.FC = () => {
   );
 };
 //             to="/movies"
-//             className={`${HomeStyles.btnPrimary} btn-hover-lift`}
+//             className={`${styles.btnPrimary} btn-hover-lift`}
 //           >
 //             Browse Movies
 //           </NavLink>
 //           <NavLink
 //             to="/top-rated"
-//             className={`${HomeStyles.btnSecondary} btn-hover-lift`}
+//             className={`${styles.btnSecondary} btn-hover-lift`}
 //           >
 //             Top Rated
 //           </NavLink>
 //         </div>
 //       </div>
 //
-//       <div className={HomeStyles.featuresGrid}>
-//         <div className={`${HomeStyles.featureCard} card-hover`}>
-//           <div className={HomeStyles.featureIcon}>🎭</div>
+//       <div className={styles.featuresGrid}>
+//         <div className={`${styles.featureCard} card-hover`}>
+//           <div className={styles.featureIcon}>🎭</div>
 //           <h3>Extensive Collection</h3>
 //           <p>Discover thousands of movies across all genres and decades</p>
 //         </div>
-//         <div className={`${HomeStyles.featureCard} card-hover`}>
-//           <div className={HomeStyles.featureIcon}>⭐</div>
+//         <div className={`${styles.featureCard} card-hover`}>
+//           <div className={styles.featureIcon}>⭐</div>
 //           <h3>Curated Ratings</h3>
 //           <p>IMDb and Rotten Tomatoes ratings to help you choose</p>
 //         </div>
-//         <div className={`${HomeStyles.featureCard} card-hover`}>
-//           <div className={HomeStyles.featureIcon}>🔍</div>
+//         <div className={`${styles.featureCard} card-hover`}>
+//           <div className={styles.featureIcon}>🔍</div>
 //           <h3>Smart Search</h3>
 //           <p>Find exactly what you're looking for with powerful filters</p>
 //         </div>
