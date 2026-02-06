@@ -10,10 +10,8 @@
   border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-xl);
   border: 1px solid var(--border-primary);
-  backdrop-filter: blur(20px);
-  
+  backdrop-filter: blur(20px); 
   overflow-y: auto;
-  overflow-x: hidden;
   position: relative;
   box-sizing: border-box;
 }
@@ -118,12 +116,12 @@
   .movieDetailsPoster {
     width: 40%;
     margin: 0;
-    max-width: 400px;
+    max-width: 450px;
   }
 }
 
 .movieDetailsPoster:hover {
-  transform: scale(1.02);
+  transform: scale(1.04);
 }
 
 .movieDetailsInfo {
@@ -146,7 +144,10 @@
 
 .movieDetailsRatings {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
   gap: var(--space-4);
   padding: var(--space-6);
   background: var(--bg-secondary);
@@ -154,13 +155,12 @@
   border: 1px solid var(--border-primary);
 }
 
-@media (min-width: 640px) {
-  .movieDetailsRatings {
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-  }
+.movieDetailsRatings > * {
+  flex: 1;
+  min-width: 0;
+  max-width: 200px;
 }
+
 
 .movieDetailsPlot {
   flex-grow: 1;
@@ -172,17 +172,20 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-primary);
   position: relative;
-  overflow: hidden;
 }
 
-.movieDetailsPlot::before {
-  content: "Read";
-  position: absolute;
-  top: var(--space-4);
-  right: var(--space-4);
-  opacity: 0.1;
-  font-size: 2rem;
+.movieDetailsPlot p {
+  max-width: 200ch;
 }
+
+/* .movieDetailsPlot::before { */
+/*   content: "Read"; */
+/*   position: absolute; */
+/*   top: var(--space-4); */
+/*   right: var(--space-4); */
+/*   opacity: 0.1; */
+/*   font-size: 2rem; */
+/* } */
 
 .loading,
 .error {
@@ -247,10 +250,7 @@
     max-width: 250px;
   }
 
-  .movieDetailsRatings {
-    flex-direction: column;
-    gap: var(--space-3);
-  }
+
 
   .movieDetailsInfo strong {
     min-width: 80px;
@@ -258,13 +258,17 @@
   }
 }
 
-/* Desktop layout for MovieDetails */
 @media (min-width: 1024px) {
   .movieDetails {
-    margin-left: 320px;
     height: calc(100vh - 64px);
     max-height: calc(100vh - 64px);
     border-radius: 0 var(--radius-2xl) var(--radius-2xl) 0;
     border-left: none;
   }
+}
+
+@media (min-width: 1024px) {
+.movieDetailsPlot {
+  padding: var(--space-10);
+}
 }
