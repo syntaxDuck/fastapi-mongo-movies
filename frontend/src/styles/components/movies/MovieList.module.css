@@ -10,7 +10,6 @@
   overflow-x: hidden;
   box-sizing: border-box;
   background: var(--bg-glass);
-  border-radius: var(--radius-2xl);
   box-shadow: var(--shadow-xl);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-primary);
@@ -46,7 +45,6 @@
     position: fixed;
     left: 0;
     top: 64px;
-    border-radius: 0 var(--radius-2xl) var(--radius-2xl) 0;
     border-right: 2px solid var(--border-primary);
     border-top: none;
     border-bottom: none;
