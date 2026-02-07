@@ -5,7 +5,7 @@ Movie Repository layer using context manager pattern.
 from typing import Dict, Any, List, Optional
 from .base import BaseRepository
 from app.core.logging import get_logger
-from app.schemas.movie import MovieResponse
+from app.schemas.schemas import MovieResponse
 
 logger = get_logger(__name__)
 
@@ -28,57 +28,77 @@ class MovieRepository(BaseRepository):
             logger.debug("Skipping valid_poster filter - including all movies")
         return filter_query
 
-    async def find_by_id(
-        self, entity_id: str, id_field: str = "_id", **kwargs
-    ) -> Optional[Dict[str, Any]]:
+    async def find_by_id(self, id: str, **kwargs) -> Optional[MovieResponse]:
         """Find a movie by its ID."""
         logger.debug(
-            f"MovieRepository.find_by_id() called with entity_id={entity_id}, id_field={id_field}"
+            f"MovieRepository.find_by_id() called with id={id}, kwargs={kwargs}"
         )
-        return await super().find_by_id(entity_id, id_field, **kwargs)
+        movie = await self._find_by_id(id, **kwargs)
+        if movie:
+            logger.debug(
+                f"MovieRepository.find_by_id() found movie: {movie.get('title', 'Unknown')} ({movie.get('_id', 'Unknown ID')})"
+            )
+        else:
+            logger.debug(f"MovieRepository.find_by_id() no movie found with id={id}")
+        return MovieResponse.from_dict(movie) if movie else None
 
     async def find_by_title(
         self, title: str, include_invalid_posters: bool = False, **kwargs
-    ) -> List[Dict[str, Any]]:
+    ) -> List[MovieResponse]:
         """Find movies by title (exact match)."""
         logger.debug(
-            f"MovieRepository.find_by_title() called with title={title}, include_invalid_posters={include_invalid_posters}"
+            f"MovieRepository.find_by_title() called with title='{title}', include_invalid_posters={include_invalid_posters}, kwargs={kwargs}"
         )
         filter_query = {"title": title}
         filter_query = self._add_valid_poster_filter(
             filter_query, include_invalid_posters
         )
-        return await self.find_many(filter_query, **kwargs)
+        logger.debug(f"MovieRepository.find_by_title() executing query: {filter_query}")
+        movies = await self._find_many(filter_query, **kwargs)
+        logger.debug(
+            f"MovieRepository.find_by_title() found {len(movies)} movies with title '{title}'"
+        )
+        return [MovieResponse.from_dict(movie) for movie in movies]
 
     async def find_by_type(
-        self, movie_type: str, include_invalid_posters: bool = False, **kwargs
-    ) -> List[Dict[str, Any]]:
+        self, type: str, include_invalid_posters: bool = False, **kwargs
+    ) -> List[MovieResponse]:
         """Find movies by type (e.g., 'movie', 'series')."""
         logger.debug(
-            f"MovieRepository.find_by_type() called with movie_type={movie_type}, include_invalid_posters={include_invalid_posters}"
+            f"MovieRepository.find_by_type() called with type='{type}', include_invalid_posters={include_invalid_posters}, kwargs={kwargs}"
         )
-        filter_query = {"type": movie_type}
+        filter_query = {"type": type}
         filter_query = self._add_valid_poster_filter(
             filter_query, include_invalid_posters
         )
-        return await self.find_many(filter_query, **kwargs)
+        logger.debug(f"MovieRepository.find_by_type() executing query: {filter_query}")
+        movies = await self._find_many(filter_query, **kwargs)
+        logger.debug(
+            f"MovieRepository.find_by_type() found {len(movies)} movies of type '{type}'"
+        )
+        return [MovieResponse.from_dict(movie) for movie in movies]
 
     async def find_by_genre(
         self, genre: str, include_invalid_posters: bool = False, **kwargs
-    ) -> List[Dict[str, Any]]:
+    ) -> List[MovieResponse]:
         """Find movies by genre."""
         logger.debug(
-            f"MovieRepository.find_by_genre() called with genre={genre}, include_invalid_posters={include_invalid_posters}, kwargs={kwargs}"
+            f"MovieRepository.find_by_genre() called with genre='{genre}', include_invalid_posters={include_invalid_posters}, kwargs={kwargs}"
         )
         filter_query = {"genres": {"$in": [genre]}}
         filter_query = self._add_valid_poster_filter(
             filter_query, include_invalid_posters
         )
-        return await self.find_many(filter_query, **kwargs)
+        logger.debug(f"MovieRepository.find_by_genre() executing query: {filter_query}")
+        movies = await self._find_many(filter_query, **kwargs)
+        logger.debug(
+            f"MovieRepository.find_by_genre() found {len(movies)} movies in genre '{genre}'"
+        )
+        return [MovieResponse.from_dict(movie) for movie in movies]
 
     async def find_by_year(
         self, year: int, include_invalid_posters: bool = False, **kwargs
-    ) -> List[Dict[str, Any]]:
+    ) -> List[MovieResponse]:
         """Find movies by release year."""
         logger.debug(
             f"MovieRepository.find_by_year() called with year={year}, include_invalid_posters={include_invalid_posters}, kwargs={kwargs}"
@@ -87,7 +107,12 @@ class MovieRepository(BaseRepository):
         filter_query = self._add_valid_poster_filter(
             filter_query, include_invalid_posters
         )
-        return await self.find_many(filter_query, **kwargs)
+        logger.debug(f"MovieRepository.find_by_year() executing query: {filter_query}")
+        movies = await self._find_many(filter_query, **kwargs)
+        logger.debug(
+            f"MovieRepository.find_by_year() found {len(movies)} movies from year {year}"
+        )
+        return [MovieResponse.from_dict(movie) for movie in movies]
 
     async def search_movies(self, **kwargs) -> List[MovieResponse]:
         """Search movies with multiple filters."""
@@ -114,7 +139,6 @@ class MovieRepository(BaseRepository):
             filter_query["year"] = kwargs["year"]
             logger.debug(f"Added year filter: {kwargs['year']}")
 
-        # Include valid_poster filter based on parameter
         include_invalid_posters = kwargs.pop("include_invalid_posters", False)
         filter_query = self._add_valid_poster_filter(
             filter_query, include_invalid_posters
@@ -122,27 +146,37 @@ class MovieRepository(BaseRepository):
 
         limit = kwargs.get("limit", 10)
         skip = kwargs.get("skip", 0)
-        logger.debug(f"Final filter_query: {filter_query}, limit: {limit}, skip={skip}")
-        movies = await self.find_many(filter_query, limit=limit, skip=skip)
+        logger.debug(
+            f"MovieRepository.search_movies() executing query: {filter_query}, limit: {limit}, skip: {skip}"
+        )
+        movies = await self._find_many(filter_query, limit=limit, skip=skip)
+        logger.debug(
+            f"MovieRepository.search_movies() found {len(movies)} movies matching search criteria"
+        )
         return [MovieResponse.from_dict(movie) for movie in movies]
 
-    async def get_genres(self) -> List[str]:
+    async def get_all_genres(self) -> List[str]:
         """Get all unique values in a field in movies."""
         logger.debug("MovieRepository.get_genres() called - Getting all movie genres")
-        values = await self.find_distinct("genres")
+        values = await self._find_distinct("genres")
         logger.debug(f"MovieRepository.get_genres() found {len(values)} genres")
         return values
 
-    async def text_search(
+    async def get_all_types(self) -> List[str]:
+        """Get all unique values in a field in movies."""
+        logger.debug("MovieRepository.get_types() called - Getting all movie types")
+        values = await self._find_distinct("types")
+        logger.debug(f"MovieRepository.get_types() found {len(values)} types")
+        return values
+
+    async def search_movies_by_text(
         self, search_text: str, include_invalid_posters: bool = False, **kwargs
-    ) -> List[Dict[str, Any]]:
+    ) -> List[MovieResponse]:
         """Search movies by text in title, plot, and other fields."""
         logger.debug(
-            f"MovieRepository.text_search() called with search_text={search_text}, include_invalid_posters={include_invalid_posters}"
+            f"MovieRepository.search_movies_by_text() called with search_text='{search_text}', include_invalid_posters={include_invalid_posters}, kwargs={kwargs}"
         )
 
-        # Create text search query using MongoDB's $text operator
-        # This will search through text-indexed fields
         filter_query = {"$text": {"$search": search_text, "$caseSensitive": False}}
 
         filter_query = self._add_valid_poster_filter(
@@ -151,7 +185,12 @@ class MovieRepository(BaseRepository):
 
         limit = kwargs.get("limit", 10)
         skip = kwargs.get("skip", 0)
-        logger.debug(f"Text search query: {filter_query}, limit: {limit}, skip: {skip}")
+        logger.debug(
+            f"MovieRepository.search_movies_by_text() executing text search query: {filter_query}, limit: {limit}, skip: {skip}"
+        )
 
-        movies = await self.find_many(filter_query, limit=limit, skip=skip)
-        return movies
+        movies = await self._find_many(filter_query, limit=limit, skip=skip)
+        logger.debug(
+            f"MovieRepository.search_movies_by_text() found {len(movies)} movies matching text search '{search_text}'"
+        )
+        return [MovieResponse.from_dict(movie) for movie in movies]

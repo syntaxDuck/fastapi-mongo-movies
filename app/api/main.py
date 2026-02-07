@@ -18,13 +18,9 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI):
     """Application lifespan manager for connection pool cleanup."""
     logger.info("Application starting up...")
-    # Initialize connection pool
     await DatabaseManager.get_client()
-
     yield
-
     logger.info("Application shutting down...")
-    # Close all database connections
     await DatabaseManager.close_all_connections()
 
 
@@ -39,28 +35,24 @@ def create_app() -> FastAPI:
         version="0.1.0",
         docs_url="/docs",
         redoc_url="/redoc",
-        lifespan=lifespan,  # Add lifespan management
+        lifespan=lifespan,
     )
 
-    # Add request logging middleware
     app.middleware("http")(log_requests)
 
-    # Add CORS middleware
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
         allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
         allow_methods=settings.CORS_ALLOW_METHODS,
-        allow_headers=["*"],
+        allow_headers=settings.CORS_ALLOW_HEADERS,
     )
 
-    # Include routers
     logger.info("Including API routers")
     app.include_router(movies_router)
     app.include_router(users_router)
     app.include_router(comments_router)
 
-    # Health check endpoint
     @app.get("/health")
     async def health_check():
         logger.debug("Health check requested")

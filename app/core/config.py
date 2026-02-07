@@ -5,6 +5,17 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Application settings configuration."""
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Basic config validation - use print to avoid circular import
+        print("Configuration loaded successfully")
+        if not self.DB_HOST:
+            print("WARNING: DB_HOST not configured")
+        if not self.DB_NAME:
+            print("WARNING: DB_NAME not configured")
+        if not self.DB_USER:
+            print("WARNING: DB_USER not configured")
+
     # Database settings
     DB_HOST: str = Field(default="", description="MongoDB host URL")
     DB_NAME: str = Field(default="", description="MongoDB database name")
@@ -74,19 +85,18 @@ class Settings(BaseSettings):
     )
 
     # CORS settings
-    CORS_ORIGINS: list[str] = Field(
-        default=[
-            "http://localhost:8080",
-            "http://localhost:8000",
-            "http://localhost:3000",
-        ],
-        description="Allowed CORS origins",
-    )
     CORS_ALLOW_CREDENTIALS: bool = Field(
         default=True, description="Allow credentials in CORS"
     )
+    CORS_ORIGINS: list[str] = Field(
+        default=["*"],
+        description="Allowed CORS origins",
+    )
     CORS_ALLOW_METHODS: list[str] = Field(
-        default=["GET", "POST", "PUT", "DELETE"], description="Allowed CORS methods"
+        default=["*"], description="Allowed CORS methods"
+    )
+    CORS_ALLOW_HEADERS: list[str] = Field(
+        default=["*"], description="Allowed CORS headers"
     )
 
     # Feature flags

@@ -11,12 +11,12 @@ import {
 import styles from "../../styles/components/movies/MovieDetails.module.css";
 import { CenteredLoading } from "../ui/LoadingComponents";
 
-const MovieDetail: React.FC<{ name: string; key: string; item: any }> = ({
+const MovieDetail: React.FC<{ name: string; value: string; item: any }> = ({
   name,
-  key: itemKey,
+  value,
   item,
 }) => {
-  if (!item || item[itemKey] === undefined || item[itemKey] === null) {
+  if (!item || item[value] === undefined || item[value] === null) {
     return (
       <p>
         <strong>{name}:</strong> N/A
@@ -24,13 +24,14 @@ const MovieDetail: React.FC<{ name: string; key: string; item: any }> = ({
     );
   }
 
-  const value = item[itemKey];
-  const displayValue = Array.isArray(value) ? value.join(", ") : value;
+  const displayValue = Array.isArray(item[value]) ? item[value].join(", ") : item[value];
 
   return (
-    <p>
-      <strong>{name}:</strong> {displayValue}
-    </p>
+    <p style={{
+      display: "grid", gridTemplateColumns: "12ch 1fr", gap: "10px", alignItems: "start"
+    }}>
+      <strong>{name}:</strong> <span>{displayValue}</span>
+    </p >
   );
 };
 
@@ -66,15 +67,15 @@ const MovieDetailsBody: React.FC<{ movie: Movie }> = ({ movie }) => {
         className={styles.movieDetailsPoster}
       />
       <div className={styles.movieDetailsInfo}>
-        <MovieDetail name="Genres" key="genres" item={movie} />
+        <MovieDetail name="Genres" value="genres" item={movie} />
         <hr />
-        <MovieDetail name="Directors" key="directors" item={movie} />
+        <MovieDetail name="Directors" value="directors" item={movie} />
         <hr />
-        <MovieDetail name="Writers" key="writers" item={movie} />
+        <MovieDetail name="Writers" value="writers" item={movie} />
         <hr />
-        <MovieDetail name="Cast" key="cast" item={movie} />
+        <MovieDetail name="Cast" value="cast" item={movie} />
         <hr />
-        <MovieDetail name="Countries" key="countries" item={movie} />
+        <MovieDetail name="Countries" value="countries" item={movie} />
         <hr />
         <div className={styles.movieDetailsRatings}>
           {imdb}
@@ -141,8 +142,8 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ id = "", movie: propMovie }
 
   if (loading) {
     return (
-      <CenteredLoading 
-        message="Loading movie details..." 
+      <CenteredLoading
+        message="Loading movie details..."
         spinnerProps={{ size: "lg", color: "accent", type: "ring" }}
         className={styles.loading}
       />
@@ -158,7 +159,7 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ id = "", movie: propMovie }
   }
 
   return (
-    <motion.div 
+    <motion.div
       className={styles.movieDetails}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}

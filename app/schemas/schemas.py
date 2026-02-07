@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Any
 from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator
-from typing import Any
 from bson import ObjectId
 from app.core.logging import get_logger
 
@@ -98,18 +97,63 @@ class MovieResponse(BaseModel):
     @field_validator("year", mode="before")
     @classmethod
     def clean_year(cls, v):
+        original_value = v
         if isinstance(v, str):
+            logger.debug(
+                f"Schemas.clean_year() converting string year: '{original_value}'"
+            )
             digits = "".join(filter(str.isdigit, v))
             if digits:
-                return int(digits)
-        return v
+                result = int(digits)
+                logger.debug(
+                    f"Schemas.clean_year() converted '{original_value}' to {result}"
+                )
+                return result
+            else:
+                logger.warning(
+                    f"Schemas.clean_year() failed to extract digits from: '{original_value}'"
+                )
+        elif isinstance(v, int):
+            if v < 1800 or v > 2100:
+                logger.warning(f"Schemas.clean_year() suspicious year value: {v}")
+        return original_value
 
     @classmethod
     def from_dict(cls, data: dict) -> "MovieResponse":
         """Create MovieResponse from dictionary."""
+        logger.debug(
+            f"Schemas.MovieResponse.from_dict() called with data keys: {list(data.keys())}"
+        )
+
+        original_id = data.get("_id")
         if "_id" in data:
             data["_id"] = str(data["_id"])
-        return cls(**data)
+            logger.debug(
+                f"Schemas.MovieResponse.from_dict() converted _id from {original_id} to {data['_id']}"
+            )
+
+        # Validate required fields
+        if "title" not in data:
+            logger.warning(
+                "Schemas.MovieResponse.from_dict() missing required field: title"
+            )
+
+        if "year" in data and isinstance(data["year"], str):
+            logger.warning(
+                f"Schemas.MovieResponse.from_dict() year is string instead of int: {data['year']}"
+            )
+
+        try:
+            result = cls(**data)
+            logger.debug(
+                f"Schemas.MovieResponse.from_dict() successfully created MovieResponse for movie: {data.get('title', 'Unknown')}"
+            )
+            return result
+        except Exception as e:
+            logger.error(
+                f"Schemas.MovieResponse.from_dict() failed to create MovieResponse: {e}"
+            )
+            raise
 
 
 # User schemas
@@ -144,9 +188,42 @@ class UserResponse(BaseModel):
     @classmethod
     def from_dict(cls, data: dict) -> "UserResponse":
         """Create UserResponse from dictionary."""
+        logger.debug(
+            f"Schemas.UserResponse.from_dict() called with data keys: {list(data.keys())}"
+        )
+
+        original_id = data.get("_id")
         if "_id" in data:
             data["_id"] = str(data["_id"])
-        return cls(**data)
+            logger.debug(
+                f"Schemas.UserResponse.from_dict() converted _id from {original_id} to {data['_id']}"
+            )
+
+        # Validate required fields
+        if "name" not in data:
+            logger.warning(
+                "Schemas.UserResponse.from_dict() missing required field: name"
+            )
+        if "email" in data:
+            email = data["email"]
+            # Pydantic EmailStr would handle validation at model creation
+            # Log clearly invalid emails for debugging
+            if email and (" " in email or not email.count("@") or not email.count(".")):
+                logger.warning(
+                    f"Schemas.UserResponse.from_dict() clearly invalid email format: {email}"
+                )
+
+        try:
+            result = cls(**data)
+            logger.debug(
+                f"Schemas.UserResponse.from_dict() successfully created UserResponse for user: {data.get('name', 'Unknown')}"
+            )
+            return result
+        except Exception as e:
+            logger.error(
+                f"Schemas.UserResponse.from_dict() failed to create UserResponse: {e}"
+            )
+            raise
 
 
 # Comment schemas

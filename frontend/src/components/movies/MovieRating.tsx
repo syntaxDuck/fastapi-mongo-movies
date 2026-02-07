@@ -22,7 +22,6 @@ export const Rating: React.FC<RatingProps> = ({
         src={source}
         alt={altText}
         onError={(e) => {
-          // Handle broken images
           e.currentTarget.style.display = "none";
         }}
       />
@@ -46,7 +45,7 @@ export const TomatoesCriticRating: React.FC<{ tomatoes?: any }> = ({
       <Rating
         rating={tomatoes.critic.rating}
         reviewCount={tomatoes.critic.numReviews}
-        source="/assets/tomato.png"
+        source="/images/tomatoe.png"
         styleClass="tomatoesCriticRating"
         altText="Rotten Tomatoes Critic Rating"
       />
@@ -67,7 +66,7 @@ export const TomatoesViewerRating: React.FC<{ tomatoes?: any }> = ({
       <Rating
         rating={tomatoes.viewer.rating}
         reviewCount={tomatoes.viewer.numReviews}
-        source="/assets/popcorn.png"
+        source="/images/popcorn.png"
         styleClass="tomatoesViewerRating"
         altText="Rotten Tomatoes Viewer Rating"
       />
@@ -82,7 +81,7 @@ export const ImdbRating: React.FC<{ movie?: any }> = ({ movie }) => {
       <Rating
         rating={movie.imdb.rating}
         reviewCount={movie.imdb.votes}
-        source="/assets/imdb.png"
+        source="/images/imdb.png"
         styleClass="imdbRating"
         altText="IMDb Rating"
       />

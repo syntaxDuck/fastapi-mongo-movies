@@ -2,10 +2,11 @@
 Comment Service layer for business logic using proper protocol-based dependency injection.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from ..repositories.protocol import CommentRepositoryProtocol
 from ..core.exceptions import NotFoundError
 from ..core.logging import get_logger
+from ..schemas.schemas import CommentResponse
 
 logger = get_logger(__name__)
 
@@ -16,7 +17,7 @@ class CommentService:
     def __init__(self, comment_repository: CommentRepositoryProtocol) -> None:
         self.comment_repository = comment_repository
 
-    async def get_comment_by_id(self, comment_id: str) -> Dict[str, Any]:
+    async def get_comment_by_id(self, comment_id: str) -> CommentResponse:
         """Get a comment by its ID."""
         logger.debug(f"Getting comment by ID: {comment_id}")
 
@@ -36,7 +37,7 @@ class CommentService:
         email: Optional[str] = None,
         limit: int = 10,
         skip: int = 0,
-    ) -> List[Dict[str, Any]]:
+    ) -> List[CommentResponse]:
         """Get comments with optional filtering."""
         logger.debug(
             f"Getting comments with filters: comment_id={comment_id}, movie_id={movie_id}, "
@@ -61,7 +62,7 @@ class CommentService:
 
     async def get_comments_by_movie_id(
         self, movie_id: str, limit: int = 10, skip: int = 0
-    ) -> List[Dict[str, Any]]:
+    ) -> List[CommentResponse]:
         """Get comments by movie ID."""
         logger.debug(
             f"Getting comments by movie ID: {movie_id}, limit={limit}, skip={skip}"
@@ -79,7 +80,7 @@ class CommentService:
 
     async def get_comments_by_email(
         self, email: str, limit: int = 10, skip: int = 0
-    ) -> List[Dict[str, Any]]:
+    ) -> List[CommentResponse]:
         """Get comments by email."""
         logger.debug(f"Getting comments by email: {email}, limit={limit}, skip={skip}")
 
@@ -95,7 +96,7 @@ class CommentService:
 
     async def get_comments_by_name(
         self, name: str, limit: int = 10, skip: int = 0
-    ) -> List[Dict[str, Any]]:
+    ) -> List[CommentResponse]:
         """Get comments by name."""
         logger.debug(f"Getting comments by name: {name}, limit={limit}, skip={skip}")
 

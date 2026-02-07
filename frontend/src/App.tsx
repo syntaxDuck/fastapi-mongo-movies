@@ -13,7 +13,7 @@ import MovieDetails from "./components/movies/MovieDetails";
 import GenresView from "./components/genres/GenresView";
 import GenreMoviesView from "./components/genres/GenreMoviesView";
 import ApiDebug from "./components/util/ApiDebug";
-import MovieView from "./components/views/MovieView";
+import MoviePage from "./components/pages/MoviePage";
 import HomePage from "./components/pages/HomePage";
 import DevelopmentRoutes from "./components/dev/DevelopmentRoutes";
 import SpinnerTest from "./components/dev/SpinnerTest";
@@ -80,7 +80,7 @@ const AppWithTransitions: React.FC = () => {
             } />
             <Route path="/movies" element={
               <PageTransition>
-                <MovieView />
+                <MoviePage />
               </PageTransition>
             } />
             <Route path="/movie/:movieId" element={
@@ -140,40 +140,6 @@ const AppWithTransitions: React.FC = () => {
     </div>
   );
 };
-//             to="/movies"
-//             className={`${styles.btnPrimary} btn-hover-lift`}
-//           >
-//             Browse Movies
-//           </NavLink>
-//           <NavLink
-//             to="/top-rated"
-//             className={`${styles.btnSecondary} btn-hover-lift`}
-//           >
-//             Top Rated
-//           </NavLink>
-//         </div>
-//       </div>
-//
-//       <div className={styles.featuresGrid}>
-//         <div className={`${styles.featureCard} card-hover`}>
-//           <div className={styles.featureIcon}>🎭</div>
-//           <h3>Extensive Collection</h3>
-//           <p>Discover thousands of movies across all genres and decades</p>
-//         </div>
-//         <div className={`${styles.featureCard} card-hover`}>
-//           <div className={styles.featureIcon}>⭐</div>
-//           <h3>Curated Ratings</h3>
-//           <p>IMDb and Rotten Tomatoes ratings to help you choose</p>
-//         </div>
-//         <div className={`${styles.featureCard} card-hover`}>
-//           <div className={styles.featureIcon}>🔍</div>
-//           <h3>Smart Search</h3>
-//           <p>Find exactly what you're looking for with powerful filters</p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
 
 
 const About: React.FC = () => (

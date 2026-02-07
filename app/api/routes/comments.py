@@ -4,10 +4,13 @@ Comment Repository layer using context manager pattern.
 
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
-from ...schemas.movie import CommentResponse, CommentQuery
+from ...schemas.schemas import CommentResponse, CommentQuery
 from ...services.comment_service import CommentService
 from ...repositories.comment_repository import CommentRepository
 from ...core.exceptions import NotFoundError
+from ...core.logging import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/comments", tags=["comments"])
 
@@ -39,6 +42,10 @@ async def get_comments(
     - **limit**: Number of comments to return (default: 10)
     - **skip**: Number of comments to skip (default: 0)
     """
+    logger.info(
+        f"API: get_comments() called with query parameters: {query.model_dump(exclude_none=True)}"
+    )
+
     try:
         comments = await comment_service.get_comments(
             comment_id=query.id,
@@ -48,12 +55,16 @@ async def get_comments(
             limit=query.limit or 10,
             skip=query.skip or 0,
         )
-
-        return [CommentResponse.from_dict(comment) for comment in comments]
+        logger.info(
+            f"API: get_comments() successfully retrieved {len(comments)} comments"
+        )
+        return comments
 
     except NotFoundError as e:
+        logger.warning(f"API: get_comments() no comments found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_comments() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -62,13 +73,20 @@ async def get_comment_by_id(
     comment_id: str, comment_service: CommentService = Depends(get_comment_service)
 ):
     """Get a specific comment by ID."""
+    logger.info(f"API: get_comment_by_id() called with comment_id={comment_id}")
+
     try:
         comment = await comment_service.get_comment_by_id(comment_id)
-        return CommentResponse.from_dict(comment)
+        logger.info(
+            f"API: get_comment_by_id() successfully retrieved comment by {comment.name if hasattr(comment, 'name') else 'Unknown'}"
+        )
+        return comment
 
     except NotFoundError as e:
+        logger.warning(f"API: get_comment_by_id() comment not found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_comment_by_id() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -80,15 +98,24 @@ async def get_comments_by_movie_id(
     comment_service: CommentService = Depends(get_comment_service),
 ):
     """Get comments by movie ID."""
+    logger.info(
+        f"API: get_comments_by_movie_id() called with movie_id={movie_id}, limit={limit}, skip={skip}"
+    )
+
     try:
         comments = await comment_service.get_comments_by_movie_id(
             movie_id, limit=limit, skip=skip
         )
-        return [CommentResponse.from_dict(comment) for comment in comments]
+        logger.info(
+            f"API: get_comments_by_movie_id() found {len(comments)} comments for movie {movie_id}"
+        )
+        return comments
 
     except NotFoundError as e:
+        logger.warning(f"API: get_comments_by_movie_id() no comments found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_comments_by_movie_id() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -100,15 +127,24 @@ async def get_comments_by_email(
     comment_service: CommentService = Depends(get_comment_service),
 ):
     """Get comments by email."""
+    logger.info(
+        f"API: get_comments_by_email() called with email='{email}', limit={limit}, skip={skip}"
+    )
+
     try:
         comments = await comment_service.get_comments_by_email(
             email, limit=limit, skip=skip
         )
-        return [CommentResponse.from_dict(comment) for comment in comments]
+        logger.info(
+            f"API: get_comments_by_email() found {len(comments)} comments by email '{email}'"
+        )
+        return comments
 
     except NotFoundError as e:
+        logger.warning(f"API: get_comments_by_email() no comments found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_comments_by_email() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -120,13 +156,22 @@ async def get_comments_by_name(
     comment_service: CommentService = Depends(get_comment_service),
 ):
     """Get comments by name."""
+    logger.info(
+        f"API: get_comments_by_name() called with name='{name}', limit={limit}, skip={skip}"
+    )
+
     try:
         comments = await comment_service.get_comments_by_name(
             name, limit=limit, skip=skip
         )
-        return [CommentResponse.from_dict(comment) for comment in comments]
+        logger.info(
+            f"API: get_comments_by_name() found {len(comments)} comments by name '{name}'"
+        )
+        return comments
 
     except NotFoundError as e:
+        logger.warning(f"API: get_comments_by_name() no comments found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_comments_by_name() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")

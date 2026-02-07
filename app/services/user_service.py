@@ -2,10 +2,11 @@
 User Service layer for business logic using proper protocol-based dependency injection.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from ..repositories.protocol import UserRepositoryProtocol
 from ..core.exceptions import NotFoundError, DatabaseError, DuplicateResourceError
 from ..core.logging import get_logger
+from ..schemas.schemas import MessageResponse, UserCreate, UserResponse
 
 logger = get_logger(__name__)
 
@@ -16,7 +17,7 @@ class UserService:
     def __init__(self, user_repository: UserRepositoryProtocol) -> None:
         self.user_repository = user_repository
 
-    async def get_user_by_id(self, user_id: str) -> Dict[str, Any]:
+    async def get_user_by_id(self, user_id: str) -> UserResponse:
         """Get a user by their ID."""
         logger.debug(f"Getting user by ID: {user_id}")
 
@@ -35,7 +36,7 @@ class UserService:
         email: Optional[str] = None,
         limit: int = 10,
         skip: int = 0,
-    ) -> List[Dict[str, Any]]:
+    ) -> List[UserResponse]:
         """Get users with optional filtering."""
         logger.debug(
             f"Getting users with filters: user_id={user_id}, name={name}, "
@@ -53,29 +54,92 @@ class UserService:
         logger.info(f"Found {len(users)} users")
         return users
 
-    async def create_user(self, user_data: Dict[str, Any]) -> str:
+    # TODO: Need to add hashing for user password with salt added
+    async def create_user(self, user_data: UserCreate) -> MessageResponse:
         """Create a new user."""
-        email = user_data.get("email")
+        email = user_data.email
         if not email:
             logger.error("Create user failed: Email is required")
             raise ValueError("Email is required")
 
         logger.debug(f"Creating user with email: {email}")
 
-        # Check if user with email already exists
+        if email and (" " in email or not email.count("@") or not email.count(".")):
+            logger.warning(
+                f"UserService.create_user() clearly invalid email format: '{email}'"
+            )
+
+        password = user_data.password
+        if len(password) < 6:
+            logger.warning(
+                f"UserService.create_user() weak password: length={len(password)} for email='{email}'"
+            )
+        if len(password) > 100:
+            logger.warning(
+                f"UserService.create_user() excessive password length: {len(password)} for email='{email}'"
+            )
+        if password.lower() in [
+            "password",
+            "123456",
+            "qwerty",
+            "admin",
+            "letmein",
+            "welcome",
+        ]:
+            logger.warning(
+                f"UserService.create_user() common insecure password used for email='{email}'"
+            )
+
+        name = user_data.name
+        if len(password) == len(name) and password.lower() == name.lower():
+            logger.warning(
+                f"UserService.create_user() password same as username for email='{email}'"
+            )
+
+        if name:
+            if len(name.strip()) < 1:
+                logger.warning(
+                    f"UserService.create_user() empty name for email='{email}'"
+                )
+            if len(name) > 100:
+                logger.warning(
+                    f"UserService.create_user() long name: {len(name)} characters for email='{email}'"
+                )
+            if name.lower() in [
+                "admin",
+                "administrator",
+                "root",
+                "test",
+                "user",
+                "guest",
+            ]:
+                logger.warning(
+                    f"UserService.create_user() potentially problematic name: '{name}' for email='{email}'"
+                )
+        else:
+            logger.warning(
+                f"UserService.create_user() missing name for email='{email}'"
+            )
+
         if await self.user_repository.email_exists(email):
-            logger.warning(f"User creation failed: Email '{email}' already exists")
+            logger.warning(
+                f"UserService.create_user() failed: Email '{email}' already exists"
+            )
             raise DuplicateResourceError(f"User with email '{email}' already exists")
 
-        user_id = await self.user_repository.create_one(user_data)
+        user_id = await self.user_repository.create_user(user_data)
         if not user_id:
-            logger.error(f"Failed to create user with email: {email}")
+            logger.error(
+                f"UserService.create_user() failed: Could not create user with email: {email}"
+            )
             raise DatabaseError("Failed to create user")
 
-        logger.info(f"Successfully created user with ID: {user_id}")
+        logger.info(
+            f"UserService.create_user() successfully created user with ID: {user_id}"
+        )
         return user_id
 
-    async def get_users_by_email(self, email: str) -> List[Dict[str, Any]]:
+    async def get_users_by_email(self, email: str) -> List[UserResponse]:
         """Get users by email."""
         logger.debug(f"Getting users by email: {email}")
 
@@ -87,7 +151,7 @@ class UserService:
         logger.info(f"Found {len(users)} users with email: {email}")
         return users
 
-    async def get_users_by_name(self, name: str) -> List[Dict[str, Any]]:
+    async def get_users_by_name(self, name: str) -> List[UserResponse]:
         """Get users by name."""
         logger.debug(f"Getting users by name: {name}")
 

@@ -1,6 +1,6 @@
-import subprocess
 import argparse
 import os
+import subprocess
 
 
 def main():
@@ -22,12 +22,22 @@ def main():
     api_proc = None
     if args.backend:
         api_proc = subprocess.Popen(
-            ["uvicorn", "app.main:app", "--reload", "--port", "8000"]
+            [
+                "uvicorn",
+                "app.main:app",
+                "--reload",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+            ]
         )
 
     frontend_proc = None
     if args.frontend:
-        frontend_proc = subprocess.Popen(["npm", "--prefix", "frontend", "start"])
+        frontend_proc = subprocess.Popen(
+            ["npm", "--prefix", "frontend", "start", "--host", "0.0.0.0"]
+        )
 
     try:
         print("Starting services...")

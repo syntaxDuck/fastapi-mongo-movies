@@ -1,7 +1,7 @@
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import ValidationError
-from ...schemas.movie import MovieResponse, MovieQuery
+from ...schemas.schemas import MovieResponse, MovieQuery
 from ...services.movie_service import MovieService
 from ...repositories.movie_repository import MovieRepository
 from ...core.exceptions import NotFoundError
@@ -83,13 +83,20 @@ async def get_movie_genres(
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get movie genres."""
+    logger.info("API: get_movie_genres() called")
+
     try:
         genres = await movie_service.get_all_genres()
+        logger.info(
+            f"API: get_movie_genres() successfully retrieved {len(genres)} genres"
+        )
         return genres
 
     except NotFoundError as e:
+        logger.warning(f"API: get_movie_genres() no genres found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_movie_genres() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -104,33 +111,48 @@ async def get_movies_by_genre(
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get movies by genre."""
+    logger.info(
+        f"API: get_movies_by_genre() called with genre='{movie_genre}', limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+    )
+
     try:
         movies = await movie_service.get_movies_by_genre(
             movie_genre, limit, skip, include_invalid_posters
         )
-        return [MovieResponse.from_dict(movie) for movie in movies]
+        logger.info(
+            f"API: get_movies_by_genre() found {len(movies)} movies in genre '{movie_genre}'"
+        )
+        return movies
 
     except NotFoundError as e:
+        logger.warning(f"API: get_movies_by_genre() no movies found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
     except ValidationError as e:
-        logger.error(f"Error validating Movie data: {e}")
+        logger.error(f"API: get_movies_by_genre() error validating Movie data: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_movies_by_genre() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
+# BUG: This isn't returning movie types
 @router.get("/types")
 async def get_movie_types(
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get movie types."""
+    logger.info("API: get_movie_types() called")
+
     try:
-        genres = await movie_service.get_all_types()
-        return genres
+        types = await movie_service.get_all_types()
+        logger.info(f"API: get_movie_types() successfully retrieved {len(types)} types")
+        return types
 
     except NotFoundError as e:
+        logger.warning(f"API: get_movie_types() no types found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_movie_types() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -145,15 +167,24 @@ async def get_movies_by_type(
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get movies by type."""
+    logger.info(
+        f"API: get_movies_by_type() called with type='{movie_type}', limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+    )
+
     try:
         movies = await movie_service.get_movies_by_type(
             movie_type, limit, skip, include_invalid_posters
         )
-        return [MovieResponse.from_dict(movie) for movie in movies]
+        logger.info(
+            f"API: get_movies_by_type() found {len(movies)} movies of type '{movie_type}'"
+        )
+        return movies
 
     except NotFoundError as e:
+        logger.warning(f"API: get_movies_by_type() no movies found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_movies_by_type() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -168,15 +199,24 @@ async def get_movies_by_year(
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get movies by release year."""
+    logger.info(
+        f"API: get_movies_by_year() called with year={year}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+    )
+
     try:
         movies = await movie_service.get_movies_by_year(
             year, limit, skip, include_invalid_posters
         )
-        return [MovieResponse.from_dict(movie) for movie in movies]
+        logger.info(
+            f"API: get_movies_by_year() found {len(movies)} movies from year {year}"
+        )
+        return movies
 
     except NotFoundError as e:
+        logger.warning(f"API: get_movies_by_year() no movies found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_movies_by_year() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -185,11 +225,18 @@ async def get_movie_by_id(
     movie_id: str, movie_service: MovieService = Depends(get_movie_service)
 ):
     """Get a specific movie by ID."""
+    logger.info(f"API: get_movie_by_id() called with movie_id={movie_id}")
+
     try:
         movie = await movie_service.get_movie_by_id(movie_id)
-        return MovieResponse.from_dict(movie)
+        logger.info(
+            f"API: get_movie_by_id() successfully retrieved movie: {movie.title if hasattr(movie, 'title') else 'Unknown'}"
+        )
+        return movie
 
     except NotFoundError as e:
+        logger.warning(f"API: get_movie_by_id() movie not found: {e}")
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception:
+    except Exception as e:
+        logger.error(f"API: get_movie_by_id() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")

@@ -68,16 +68,16 @@ def configure_component_loggers() -> None:
     """Configure logging levels for different application components."""
 
     # Database operations - debug level for detailed queries
-    logging.getLogger("app.core.database").setLevel(logging.DEBUG)
+    logging.getLogger("app.core.database").setLevel(settings.LOG_LEVEL)
 
     # Repository operations - info level
-    logging.getLogger("app.repositories").setLevel(logging.INFO)
+    logging.getLogger("app.repositories").setLevel(settings.LOG_LEVEL)
 
     # Service layer - info level
-    logging.getLogger("app.services").setLevel(logging.INFO)
+    logging.getLogger("app.services").setLevel(settings.LOG_LEVEL)
 
     # API routes - info level
-    logging.getLogger("app.api").setLevel(logging.INFO)
+    logging.getLogger("app.api").setLevel(settings.LOG_LEVEL)
 
     # HTTP requests - warning level (less noisy)
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)

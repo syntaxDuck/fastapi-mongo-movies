@@ -42,9 +42,7 @@
     width: 320px;
     min-width: 320px;
     height: calc(100vh - 64px);
-    position: fixed;
     left: 0;
-    top: 64px;
     border-right: 2px solid var(--border-primary);
     border-top: none;
     border-bottom: none;
@@ -175,6 +173,7 @@
 }
 
 .movieRating {
+  grow: 1;
   top: var(--space-3);
   right: var(--space-3);
   background: rgba(34, 197, 94, 0.2);
