@@ -22,7 +22,17 @@ function useMediaQuery(query: string) {
   return matches;
 }
 
-const MoviePage: React.FC = () => {
+interface MoviePageProps {
+  filter?: {
+    genre?: string;
+    director?: string;
+    minYear?: number;
+    maxYear?: number;
+    minRating?: number;
+  },
+}
+
+const MoviePage: React.FC<MoviePageProps> = ({ filter }) => {
   const [selectedMovie, setSelectedMovie] = useState("");
 
   const handleMovieSelect = (movieId: string) => {
@@ -33,7 +43,7 @@ const MoviePage: React.FC = () => {
 
   return (
     <div className={styles.moviePageContainer}>
-      <MovieList onMovieSelect={handleMovieSelect} disableCardLink={isDesktop} />
+      <MovieList filter={filter} onMovieSelect={handleMovieSelect} disableCardLink={isDesktop} />
       {isDesktop && (
         <div className={styles.movieDetailsContainer}>
           {selectedMovie ? (

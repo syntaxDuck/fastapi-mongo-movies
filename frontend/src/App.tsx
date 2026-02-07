@@ -97,12 +97,12 @@ const AppWithTransitions: React.FC = () => {
             } />
             <Route path="/top-rated" element={
               <PageTransition>
-                <MovieList filter={{ minRating: 8 }} />
+                <MoviePage filter={{ minRating: 8 }} />
               </PageTransition>
             } />
             <Route path="/recent" element={
               <PageTransition>
-                <MovieList filter={{ minYear: 2020 }} />
+                <MoviePage filter={{ minYear: 2020 }} />
               </PageTransition>
             } />
             <Route path="/about" element={

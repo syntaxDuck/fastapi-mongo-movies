@@ -76,7 +76,7 @@ const GenresPage: React.FC = () => {
 
   if (initialLoad && loading) {
     return (
-      <div className={styles.genresViewContainer}>
+      <div className={styles.genresPageContainer}>
         <motion.div
           className={styles.genresHeader}
           initial={{ opacity: 0, y: -20 }}
@@ -120,7 +120,7 @@ const GenresPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className={styles.genresViewContainer}>
+      <div className={styles.genresPageContainer}>
         <motion.div
           className={styles.errorContainer}
           initial={{ opacity: 0, scale: 0.9 }}
@@ -144,7 +144,7 @@ const GenresPage: React.FC = () => {
   }
 
   return (
-    <div className={styles.genresViewContainer}>
+    <div className={styles.genresPageContainer}>
       <motion.div
         className={styles.genresHeader}
         initial={{ opacity: 0, y: -20 }}
