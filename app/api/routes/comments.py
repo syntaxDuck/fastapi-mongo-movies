@@ -68,28 +68,6 @@ async def get_comments(
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@router.get("/{comment_id}", response_model=CommentResponse)
-async def get_comment_by_id(
-    comment_id: str, comment_service: CommentService = Depends(get_comment_service)
-):
-    """Get a specific comment by ID."""
-    logger.info(f"API: get_comment_by_id() called with comment_id={comment_id}")
-
-    try:
-        comment = await comment_service.get_comment_by_id(comment_id)
-        logger.info(
-            f"API: get_comment_by_id() successfully retrieved comment by {comment.name if hasattr(comment, 'name') else 'Unknown'}"
-        )
-        return comment
-
-    except NotFoundError as e:
-        logger.warning(f"API: get_comment_by_id() comment not found: {e}")
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"API: get_comment_by_id() unexpected error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-
 @router.get("/movie/{movie_id}", response_model=List[CommentResponse])
 async def get_comments_by_movie_id(
     movie_id: str,
@@ -174,4 +152,26 @@ async def get_comments_by_name(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         logger.error(f"API: get_comments_by_name() unexpected error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/{comment_id}", response_model=CommentResponse)
+async def get_comment_by_id(
+    comment_id: str, comment_service: CommentService = Depends(get_comment_service)
+):
+    """Get a specific comment by ID."""
+    logger.info(f"API: get_comment_by_id() called with comment_id={comment_id}")
+
+    try:
+        comment = await comment_service.get_comment_by_id(comment_id)
+        logger.info(
+            f"API: get_comment_by_id() successfully retrieved comment by {comment.name if hasattr(comment, 'name') else 'Unknown'}"
+        )
+        return comment
+
+    except NotFoundError as e:
+        logger.warning(f"API: get_comment_by_id() comment not found: {e}")
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"API: get_comment_by_id() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")

@@ -17,9 +17,10 @@ interface MovieListProps {
     minRating?: number;
   },
   onMovieSelect?: CallableFunction;
+  disableCardLink?: boolean;
 }
 
-const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null }) => {
+const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, disableCardLink = false }) => {
   const [searchParams] = useSearchParams();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,13 +80,11 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null }) =
     loadMovies(nextPage, false);
   };
 
-  const disableCardLink = onMovieSelect != null ? true : false;
-
   if (initialLoad && loading) {
     return (
       <div className={styles.movieListContainer}>
-        <LoadingWrapper 
-          isLoading={true} 
+        <LoadingWrapper
+          isLoading={true}
           children={null}
           fallback={
             <div className={styles.movieList}>
@@ -97,7 +96,7 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null }) =
                 </div>
               ))}
             </div>
-          } 
+          }
         />
       </div>
     );
@@ -109,7 +108,7 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null }) =
 
   return (
     <div className={styles.movieListContainer}>
-      <motion.div 
+      <motion.div
         className={styles.movieList}
         layout
         initial="hidden"
@@ -145,10 +144,10 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null }) =
               }}
               whileTap={{ scale: 0.98 }}
             >
-              <MovieCard 
-                onClick={() => onMovieSelect ? onMovieSelect(movie._id) : null} 
-                movie={movie} 
-                disableLink={disableCardLink} 
+              <MovieCard
+                onClick={() => onMovieSelect ? onMovieSelect(movie._id) : null}
+                movie={movie}
+                disableLink={disableCardLink}
               />
             </motion.div>
           ))}

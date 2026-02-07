@@ -56,7 +56,7 @@ async def get_movies(
                 include_invalid_posters=query.include_invalid_posters or False,
             )
         else:
-            movies = await movie_service.get_movies(
+            movies = await movie_service.search_movies_multiple_criteria(
                 movie_id=query.id,
                 title=query.title,
                 movie_type=query.type,

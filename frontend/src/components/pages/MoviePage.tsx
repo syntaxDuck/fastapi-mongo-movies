@@ -33,7 +33,7 @@ const MoviePage: React.FC = () => {
 
   return (
     <div className={styles.moviePageContainer}>
-      <MovieList onMovieSelect={handleMovieSelect} />
+      <MovieList onMovieSelect={handleMovieSelect} disableCardLink={isDesktop} />
       {isDesktop && (
         <div className={styles.movieDetailsContainer}>
           {selectedMovie ? (

@@ -2,13 +2,12 @@
   display: flex;
   height: 100%;
   width: 100%;
-  overflow: hidden;
 }
 
 .movieDetailsContainer {
   flex: 1;
-  height: 100%;
-  overflow: hidden;
+  height: 100vh;
+  overflow: auto;
   position: relative;
 }
 

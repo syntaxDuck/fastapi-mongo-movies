@@ -10,6 +10,7 @@ import {
 } from "./MovieRating";
 import styles from "../../styles/components/movies/MovieDetails.module.css";
 import { CenteredLoading } from "../ui/LoadingComponents";
+import MovieComments from "./MovieComments";
 
 const MovieDetail: React.FC<{ name: string; value: string; item: any }> = ({
   name,
@@ -168,6 +169,7 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ id = "", movie: propMovie }
       <MovieDetailsHeader movie={movie} />
       <MovieDetailsBody movie={movie} />
       <MoviePlot movie={movie} />
+      <MovieComments movieId={movie._id} />
     </motion.div>
   );
 };

@@ -126,7 +126,8 @@ export const movieService = {
 };
 
 export const commentService = {
-  async fetchComments(params?: { movie_id?: string }): Promise<Comment[]> {
+  async fetchComments(movie_id: string, params?: any): Promise<Comment[]> {
+
     const queryParams = new URLSearchParams();
 
     if (params) {
@@ -136,9 +137,8 @@ export const commentService = {
         }
       });
     }
-
     const response = await fetch(
-      `${API_BASE_URL}/comments/?${queryParams.toString()}`,
+      `${API_BASE_URL}/comments/movie/${movie_id}/?${queryParams.toString()}`,
       {
         method: "GET",
         headers: {

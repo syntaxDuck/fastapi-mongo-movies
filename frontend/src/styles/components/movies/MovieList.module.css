@@ -41,7 +41,7 @@
   .movieListContainer {
     width: 320px;
     min-width: 320px;
-    height: calc(100vh - 64px);
+    height: 100vh;
     left: 0;
     border-right: 2px solid var(--border-primary);
     border-top: none;

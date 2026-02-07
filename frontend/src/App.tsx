@@ -9,19 +9,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import NavBar from "./components/ui/NavBar";
 import MovieList from "./components/movies/MovieList";
 import MovieDetails from "./components/movies/MovieDetails";
-
-import GenresView from "./components/genres/GenresView";
 import GenreMoviesView from "./components/genres/GenreMoviesView";
 import ApiDebug from "./components/util/ApiDebug";
 import MoviePage from "./components/pages/MoviePage";
 import HomePage from "./components/pages/HomePage";
 import DevelopmentRoutes from "./components/dev/DevelopmentRoutes";
 import SpinnerTest from "./components/dev/SpinnerTest";
+import GenresPage from "./components/pages/GenresPage";
 
-// Import consolidated stylesheet
 import "./styles/index.css";
 
-// Page transition variants
 const pageVariants = {
   initial: {
     opacity: 0,
@@ -90,7 +87,7 @@ const AppWithTransitions: React.FC = () => {
             } />
             <Route path="/genres" element={
               <PageTransition>
-                <GenresView />
+                <GenresPage />
               </PageTransition>
             } />
             <Route path="/genres/:genre" element={
