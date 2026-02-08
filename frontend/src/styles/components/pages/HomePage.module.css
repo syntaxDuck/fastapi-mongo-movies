@@ -37,7 +37,7 @@
     rgba(255, 255, 255, 0.02) 50%,
     transparent 70%
   );
-  animation: shimmer 3s ease-in-out infinite;
+  animation: shimmer 3s ease-in-out;
 }
 
 .heroTitle {
@@ -59,13 +59,6 @@
   position: relative;
   z-index: 2;
   animation: fadeInUp var(--transition-slow) ease-out;
-}
-
-@media (max-width: 768px) {
-  .heroTitle {
-    font-size: clamp(var(--text-3xl), 8vw, var(--text-5xl));
-    margin-bottom: var(--space-6);
-  }
 }
 
 .heroSubtitle {
@@ -165,6 +158,11 @@
 
 /* Responsive Button Adjustments */
 @media (max-width: 768px) {
+  .heroTitle {
+    font-size: clamp(var(--text-3xl), 8vw, var(--text-5xl));
+    margin-bottom: var(--space-6);
+  }
+
   .heroActions {
     gap: var(--space-4);
     flex-direction: column;
@@ -288,5 +286,14 @@
 @media (min-width: 1024px) {
   .featuresGrid {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }

@@ -43,6 +43,7 @@
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: gradientShift 8s ease-in-out infinite;
 }
 
 .promptText {
@@ -120,5 +121,14 @@
   
   .promptFeatures {
     margin-top: var(--space-6);
+  }
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
 }

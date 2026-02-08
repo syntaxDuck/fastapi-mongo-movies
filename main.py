@@ -35,9 +35,7 @@ def main():
 
     frontend_proc = None
     if args.frontend:
-        frontend_proc = subprocess.Popen(
-            ["npm", "--prefix", "frontend", "start", "--host", "0.0.0.0"]
-        )
+        frontend_proc = subprocess.Popen(["npm", "--prefix", "frontend", "start"])
 
     try:
         print("Starting services...")

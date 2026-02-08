@@ -6,8 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import NavBar from "./components/ui/NavBar";
-import MovieList from "./components/movies/MovieList";
+import NavBar from "./components/ui/nav/NavBar";
 import MovieDetails from "./components/movies/MovieDetails";
 import GenreMoviesView from "./components/genres/GenreMoviesView";
 import ApiDebug from "./components/util/ApiDebug";
@@ -16,6 +15,7 @@ import HomePage from "./components/pages/HomePage";
 import DevelopmentRoutes from "./components/dev/DevelopmentRoutes";
 import SpinnerTest from "./components/dev/SpinnerTest";
 import GenresPage from "./components/pages/GenresPage";
+import AboutPage from "./components/pages/AboutPage";
 
 import "./styles/index.css";
 
@@ -102,12 +102,12 @@ const AppWithTransitions: React.FC = () => {
             } />
             <Route path="/recent" element={
               <PageTransition>
-                <MoviePage filter={{ minYear: 2020 }} />
+                <MoviePage filter={{ minYear: 2000 }} />
               </PageTransition>
             } />
             <Route path="/about" element={
               <PageTransition>
-                <About />
+                <AboutPage />
               </PageTransition>
             } />
             <Route path="/debug" element={
@@ -139,15 +139,7 @@ const AppWithTransitions: React.FC = () => {
 };
 
 
-const About: React.FC = () => (
-  <div>
-    <h1>About</h1>
-    <p>
-      This is a FastAPI MongoDB Movies application built with React frontend.
-    </p>
-    <p>It demonstrates clean architecture with separation of concerns.</p>
-  </div>
-);
+
 
 const Debug: React.FC = () => (
   <div>
