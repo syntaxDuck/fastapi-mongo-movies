@@ -38,7 +38,7 @@
     rgba(255, 255, 255, 0.02) 50%,
     transparent 70%
   );
-  animation: shimmer 3s ease-in-out;
+  animation: var(--animation-shimmer-slow);
 }
 
 .heroContent {
@@ -61,7 +61,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-size: 200% auto;
-  animation: gradientShift 8s ease-in-out infinite;
+  animation: var(--animation-gradient-shift);
 }
 
 .heroSubtitle {
@@ -468,10 +468,21 @@
 
 .statLabel {
   font-size: var(--text-base);
-  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: var(--font-semibold);
+  background: linear-gradient(
+    135deg,
+    var(--text-secondary) 0%,
+    var(--primary-400) 30%,
+    var(--accent-400) 70%,
+    var(--text-secondary) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: var(--animation-gradient-shift);
 }
 
 .databaseInfo {
@@ -544,7 +555,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-size: 200% auto;
-  animation: gradientShift 8s ease-in-out infinite;
+  animation: var(--animation-gradient-shift);
 }
 
 .ctaSubtitle {
@@ -563,23 +574,9 @@
 }
 
 /* Animations */
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
 
-@keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
+
+/* gradientShift keyframe moved to global keyframes.css */
 
 /* Responsive Design */
 @media (max-width: 768px) {

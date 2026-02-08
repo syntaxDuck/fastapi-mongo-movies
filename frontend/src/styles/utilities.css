@@ -1,201 +1,35 @@
 /* Premium Animations, Transitions, and Utility Classes */
-
-/* Enhanced Animation Keyframes */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-@keyframes glow {
-  0%, 100% {
-    box-shadow: var(--shadow-lg);
-  }
-  50% {
-    box-shadow: var(--shadow-xl), var(--glow-primary);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes wiggle {
-  0%, 100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(3deg);
-  }
-  75% {
-    transform: rotate(-3deg);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
+/* Keyframes are now imported from keyframes.css */
 /* Premium Animation Classes */
 .fade-in {
-  animation: fadeInUp var(--transition-slow) ease-out;
+  animation: var(--animation-fade-in-up);
 }
 
-.fade-in-down {
-  animation: fadeInDown var(--transition-slow) ease-out;
+.shimmer {
+  animation: var(--animation-shimmer, shimmer 1.5s ease-in-out infinite);
 }
 
-.slide-in-left {
-  animation: slideInLeft var(--transition-slow) ease-out;
-}
-
-.slide-in-right {
-  animation: slideInRight var(--transition-slow) ease-out;
-}
-
-.scale-in {
-  animation: scaleIn var(--transition-normal) ease-out;
-}
-
-.bounce-in {
-  animation: bounceIn var(--transition-bounce) ease-out;
+.shimmer-slow {
+  animation: var(--animation-shimmer-slow, shimmer 3s ease-in-out infinite);
 }
 
 .pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: var(--animation-pulse);
 }
 
-.spin {
-  animation: spin 1s linear infinite;
+/* Animation Custom Properties for use in CSS Modules */
+:root {
+  --animation-shimmer: shimmer 1.5s ease-in-out infinite;
+  --animation-shimmer-slow: shimmer 3s ease-in-out infinite;
+  --animation-fade-in-up: fadeInUp var(--transition-slow) ease-out;
+  --animation-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animation-spin: spin 1s linear infinite;
+  --animation-fade-in-up-forwards: fadeInUp var(--transition-slow) ease-out forwards;
+  --animation-gradient-shift: gradientShift 8s ease-in-out infinite;
+  --animation-fade-in-up-normal: fadeInUp var(--transition-normal) ease-out;
 }
 
-.glow {
-  animation: glow 2s ease-in-out infinite;
-}
 
-.float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.wiggle {
-  animation: wiggle 0.5s ease-in-out;
-}
-
-.wiggle:hover {
-  animation: wiggle 0.5s ease-in-out infinite;
-}
 
 /* Enhanced Transition Utilities */
 .transition {
@@ -231,23 +65,9 @@
   box-shadow: var(--shadow-lg);
 }
 
-.btn-hover-glow {
-  transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
-}
 
-.btn-hover-glow:hover {
-  box-shadow: var(--shadow-lg), var(--glow-primary);
-  transform: translateY(-2px);
-}
 
-.btn-hover-scale {
-  transition: all var(--transition-fast) cubic-bezier(0.4, 0, 0.2, 1);
-}
 
-.btn-hover-scale:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-lg);
-}
 
 /* Enhanced Card Hover Effects */
 .card-hover {
@@ -261,24 +81,7 @@
   box-shadow: var(--shadow-2xl);
 }
 
-.card-hover-lift {
-  transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
-}
 
-.card-hover-lift:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-2xl), var(--glow-hover);
-}
-
-.card-hover-tilt {
-  transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
-}
-
-.card-hover-tilt:hover {
-  transform: perspective(1000px) rotateX(5deg) rotateY(-5deg) translateY(-4px);
-  box-shadow: var(--shadow-xl);
-}
 
 /* Interactive Effects */
 .interactive {
@@ -333,7 +136,7 @@
 /* Stagger Effect */
 .stagger > * {
   opacity: 0;
-  animation: fadeInUp var(--transition-slow) ease-out forwards;
+  animation: var(--animation-fade-in-up-forwards);
 }
 
 .stagger > *:nth-child(1) { animation-delay: 0.05s; }
@@ -356,42 +159,13 @@
     var(--bg-tertiary) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  animation: var(--animation-shimmer);
   border-radius: var(--radius-lg);
 }
 
-.skeleton-text {
-  height: 1rem;
-  margin: var(--space-2) 0;
-  border-radius: var(--radius-base);
-}
 
-.skeleton-title {
-  height: 1.5rem;
-  margin: var(--space-3) 0;
-  border-radius: var(--radius-md);
-}
 
-.skeleton-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-full);
-}
 
-.skeleton-card {
-  height: 200px;
-  border-radius: var(--radius-xl);
-}
-
-.loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid var(--border-primary);
-  border-top-color: var(--primary-500);
-  border-radius: var(--radius-full);
-  animation: spin 1s linear infinite;
-  box-shadow: var(--glow-primary);
-}
 
 .loading-spinner-sm {
   width: 32px;
@@ -399,7 +173,7 @@
   border: 3px solid var(--border-primary);
   border-top-color: var(--primary-500);
   border-radius: var(--radius-full);
-  animation: spin 1s linear infinite;
+  animation: var(--animation-spin);
 }
 
 .loading-spinner-lg {
@@ -408,14 +182,14 @@
   border: 5px solid var(--border-primary);
   border-top-color: var(--primary-500);
   border-radius: var(--radius-full);
-  animation: spin 1s linear infinite;
+  animation: var(--animation-spin);
   box-shadow: var(--glow-primary);
 }
 
 /* Pulse Loading Effect */
 .loading-pulse {
   opacity: 1;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: var(--animation-pulse);
 }
 
 
@@ -447,198 +221,7 @@
     transform var(--transition-normal);
 }
 
-/* Spacing Utilities */
-.m-0 {
-  margin: 0;
-}
-.mt-0 {
-  margin-top: 0;
-}
-.mb-0 {
-  margin-bottom: 0;
-}
-.ml-0 {
-  margin-left: 0;
-}
-.mr-0 {
-  margin-right: 0;
-}
 
-.m-1 {
-  margin: var(--space-1);
-}
-.mt-1 {
-  margin-top: var(--space-1);
-}
-.mb-1 {
-  margin-bottom: var(--space-1);
-}
-.ml-1 {
-  margin-left: var(--space-1);
-}
-.mr-1 {
-  margin-right: var(--space-1);
-}
-
-.m-2 {
-  margin: var(--space-2);
-}
-.mt-2 {
-  margin-top: var(--space-2);
-}
-.mb-2 {
-  margin-bottom: var(--space-2);
-}
-.ml-2 {
-  margin-left: var(--space-2);
-}
-.mr-2 {
-  margin-right: var(--space-2);
-}
-
-.m-3 {
-  margin: var(--space-3);
-}
-.mt-3 {
-  margin-top: var(--space-3);
-}
-.mb-3 {
-  margin-bottom: var(--space-3);
-}
-.ml-3 {
-  margin-left: var(--space-3);
-}
-.mr-3 {
-  margin-right: var(--space-3);
-}
-
-.m-4 {
-  margin: var(--space-4);
-}
-.mt-4 {
-  margin-top: var(--space-4);
-}
-.mb-4 {
-  margin-bottom: var(--space-4);
-}
-.ml-4 {
-  margin-left: var(--space-4);
-}
-.mr-4 {
-  margin-right: var(--space-4);
-}
-
-.m-6 {
-  margin: var(--space-6);
-}
-.mt-6 {
-  margin-top: var(--space-6);
-}
-.mb-6 {
-  margin-bottom: var(--space-6);
-}
-.ml-6 {
-  margin-left: var(--space-6);
-}
-.mr-6 {
-  margin-right: var(--space-6);
-}
-
-.p-0 {
-  padding: 0;
-}
-.pt-0 {
-  padding-top: 0;
-}
-.pb-0 {
-  padding-bottom: 0;
-}
-.pl-0 {
-  padding-left: 0;
-}
-.pr-0 {
-  padding-right: 0;
-}
-
-.p-1 {
-  padding: var(--space-1);
-}
-.pt-1 {
-  padding-top: var(--space-1);
-}
-.pb-1 {
-  padding-bottom: var(--space-1);
-}
-.pl-1 {
-  padding-left: var(--space-1);
-}
-.pr-1 {
-  padding-right: var(--space-1);
-}
-
-.p-2 {
-  padding: var(--space-2);
-}
-.pt-2 {
-  padding-top: var(--space-2);
-}
-.pb-2 {
-  padding-bottom: var(--space-2);
-}
-.pl-2 {
-  padding-left: var(--space-2);
-}
-.pr-2 {
-  padding-right: var(--space-2);
-}
-
-.p-3 {
-  padding: var(--space-3);
-}
-.pt-3 {
-  padding-top: var(--space-3);
-}
-.pb-3 {
-  padding-bottom: var(--space-3);
-}
-.pl-3 {
-  padding-left: var(--space-3);
-}
-.pr-3 {
-  padding-right: var(--space-3);
-}
-
-.p-4 {
-  padding: var(--space-4);
-}
-.pt-4 {
-  padding-top: var(--space-4);
-}
-.pb-4 {
-  padding-bottom: var(--space-4);
-}
-.pl-4 {
-  padding-left: var(--space-4);
-}
-.pr-4 {
-  padding-right: var(--space-4);
-}
-
-.p-6 {
-  padding: var(--space-6);
-}
-.pt-6 {
-  padding-top: var(--space-6);
-}
-.pb-6 {
-  padding-bottom: var(--space-6);
-}
-.pl-6 {
-  padding-left: var(--space-6);
-}
-.pr-6 {
-  padding-right: var(--space-6);
-}
 
 /* Text Utilities */
 .text-center {

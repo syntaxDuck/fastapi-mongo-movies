@@ -1,25 +1,5 @@
-/* Global Styles Index - Only global styles */
-
-/* Import global stylesheets in correct order */
-
-/* 1. Design System - CSS Custom Properties and Base Styles */
+/* styles/globals.css */
+@import "./keyframes.css";
 @import "./design-system.css";
-
-/* 2. Layout Components */
 @import "./layout.css";
-
-/* 3. Utility Classes and Animations */
-@import "./utilities.css";
-
-/* Global Styles Index - Only global styles */
-
-/* Import global stylesheets in correct order */
-
-/* 1. Design System - CSS Custom Properties and Base Styles */
-@import "./design-system.css";
-
-/* 2. Layout Components */
-@import "./layout.css";
-
-/* 3. Utility Classes and Animations */
 @import "./utilities.css";
