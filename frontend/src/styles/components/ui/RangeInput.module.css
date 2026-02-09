@@ -1,33 +1,155 @@
-.rangeContainer {
+/* RangeInput Component Styles - CSS Modules */
+
+.rangeInput {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
   border: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  width: 100%;
 }
 
-.label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
+.rangeLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  margin-bottom: var(--space-1);
   padding: 0;
 }
 
-.rangeInputs {
+.rangeFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.rangeFieldGroup {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-3);
 }
 
 .rangeField {
   flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  font-family: inherit;
+  transition: all var(--transition-normal);
+  outline: none;
+  box-sizing: border-box;
+  text-align: center;
+  width: 100%;
+}
+
+.rangeField::placeholder {
+  color: var(--text-muted);
+}
+
+.rangeField:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: var(--bg-primary);
+}
+
+.rangeField:hover:not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+.minField {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.maxField {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .rangeSeparator {
   color: var(--text-muted);
-  font-weight: 300;
+  font-weight: var(--font-semibold);
+  font-size: var(--text-lg);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+/* States */
+.rangeError {
+  /* Container-level error styles if needed */
+}
+
+.fieldError {
+  border-color: var(--border-error);
+  background: var(--bg-error);
+}
+
+.fieldError:focus {
+  border-color: var(--border-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.rangeDisabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.rangeDisabled .rangeField {
+  background: var(--bg-tertiary);
+  border-color: var(--border-primary);
+  cursor: not-allowed;
+}
+
+.rangeDisabled .rangeField:hover {
+  border-color: var(--border-primary);
+}
+
+/* Error Message */
+.errorMessage {
+  color: var(--text-error);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-tight);
+  margin-top: var(--space-1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .rangeFieldGroup {
+    gap: var(--space-2);
+  }
+
+  .rangeField {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .rangeSeparator {
+    font-size: var(--text-base);
+  }
+}
+
+/* Compact variant for filter panels */
+.rangeInput.compact .rangeField {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.rangeInput.compact .rangeLabel {
+  font-size: var(--text-xs);
+  margin-bottom: 0;
+}
+
+.rangeInput.compact .rangeSeparator {
+  font-size: var(--text-base);
+}
+
+.inputWithLabel {
+  flex: 1;
 }

@@ -1,51 +1,71 @@
-import React, { useId } from "react";
+import React, { forwardRef, useId } from "react";
+import { motion } from "framer-motion";
 import styles from "../../styles/components/ui/Input.module.css";
 
+// Input component interface
 export interface InputProps {
-  type?: "text" | "password" | "email" | "number" | "search" | "tel" | "url";
+  type?: 'text' | 'email' | 'number' | 'search';
   placeholder?: string;
-  value: string | number;
-  onChange: (value: string) => void;
+  value?: string | number;
+  onChange?: (value: string) => void;
+  variant?: 'default' | 'search' | 'filter';
+  size?: 'sm' | 'md' | 'lg';
   label?: string;
-  error?: string;
   required?: boolean;
+  error?: string;
   disabled?: boolean;
   className?: string;
   id?: string;
-  name?: string;
-  autoComplete?: string;
+  'aria-label'?: string;
+  'aria-describedby'?: string;
   onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  variant?: "default" | "search" | "outline";
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
 
-const Input: React.FC<InputProps> = ({
-  type = "text",
+// Framer Motion variants for input
+const inputVariants = {
+  idle: { scale: 1 },
+  focus: { scale: 1.02 },
+  disabled: { opacity: 0.6 }
+};
+
+const Input = forwardRef<HTMLInputElement, InputProps>(({
+  type = 'text',
   placeholder,
-  value,
+  value = '',
   onChange,
+  variant = 'default',
+  size = 'md',
   label,
-  error,
   required = false,
+  error,
   disabled = false,
-  className = "",
+  className,
   id: providedId,
-  name,
-  autoComplete,
+  'aria-label': ariaLabel,
+  'aria-describedby': ariaDescribedBy,
   onKeyPress,
-  variant = "default",
-}) => {
+  onFocus,
+  onBlur
+}, ref) => {
   const generatedId = useId();
   const id = providedId || generatedId;
 
+  // Build CSS classes
   const inputClasses = [
     styles.input,
     styles[variant],
+    styles[size],
     error && styles.inputError,
     disabled && styles.inputDisabled,
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+    className
+  ].filter(Boolean).join(' ');
+
+  // Handle input change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.value);
+  };
 
   return (
     <div className={styles.inputContainer}>
@@ -55,22 +75,46 @@ const Input: React.FC<InputProps> = ({
           {required && <span className={styles.required}>*</span>}
         </label>
       )}
-      <input
-        id={id}
-        name={name}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyPress={onKeyPress}
-        placeholder={placeholder}
-        disabled={disabled}
-        required={required}
-        autoComplete={autoComplete}
-        className={inputClasses}
-      />
-      {error && <span className={styles.errorText}>{error}</span>}
+      <motion.div
+        className={styles.inputWrapper}
+        variants={inputVariants}
+        animate={disabled ? "disabled" : "idle"}
+        whileFocus="focus"
+        transition={{ duration: 0.2 }}
+      >
+        <input
+          ref={ref}
+          type={type}
+          id={id}
+          placeholder={placeholder}
+          value={value}
+          onChange={handleChange}
+          onKeyPress={onKeyPress}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          disabled={disabled}
+          className={inputClasses}
+          aria-label={ariaLabel}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={error ? 'true' : 'false'}
+          required={required}
+        />
+        {error && (
+          <motion.div
+            className={styles.errorMessage}
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.2 }}
+          >
+            {error}
+          </motion.div>
+        )}
+      </motion.div>
     </div>
   );
-};
+});
+
+Input.displayName = 'Input';
 
 export default Input;

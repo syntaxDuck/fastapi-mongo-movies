@@ -1,82 +1,186 @@
-import React, { useId } from "react";
+import React, { forwardRef, useId } from "react";
+import { motion } from "framer-motion";
 import styles from "../../styles/components/ui/RangeInput.module.css";
-import Input from "./Input";
 
-export interface RangeValue {
-  min: number;
-  max: number;
-}
-
+// RangeInput component interface
 export interface RangeInputProps {
-  label?: string;
-  min: number;
-  max: number;
-  value: RangeValue;
-  onChange: (value: RangeValue) => void;
-  step?: number;
-  placeholder?: {
-    min: string;
-    max: string;
-  };
-  disabled?: boolean;
+  min?: number;
+  max?: number;
+  value?: { min: number; max: number };
+  onChange?: (range: { min: number; max: number }) => void;
+  placeholder?: { min: string; max: string };
+  error?: string;
   className?: string;
+  label?: string;
+  disabled?: boolean;
+  id?: string;
+  'aria-label'?: string;
+  'aria-describedby'?: string;
 }
 
-const RangeInput: React.FC<RangeInputProps> = ({
-  label,
-  min,
-  max,
-  value,
+// Framer Motion variants for range input
+const rangeVariants = {
+  idle: { scale: 1 },
+  focus: { scale: 1.02 },
+  disabled: { opacity: 0.6 }
+};
+
+const RangeInput = forwardRef<HTMLFieldSetElement, RangeInputProps>(({
+  min = 0,
+  max = 100,
+  value = { min: min, max: max },
   onChange,
-  placeholder,
+  placeholder = { min: "Min", max: "Max" },
+  error,
+  className,
+  label,
   disabled = false,
-  className = "",
-}) => {
-  const minId = useId();
-  const maxId = useId();
+  id: providedId,
+  'aria-label': ariaLabel,
+  'aria-describedby': ariaDescribedBy
+}, ref) => {
+  const generatedId = useId();
+  const id = providedId || generatedId;
+  const minInputId = `${id}-min`;
+  const maxInputId = `${id}-max`;
 
-  const handleMinChange = (newMin: string) => {
-    const val = parseInt(newMin) || min;
-    onChange({ ...value, min: Math.min(val, value.max) });
+  // Handle min value change
+  const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newMin = parseInt(e.target.value) || min;
+    const newMax = Math.max(newMin, value?.max || max);
+    onChange?.({ min: newMin, max: newMax });
   };
 
-  const handleMaxChange = (newMax: string) => {
-    const val = parseInt(newMax) || max;
-    onChange({ ...value, max: Math.max(val, value.min) });
+  // Handle max value change
+  const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newMax = parseInt(e.target.value) || max;
+    const newMin = Math.min(newMax, value?.min || min);
+    onChange?.({ min: newMin, max: newMax });
   };
 
-  const containerClasses = [styles.rangeContainer, className]
-    .filter(Boolean)
-    .join(" ");
+  // Validate range
+  const validateRange = (val: number, type: 'min' | 'max') => {
+    if (type === 'min') {
+      return val >= min && val <= (value?.max || max);
+    } else {
+      return val <= max && val >= (value?.min || min);
+    }
+  };
+
+  // Check if values are valid
+  const isMinValid = value?.min !== undefined ? validateRange(value.min, 'min') : true;
+  const isMaxValid = value?.max !== undefined ? validateRange(value.max, 'max') : true;
+
+  // Build CSS classes
+  const rangeClasses = [
+    styles.rangeInput,
+    error && styles.rangeError,
+    disabled && styles.rangeDisabled,
+    className
+  ].filter(Boolean).join(' ');
+
+  const inputClasses = [
+    styles.rangeField,
+    !isMinValid && styles.fieldError,
+    !isMaxValid && styles.fieldError
+  ].filter(Boolean).join(' ');
 
   return (
-    <fieldset className={containerClasses} disabled={disabled}>
-      {label && <legend className={styles.label}>{label}</legend>}
-      <div className={styles.rangeInputs}>
-        <Input
-          id={minId}
-          type="number"
-          value={value.min}
-          onChange={handleMinChange}
-          placeholder={placeholder?.min}
-          variant="outline"
-          className={styles.rangeField}
-          label="Min"
-        />
-        <span className={styles.rangeSeparator}>—</span>
-        <Input
-          id={maxId}
-          type="number"
-          value={value.max}
-          onChange={handleMaxChange}
-          placeholder={placeholder?.max}
-          variant="outline"
-          className={styles.rangeField}
-          label="Max"
-        />
+    <motion.fieldset
+      ref={ref}
+      id={id}
+      className={rangeClasses}
+      variants={rangeVariants}
+      animate={disabled ? "disabled" : "idle"}
+      whileFocus="focus"
+      transition={{ duration: 0.2 }}
+      aria-label={ariaLabel}
+      aria-describedby={ariaDescribedBy}
+    >
+      {label && (
+        <legend className={styles.rangeLabel}>
+          {label}
+        </legend>
+      )}
+
+      <div className={styles.rangeFields}>
+        <div className={styles.rangeFieldGroup}>
+          <div className={styles.inputWithLabel}>
+            <label htmlFor={minInputId} className="sr-only">Min {label}</label>
+            <motion.input
+              id={minInputId}
+              type="number"
+              min={min}
+              max={value?.max || max}
+              value={value?.min ?? ''}
+              onChange={handleMinChange}
+              placeholder={placeholder.min}
+              disabled={disabled}
+              className={`${inputClasses} ${styles.minField}`}
+              aria-invalid={!isMinValid ? 'true' : 'false'}
+              whileFocus={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            />
+          </div>
+          <span className={styles.rangeSeparator}>—</span>
+          <div className={styles.inputWithLabel}>
+            <label htmlFor={maxInputId} className="sr-only">Max {label}</label>
+            <motion.input
+              id={maxInputId}
+              type="number"
+              min={value?.min || min}
+              max={max}
+              value={value?.max ?? ''}
+              onChange={handleMaxChange}
+              placeholder={placeholder.max}
+              disabled={disabled}
+              className={`${inputClasses} ${styles.maxField}`}
+              aria-invalid={!isMaxValid ? 'true' : 'false'}
+              whileFocus={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            />
+          </div>
+        </div>
       </div>
-    </fieldset>
+
+      {error && (
+        <motion.div
+          className={styles.errorMessage}
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -5 }}
+          transition={{ duration: 0.2 }}
+        >
+          {error}
+        </motion.div>
+      )}
+
+      {/* Range validation errors */}
+      {!isMinValid && (
+        <motion.div
+          className={styles.errorMessage}
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          Minimum value must be between {min} and {value?.max || max}
+        </motion.div>
+      )}
+
+      {!isMaxValid && (
+        <motion.div
+          className={styles.errorMessage}
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          Maximum value must be between {value?.min || min} and {max}
+        </motion.div>
+      )}
+    </motion.fieldset>
   );
-};
+});
+
+RangeInput.displayName = 'RangeInput';
 
 export default RangeInput;

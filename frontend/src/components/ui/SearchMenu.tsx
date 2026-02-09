@@ -202,6 +202,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
           onKeyPress={handleSearchKeyPress}
           variant="search"
           className={styles.searchInput}
+          aria-label="Search movies"
         />
         
         <motion.div className={styles.searchActions}>
