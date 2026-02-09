@@ -38,15 +38,38 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
     async (pageNum: number, reset = false) => {
       try {
         setLoading(true);
+        var mod = "eq";
+        if (filter?.minYear != null) {
+          mod = "gt"
+        }
+        if (filter?.maxYear != null) {
+          mod = "lte"
+        }
+        if (filter?.minRating != null) {
+          mod = "gt"
+        }
         const params = {
           type: "movie",
+          mod: mod,
           skip: pageNum * pageSize,
           limit: pageSize,
           search: searchQuery || undefined,
           ...filter,
         };
 
-        const newMovies = await movieService.fetchMovies(params);
+
+        //TODO: Should probably break this up some how, this only allows for hardcoded filtering
+        let newMovies: Movie[] = [];
+        const year = filter?.minYear ?? filter?.maxYear
+        if (filter?.minRating !== undefined) {
+          newMovies = await movieService.getMovieByRating(filter.minRating, params);
+        }
+        else if (year !== undefined) {
+          newMovies = await movieService.getMovieByYear(year, params);
+        } else {
+          newMovies = await movieService.fetchMovies(params)
+        }
+
 
         if (reset) {
           setMovies(newMovies);

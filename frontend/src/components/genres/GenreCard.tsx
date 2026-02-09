@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Image, Badge } from "../ui";
 import { Movie } from "../../types";
 import styles from "../../styles/components/genres/GenreCard.module.css";
 
@@ -9,11 +10,6 @@ interface GenreCardProps {
 }
 
 const GenreCard: React.FC<GenreCardProps> = ({ genre, movie }) => {
-
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src =
-      "https://thumbs.dreamstime.com/b/film-real-25021714.jpg";
-  };
 
   if (!movie) {
     return (<div className={`${styles.genreCard} ${styles.skeleton}`}>
@@ -26,19 +22,26 @@ const GenreCard: React.FC<GenreCardProps> = ({ genre, movie }) => {
     <div className={styles.genreCard}>
       <h3 className={styles.genreTitle}>{genre}</h3>
       <Link to={`/genres/${genre}`} className={styles.genreLink}>
-        <img
+        <Image
           src={movie.poster}
           alt={movie.title}
-          onError={handleImageError}
           className={styles.genrePoster}
-          loading="lazy"
+          animation="zoom"
+          size="auto"
+          rounded="lg"
         />
         <div className={styles.genreOverlay}>
           Explore {genre} movies
         </div>
-        <div className={styles.genreBadge}>
+        <Badge
+          variant="default"
+          size="sm"
+          position="top-right"
+          className={styles.genreBadge}
+          animation="scale"
+        >
           Browse
-        </div>
+        </Badge>
       </Link>
     </div>
   )

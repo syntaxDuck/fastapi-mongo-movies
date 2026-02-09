@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Image, Badge } from "../ui";
+import { AnimationVariants } from "../../utils/animationVariants";
 import { Movie } from "../../types";
 import styles from "../../styles/components/movies/MovieList.module.css";
 
@@ -12,11 +14,6 @@ interface MovieCardProps {
 
 const MovieCard: React.FC<MovieCardProps> = ({ movie, disableLink = false, onClick }) => {
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.src =
-      "https://thumbs.dreamstime.com/b/film-real-25021714.jpg";
-  };
-
   if (!movie) {
     return (<div className={`${styles.movie} skeleton`}>
       <div className={styles.skeletonPoster}></div>
@@ -25,15 +22,13 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, disableLink = false, onCli
 
   const content = (
     <>
-      <motion.img
+      <Image
         src={movie.poster}
         alt={movie.title}
-        onError={handleImageError}
         className={styles.moviePoster}
-        loading="lazy"
-        whileHover={{ scale: 1.08, filter: "brightness(1.05)" }}
-        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        style={{ filter: "brightness(0.95)" }}
+        animation="zoom"
+        size="auto"
+        rounded="lg"
       />
       <motion.div 
         className={styles.movieHoverText}
@@ -44,22 +39,26 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, disableLink = false, onCli
         {movie.title}
       </motion.div>
       {movie.year && (
-        <motion.div 
+        <Badge
+          variant="info"
+          size="sm"
+          position="top-left"
           className={styles.movieYear}
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.2 }}
+          animation="scale"
         >
           {movie.year}
-        </motion.div>
+        </Badge>
       )}
       {movie.imdb?.rating && (
-        <motion.div 
+        <Badge
+          variant="success"
+          size="sm"
+          position="top-right"
           className={styles.movieRating}
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.2 }}
+          animation="scale"
         >
           ★ {movie.imdb.rating}
-        </motion.div>
+        </Badge>
       )}
     </>
   );
@@ -69,9 +68,9 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, disableLink = false, onCli
       <motion.div 
         className={styles.movie} 
         onClick={onClick}
-        whileHover={{ y: -6, scale: 1.02 }}
-        whileTap={{ scale: 0.98, y: -3 }}
-        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+        whileHover={AnimationVariants.movieCard.whileHover}
+        whileTap={AnimationVariants.movieCard.whileTap}
+        transition={AnimationVariants.movieCard.transition as any}
       >
         {content}
       </motion.div>
@@ -81,9 +80,9 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, disableLink = false, onCli
   return (
     <motion.div 
       className={styles.movie}
-      whileHover={{ y: -6, scale: 1.02 }}
-      whileTap={{ scale: 0.98, y: -3 }}
-      transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+      whileHover={AnimationVariants.movieCard.whileHover}
+      whileTap={AnimationVariants.movieCard.whileTap}
+      transition={AnimationVariants.movieCard.transition as any}
     >
       <Link to={`/movie/${movie._id}`} className={styles.movieLink}>
         {content}

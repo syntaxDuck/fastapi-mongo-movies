@@ -2,7 +2,6 @@ import { Movie, Comment } from "../types";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
-//TODO: Currently api requests using minYear and minRating are not working as expected
 export const movieService = {
   async fetchMovies(params?: {
     type?: string;
@@ -26,7 +25,6 @@ export const movieService = {
         queryParams.append(key, value.toString());
       }
     });
-
     const response = await fetch(
       `${API_BASE_URL}/movies/?${queryParams.toString()}`,
       {
@@ -38,6 +36,84 @@ export const movieService = {
       },
     );
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API Error:", response.status, errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`,
+      );
+    }
+
+    const data = await response.json();
+    return processMovies(data);
+  },
+
+  async getMovieByYear(year?: number, params?: {
+    type?: string;
+    skip?: number;
+    limit?: number;
+    mod?: string;
+    include_invalid_posters?: boolean;
+  }): Promise<Movie[]> {
+    const queryParams = new URLSearchParams();
+
+    // Always include include_invalid_posters=false unless explicitly set to true
+    const finalParams = { include_invalid_posters: false, ...params };
+
+    Object.entries(finalParams).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const response = await fetch(
+      `${API_BASE_URL}/movies/year/${year}/?${queryParams.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API Error:", response.status, errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`,
+      );
+    }
+
+    const data = await response.json();
+    return processMovies(data);
+  },
+
+  async getMovieByRating(rating?: number, params?: {
+    type?: string;
+    skip?: number;
+    limit?: number;
+    mod?: string;
+    include_invalid_posters?: boolean;
+  }): Promise<Movie[]> {
+    const queryParams = new URLSearchParams();
+
+    // Always include include_invalid_posters=false unless explicitly set to true
+    const finalParams = { include_invalid_posters: false, ...params };
+
+    Object.entries(finalParams).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const response = await fetch(
+      `${API_BASE_URL}/movies/rating/${rating}/?${queryParams.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
     if (!response.ok) {
       const errorText = await response.text();
       console.error("API Error:", response.status, errorText);
