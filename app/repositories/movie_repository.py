@@ -97,13 +97,13 @@ class MovieRepository(BaseRepository):
         return [MovieResponse.from_dict(movie) for movie in movies]
 
     async def find_by_year(
-        self, year: int, include_invalid_posters: bool = False, **kwargs
+        self, year: int, mod: str, include_invalid_posters: bool = False, **kwargs
     ) -> List[MovieResponse]:
         """Find movies by release year."""
         logger.debug(
             f"MovieRepository.find_by_year() called with year={year}, include_invalid_posters={include_invalid_posters}, kwargs={kwargs}"
         )
-        filter_query = {"year": year}
+        filter_query = {"year": {f"${mod}": year}}
         filter_query = self._add_valid_poster_filter(
             filter_query, include_invalid_posters
         )
@@ -111,6 +111,27 @@ class MovieRepository(BaseRepository):
         movies = await self._find_many(filter_query, **kwargs)
         logger.debug(
             f"MovieRepository.find_by_year() found {len(movies)} movies from year {year}"
+        )
+        return [MovieResponse.from_dict(movie) for movie in movies]
+
+    # TODO: Currently hard coded for imdb rating might be nice to get the tomatoes ratings too
+    async def find_by_rating(
+        self, rating: int, mod: str, include_invalid_posters: bool = False, **kwargs
+    ) -> List[MovieResponse]:
+        """Find movies by release rating."""
+        logger.debug(
+            f"MovieRepository.find_by_rating() called with rating={rating}, include_invalid_posters={include_invalid_posters}, kwargs={kwargs}"
+        )
+        filter_query = {"imdb.rating": {f"${mod}": rating}}
+        filter_query = self._add_valid_poster_filter(
+            filter_query, include_invalid_posters
+        )
+        logger.debug(
+            f"MovieRepository.find_by_rating() executing query: {filter_query}"
+        )
+        movies = await self._find_many(filter_query, **kwargs)
+        logger.debug(
+            f"MovieRepository.find_by_rating() found {len(movies)} movies from rating {rating}"
         )
         return [MovieResponse.from_dict(movie) for movie in movies]
 
@@ -165,7 +186,7 @@ class MovieRepository(BaseRepository):
     async def get_all_types(self) -> List[str]:
         """Get all unique values in a field in movies."""
         logger.debug("MovieRepository.get_types() called - Getting all movie types")
-        values = await self._find_distinct("types")
+        values = await self._find_distinct("type")
         logger.debug(f"MovieRepository.get_types() found {len(values)} types")
         return values
 

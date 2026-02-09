@@ -12,6 +12,8 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/movies", tags=["movies"])
 
 
+# TODO: Might be nice to implement some sorting on the backend so the forntend doens't have to do it
+# TODO: Need to improve endpoint flexability to allow for filtering parameters to be attached to specific parameters
 # TODO: Create utility endpoint that will comb through all movies in dataset and mark the ones with valid posters
 async def get_movie_repository() -> MovieRepository:
     """Dependency to get movie repository instance."""
@@ -135,7 +137,6 @@ async def get_movies_by_genre(
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-# BUG: This isn't returning movie types
 @router.get("/types")
 async def get_movie_types(
     movie_service: MovieService = Depends(get_movie_service),
@@ -191,6 +192,7 @@ async def get_movies_by_type(
 @router.get("/year/{year}", response_model=List[MovieResponse])
 async def get_movies_by_year(
     year: int,
+    mod: str = Query("eq", description="Determin search modifier for query"),
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
     include_invalid_posters: bool = Query(
@@ -205,7 +207,7 @@ async def get_movies_by_year(
 
     try:
         movies = await movie_service.get_movies_by_year(
-            year, limit, skip, include_invalid_posters
+            year, mod, limit, skip, include_invalid_posters
         )
         logger.info(
             f"API: get_movies_by_year() found {len(movies)} movies from year {year}"
@@ -217,6 +219,39 @@ async def get_movies_by_year(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         logger.error(f"API: get_movies_by_year() unexpected error: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/rating/{rating}", response_model=List[MovieResponse])
+async def get_movies_by_rating(
+    rating: int,
+    mod: str = Query("eq", description="Determin search modifier for query"),
+    limit: int = Query(10, ge=1, le=100),
+    skip: int = Query(0, ge=0),
+    include_invalid_posters: bool = Query(
+        False, description="Include movies with invalid posters"
+    ),
+    movie_service: MovieService = Depends(get_movie_service),
+):
+    """Get movies by release year."""
+    logger.info(
+        f"API: get_movies_by_rating() called with rating={rating}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+    )
+
+    try:
+        movies = await movie_service.get_movies_by_rating(
+            rating, mod, limit, skip, include_invalid_posters
+        )
+        logger.info(
+            f"API: get_movies_by_rating() found {len(movies)} movies from rating {rating}"
+        )
+        return movies
+
+    except NotFoundError as e:
+        logger.warning(f"API: get_movies_by_rating() no movies found: {e}")
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"API: get_movies_by_rating() unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 

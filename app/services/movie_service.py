@@ -130,9 +130,63 @@ class MovieService:
         )
         return movies
 
+    async def get_movies_by_rating(
+        self,
+        rating: int,
+        mod: str = "eq",
+        limit: int = 10,
+        skip: int = 0,
+        include_invalid_posters: bool = False,
+    ) -> List[MovieResponse]:
+        """Get movies by year."""
+
+        # Parameter validation logging
+        if rating < 0 or rating > 10:
+            logger.warning(
+                f"MovieService.get_movies_by_rating() suspicious rating parameter: {rating}"
+            )
+        if limit < 0 or limit > 1000:
+            logger.warning(
+                f"MovieService.get_movies_by_rating() invalid limit parameter: {limit}, using default 10"
+            )
+            limit = 10
+        if skip < 0:
+            logger.warning(
+                f"MovieService.get_movies_by_rating() invalid skip parameter: {skip}, using default 0"
+            )
+            skip = 0
+        if mod not in ["lte", "gt", "eq"]:
+            logger.warning(
+                f"MovieService.get_movies_by_rating() invalid mod parameter: {mod}, using default eq"
+            )
+            mod = "eq"
+
+        logger.debug(
+            f"Getting movies by rating: {rating}, modifier: {mod}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+        )
+
+        movies = await self.movie_repository.find_by_rating(
+            rating,
+            mod,
+            limit=limit,
+            skip=skip,
+            include_invalid_posters=include_invalid_posters,
+        )
+        if not movies:
+            logger.info(
+                f"MovieService.get_movies_by_rating() no movies found for rating: {rating} (limit={limit}, skip={skip})"
+            )
+            raise NotFoundError(f"No movies found for rating {rating}")
+
+        logger.info(
+            f"MovieService.get_movies_by_rating() found {len(movies)} movies for rating: {rating}"
+        )
+        return movies
+
     async def get_movies_by_year(
         self,
         year: int,
+        mod: str = "eq",
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
@@ -154,13 +208,19 @@ class MovieService:
                 f"MovieService.get_movies_by_year() invalid skip parameter: {skip}, using default 0"
             )
             skip = 0
+        if mod not in ["lte", "gt", "eq"]:
+            logger.warning(
+                f"MovieService.get_movies_by_year() invalid mod parameter: {mod}, using default eq"
+            )
+            mod = "eq"
 
         logger.debug(
-            f"Getting movies by year: {year}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+            f"Getting movies by year: {year}, modifier: {mod}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
         )
 
         movies = await self.movie_repository.find_by_year(
             year,
+            mod,
             limit=limit,
             skip=skip,
             include_invalid_posters=include_invalid_posters,
