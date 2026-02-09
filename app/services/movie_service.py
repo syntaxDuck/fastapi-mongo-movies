@@ -40,6 +40,8 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
+        sort_by: Optional[str] = None,
+        sort_order: Optional[str] = "asc",
     ) -> List[MovieResponse]:
         """Get movies with optional filtering."""
 
@@ -61,7 +63,7 @@ class MovieService:
         logger.debug(
             f"Getting movies with filters: movie_id={movie_id}, title={title}, "
             f"type={movie_type}, genres={genres}, year={year}, limit={limit}, skip={skip}, "
-            f"include_invalid_posters={include_invalid_posters}"
+            f"include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"
         )
 
         movies = await self.movie_repository.search_movies(
@@ -73,6 +75,8 @@ class MovieService:
             limit=limit,
             skip=skip,
             include_invalid_posters=include_invalid_posters,
+            sort_by=sort_by,
+            sort_order=sort_order,
         )
 
         if not movies:
@@ -90,6 +94,8 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
+        sort_by: Optional[str] = None,
+        sort_order: Optional[str] = "asc",
     ) -> List[MovieResponse]:
         """Get movies by type."""
 
@@ -110,7 +116,7 @@ class MovieService:
             skip = 0
 
         logger.debug(
-            f"Getting movies by type: {movie_type}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+            f"Getting movies by type: {movie_type}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"
         )
 
         movies = await self.movie_repository.find_by_type(
@@ -118,6 +124,8 @@ class MovieService:
             limit=limit,
             skip=skip,
             include_invalid_posters=include_invalid_posters,
+            sort_by=sort_by,
+            sort_order=sort_order,
         )
         if not movies:
             logger.info(
@@ -137,6 +145,8 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
+        sort_by: Optional[str] = None,
+        sort_order: Optional[str] = "asc",
     ) -> List[MovieResponse]:
         """Get movies by year."""
 
@@ -162,7 +172,7 @@ class MovieService:
             mod = "eq"
 
         logger.debug(
-            f"Getting movies by rating: {rating}, modifier: {mod}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+            f"Getting movies by rating: {rating}, modifier: {mod}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"
         )
 
         movies = await self.movie_repository.find_by_rating(
@@ -171,6 +181,8 @@ class MovieService:
             limit=limit,
             skip=skip,
             include_invalid_posters=include_invalid_posters,
+            sort_by=sort_by,
+            sort_order=sort_order,
         )
         if not movies:
             logger.info(
@@ -190,6 +202,8 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
+        sort_by: Optional[str] = None,
+        sort_order: Optional[str] = "asc",
     ) -> List[MovieResponse]:
         """Get movies by year."""
 
@@ -215,7 +229,7 @@ class MovieService:
             mod = "eq"
 
         logger.debug(
-            f"Getting movies by year: {year}, modifier: {mod}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+            f"Getting movies by year: {year}, modifier: {mod}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"
         )
 
         movies = await self.movie_repository.find_by_year(
@@ -224,6 +238,8 @@ class MovieService:
             limit=limit,
             skip=skip,
             include_invalid_posters=include_invalid_posters,
+            sort_by=sort_by,
+            sort_order=sort_order,
         )
         if not movies:
             logger.info(
@@ -256,6 +272,8 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
+        sort_by: Optional[str] = None,
+        sort_order: Optional[str] = "asc",
     ) -> List[MovieResponse]:
         """Get movies by genre."""
 
@@ -274,7 +292,7 @@ class MovieService:
             skip = 0
 
         logger.debug(
-            f"Getting movies by genre: {genre}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+            f"Getting movies by genre: {genre}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"
         )
 
         movies = await self.movie_repository.find_by_genre(
@@ -282,6 +300,8 @@ class MovieService:
             limit=limit,
             skip=skip,
             include_invalid_posters=include_invalid_posters,
+            sort_by=sort_by,
+            sort_order=sort_order,
         )
         if not movies:
             logger.info(
@@ -299,6 +319,8 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
+        sort_by: Optional[str] = None,
+        sort_order: Optional[str] = "asc",
     ) -> List[MovieResponse]:
         """Search movies by text search."""
 
@@ -323,7 +345,7 @@ class MovieService:
             skip = 0
 
         logger.debug(
-            f"Searching movies by text: {search_text}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+            f"Searching movies by text: {search_text}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"
         )
 
         movies = await self.movie_repository.search_movies_by_text(
@@ -331,6 +353,8 @@ class MovieService:
             limit=limit,
             skip=skip,
             include_invalid_posters=include_invalid_posters,
+            sort_by=sort_by,
+            sort_order=sort_order,
         )
 
         if not movies:

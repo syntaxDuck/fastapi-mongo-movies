@@ -38,6 +38,7 @@
     rgba(255, 255, 255, 0.02) 50%,
     transparent 70%
   );
+  background-size: 200% 200%;
   animation: var(--animation-shimmer-slow);
 }
 
@@ -104,6 +105,7 @@
 .btnPrimary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: var(--space-3) var(--space-6);
   background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
   color: var(--text-primary);
@@ -113,6 +115,10 @@
   font-size: var(--text-base);
   transition: all var(--transition-normal);
   box-shadow: var(--shadow-md);
+  width: 160px;
+  height: 48px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .btnPrimary:hover {
@@ -123,6 +129,7 @@
 .btnSecondary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   padding: var(--space-3) var(--space-6);
   background: var(--bg-card);
   color: var(--text-primary);
@@ -132,6 +139,10 @@
   font-weight: var(--font-semibold);
   font-size: var(--text-base);
   transition: all var(--transition-normal);
+  width: 160px;
+  height: 48px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .btnSecondary:hover {
@@ -191,7 +202,7 @@
 
 .featuresGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
   gap: var(--space-6);
   width: 100%;
   max-width: 1200px;
@@ -263,7 +274,7 @@
 .architectureVisual {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-6);
 }
 
 .architectureLayer {
@@ -280,7 +291,7 @@
   position: absolute;
   bottom: -20px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(25%) rotate(90deg);
   color: var(--primary-500);
   font-size: var(--text-xl);
   font-weight: bold;
@@ -346,7 +357,7 @@
 
 .techStackGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
   gap: var(--space-6);
   width: 100%;
   max-width: 1000px;
@@ -425,7 +436,7 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
   gap: var(--space-6);
   width: 100%;
   max-width: 800px;

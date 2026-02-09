@@ -167,10 +167,15 @@ class MovieRepository(BaseRepository):
 
         limit = kwargs.get("limit", 10)
         skip = kwargs.get("skip", 0)
+        sort_by = kwargs.get("sort_by")
+        sort_order = kwargs.get("sort_order", "asc")
+
         logger.debug(
-            f"MovieRepository.search_movies() executing query: {filter_query}, limit: {limit}, skip: {skip}"
+            f"MovieRepository.search_movies() executing query: {filter_query}, limit: {limit}, skip: {skip}, sort_by: {sort_by}, sort_order: {sort_order}"
         )
-        movies = await self._find_many(filter_query, limit=limit, skip=skip)
+        movies = await self._find_many(
+            filter_query, limit=limit, skip=skip, sort_by=sort_by, sort_order=sort_order
+        )
         logger.debug(
             f"MovieRepository.search_movies() found {len(movies)} movies matching search criteria"
         )
@@ -206,11 +211,16 @@ class MovieRepository(BaseRepository):
 
         limit = kwargs.get("limit", 10)
         skip = kwargs.get("skip", 0)
+        sort_by = kwargs.get("sort_by")
+        sort_order = kwargs.get("sort_order", "asc")
+
         logger.debug(
-            f"MovieRepository.search_movies_by_text() executing text search query: {filter_query}, limit: {limit}, skip: {skip}"
+            f"MovieRepository.search_movies_by_text() executing text search query: {filter_query}, limit: {limit}, skip: {skip}, sort_by: {sort_by}, sort_order: {sort_order}"
         )
 
-        movies = await self._find_many(filter_query, limit=limit, skip=skip)
+        movies = await self._find_many(
+            filter_query, limit=limit, skip=skip, sort_by=sort_by, sort_order=sort_order
+        )
         logger.debug(
             f"MovieRepository.search_movies_by_text() found {len(movies)} movies matching text search '{search_text}'"
         )

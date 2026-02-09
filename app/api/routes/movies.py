@@ -1,4 +1,4 @@
-from typing import List, Annotated
+from typing import List, Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import ValidationError
 from ...schemas.schemas import MovieResponse, MovieQuery
@@ -33,7 +33,7 @@ async def get_movies(
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """
-    Retrieve movies with optional filtering and pagination.
+    Retrieve movies with optional filtering, pagination, and sorting.
 
     - **id**: Filter by movie ID
     - **title**: Filter by movie title (exact match)
@@ -41,6 +41,8 @@ async def get_movies(
     - **type**: Filter by movie type (e.g., 'movie', 'series')
     - **genres**: Filter by movie genres
     - **year**: Filter by release year
+    - **sort_by**: Field to sort by (title, year, released, runtime, num_mflix_comments, lastupdated, imdb.rating, imdb.votes, tomatoes.viewer.rating, tomatoes.critic.rating)
+    - **sort_order**: Sort order 'asc' for ascending or 'desc' for descending (default: asc)
     - **limit**: Number of movies to return (default: 10)
     - **skip**: Number of movies to skip (default: 0)
     """
@@ -56,6 +58,8 @@ async def get_movies(
                 limit=query.limit or 10,
                 skip=query.skip or 0,
                 include_invalid_posters=query.include_invalid_posters or False,
+                sort_by=query.sort_by,
+                sort_order=query.sort_order or "asc",
             )
         else:
             movies = await movie_service.search_movies_multiple_criteria(
@@ -67,6 +71,8 @@ async def get_movies(
                 limit=query.limit or 10,
                 skip=query.skip or 0,
                 include_invalid_posters=query.include_invalid_posters or False,
+                sort_by=query.sort_by,
+                sort_order=query.sort_order or "asc",
             )
 
         logger.info(f"Successfully retrieved {len(movies)} movies")
@@ -107,6 +113,13 @@ async def get_movies_by_genre(
     movie_genre: str,
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
+    sort_by: Optional[str] = Query(
+        None,
+        description="Field to sort by (title, year, released, runtime, num_mflix_comments, lastupdated, imdb.rating, imdb.votes, tomatoes.viewer.rating, tomatoes.critic.rating)",
+    ),
+    sort_order: str = Query(
+        "asc", description="Sort order: 'asc' for ascending, 'desc' for descending"
+    ),
     include_invalid_posters: bool = Query(
         False, description="Include movies with invalid posters"
     ),
@@ -114,12 +127,12 @@ async def get_movies_by_genre(
 ):
     """Get movies by genre."""
     logger.info(
-        f"API: get_movies_by_genre() called with genre='{movie_genre}', limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+        f"API: get_movies_by_genre() called with genre='{movie_genre}', limit={limit}, skip={skip}, sort_by={sort_by}, sort_order={sort_order}, include_invalid_posters={include_invalid_posters}"
     )
 
     try:
         movies = await movie_service.get_movies_by_genre(
-            movie_genre, limit, skip, include_invalid_posters
+            movie_genre, limit, skip, include_invalid_posters, sort_by, sort_order
         )
         logger.info(
             f"API: get_movies_by_genre() found {len(movies)} movies in genre '{movie_genre}'"
@@ -162,6 +175,13 @@ async def get_movies_by_type(
     movie_type: str,
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
+    sort_by: Optional[str] = Query(
+        None,
+        description="Field to sort by (title, year, released, runtime, num_mflix_comments, lastupdated, imdb.rating, imdb.votes, tomatoes.viewer.rating, tomatoes.critic.rating)",
+    ),
+    sort_order: str = Query(
+        "asc", description="Sort order: 'asc' for ascending, 'desc' for descending"
+    ),
     include_invalid_posters: bool = Query(
         False, description="Include movies with invalid posters"
     ),
@@ -169,12 +189,12 @@ async def get_movies_by_type(
 ):
     """Get movies by type."""
     logger.info(
-        f"API: get_movies_by_type() called with type='{movie_type}', limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+        f"API: get_movies_by_type() called with type='{movie_type}', limit={limit}, skip={skip}, sort_by={sort_by}, sort_order={sort_order}, include_invalid_posters={include_invalid_posters}"
     )
 
     try:
         movies = await movie_service.get_movies_by_type(
-            movie_type, limit, skip, include_invalid_posters
+            movie_type, limit, skip, include_invalid_posters, sort_by, sort_order
         )
         logger.info(
             f"API: get_movies_by_type() found {len(movies)} movies of type '{movie_type}'"
@@ -195,6 +215,13 @@ async def get_movies_by_year(
     mod: str = Query("eq", description="Determin search modifier for query"),
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
+    sort_by: Optional[str] = Query(
+        None,
+        description="Field to sort by (title, year, released, runtime, num_mflix_comments, lastupdated, imdb.rating, imdb.votes, tomatoes.viewer.rating, tomatoes.critic.rating)",
+    ),
+    sort_order: str = Query(
+        "asc", description="Sort order: 'asc' for ascending, 'desc' for descending"
+    ),
     include_invalid_posters: bool = Query(
         False, description="Include movies with invalid posters"
     ),
@@ -202,12 +229,12 @@ async def get_movies_by_year(
 ):
     """Get movies by release year."""
     logger.info(
-        f"API: get_movies_by_year() called with year={year}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+        f"API: get_movies_by_year() called with year={year}, mod={mod}, limit={limit}, skip={skip}, sort_by={sort_by}, sort_order={sort_order}, include_invalid_posters={include_invalid_posters}"
     )
 
     try:
         movies = await movie_service.get_movies_by_year(
-            year, mod, limit, skip, include_invalid_posters
+            year, mod, limit, skip, include_invalid_posters, sort_by, sort_order
         )
         logger.info(
             f"API: get_movies_by_year() found {len(movies)} movies from year {year}"
@@ -228,19 +255,26 @@ async def get_movies_by_rating(
     mod: str = Query("eq", description="Determin search modifier for query"),
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
+    sort_by: Optional[str] = Query(
+        None,
+        description="Field to sort by (title, year, released, runtime, num_mflix_comments, lastupdated, imdb.rating, imdb.votes, tomatoes.viewer.rating, tomatoes.critic.rating)",
+    ),
+    sort_order: str = Query(
+        "asc", description="Sort order: 'asc' for ascending, 'desc' for descending"
+    ),
     include_invalid_posters: bool = Query(
         False, description="Include movies with invalid posters"
     ),
     movie_service: MovieService = Depends(get_movie_service),
 ):
-    """Get movies by release year."""
+    """Get movies by rating."""
     logger.info(
-        f"API: get_movies_by_rating() called with rating={rating}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}"
+        f"API: get_movies_by_rating() called with rating={rating}, mod={mod}, limit={limit}, skip={skip}, sort_by={sort_by}, sort_order={sort_order}, include_invalid_posters={include_invalid_posters}"
     )
 
     try:
         movies = await movie_service.get_movies_by_rating(
-            rating, mod, limit, skip, include_invalid_posters
+            rating, mod, limit, skip, include_invalid_posters, sort_by, sort_order
         )
         logger.info(
             f"API: get_movies_by_rating() found {len(movies)} movies from rating {rating}"

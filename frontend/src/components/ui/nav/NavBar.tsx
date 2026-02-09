@@ -13,7 +13,7 @@ const navLinks: { name: string, link: string }[] = [
   { name: "About", link: "/about" },
 ]
 
-
+//BUG: When clicking to laod more movies the search parameter is no longer respected
 const NavBar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);

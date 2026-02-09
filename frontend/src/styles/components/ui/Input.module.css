@@ -1,0 +1,121 @@
+/* Input Component Styles - CSS Modules */
+
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.input {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  font-family: inherit;
+  transition: all var(--transition-normal);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: var(--bg-primary);
+}
+
+.input:hover:not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+/* Variants */
+.input.search {
+  background: var(--bg-secondary);
+  border-color: var(--border-secondary);
+}
+
+.input.search:focus {
+  border-color: var(--primary-500);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input.filter {
+  background: var(--bg-card);
+  border-color: var(--border-primary);
+}
+
+.input.filter:focus {
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.05);
+}
+
+/* Sizes */
+.input.sm {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.input.md {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+}
+
+.input.lg {
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--text-lg);
+}
+
+/* States */
+.inputError {
+  border-color: var(--border-error);
+  background: var(--bg-error);
+}
+
+.inputError:focus {
+  border-color: var(--border-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.inputDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--bg-tertiary);
+}
+
+.inputDisabled:hover {
+  border-color: var(--border-primary);
+}
+
+/* Error Message */
+.errorMessage {
+  color: var(--text-error);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-tight);
+  margin-top: var(--space-1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .input {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-base);
+  }
+  
+  .input.sm {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+  }
+  
+  .input.lg {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-base);
+  }
+}

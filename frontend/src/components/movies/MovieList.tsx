@@ -3,19 +3,14 @@ import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Movie } from "../../types";
 import { movieService } from "../../services/api";
+import { FilterBuilder, MovieFilters } from "../../utils/filterBuilder";
 import styles from "../../styles/components/movies/MovieList.module.css";
 import MovieCard from "./MovieCard";
 import { LoadingWrapper, LoadingSpinners } from "../ui/LoadingComponents";
 
 
 interface MovieListProps {
-  filter?: {
-    genre?: string;
-    director?: string;
-    minYear?: number;
-    maxYear?: number;
-    minRating?: number;
-  },
+  filter?: MovieFilters;
   onMovieSelect?: CallableFunction;
   disableCardLink?: boolean;
 }
@@ -38,38 +33,32 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
     async (pageNum: number, reset = false) => {
       try {
         setLoading(true);
-        var mod = "eq";
-        if (filter?.minYear != null) {
-          mod = "gt"
+        
+        // Build dynamic query parameters using FilterBuilder
+        const queryParams = FilterBuilder.buildQueryParams(filter || {});
+        
+        // Add pagination parameters
+        queryParams.skip = pageNum * pageSize;
+        queryParams.limit = pageSize;
+        
+        // Add search query if present
+        if (searchQuery) {
+          queryParams.search = searchQuery;
         }
-        if (filter?.maxYear != null) {
-          mod = "lte"
+        
+        // Default to movies only if type not specified
+        if (!queryParams.type) {
+          queryParams.type = "movie";
         }
-        if (filter?.minRating != null) {
-          mod = "gt"
+        
+        // Validate filters before making API call
+        const validation = FilterBuilder.validateFilters(filter || {});
+        if (!validation.isValid) {
+          console.warn("Filter validation warnings:", validation.errors);
         }
-        const params = {
-          type: "movie",
-          mod: mod,
-          skip: pageNum * pageSize,
-          limit: pageSize,
-          search: searchQuery || undefined,
-          ...filter,
-        };
-
-
-        //TODO: Should probably break this up some how, this only allows for hardcoded filtering
-        let newMovies: Movie[] = [];
-        const year = filter?.minYear ?? filter?.maxYear
-        if (filter?.minRating !== undefined) {
-          newMovies = await movieService.getMovieByRating(filter.minRating, params);
-        }
-        else if (year !== undefined) {
-          newMovies = await movieService.getMovieByYear(year, params);
-        } else {
-          newMovies = await movieService.fetchMovies(params)
-        }
-
+        
+        // Single API call to flexible endpoint
+        const newMovies = await movieService.fetchMovies(queryParams);
 
         if (reset) {
           setMovies(newMovies);

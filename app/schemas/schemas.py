@@ -66,8 +66,48 @@ class MovieQuery(MongoQuery, BaseModel):
     include_invalid_posters: Optional[bool] = Field(
         False, description="Include movies with invalid posters"
     )
+    sort_by: Optional[str] = Field(
+        None,
+        description="Field to sort by (title, year, released, runtime, num_mflix_comments, lastupdated, imdb.rating, imdb.votes, tomatoes.viewer.rating, tomatoes.critic.rating)",
+    )
+    sort_order: Optional[str] = Field(
+        "asc", description="Sort order: 'asc' for ascending, 'desc' for descending"
+    )
     limit: Optional[int] = Field(10, description="Number of movies to return")
     skip: Optional[int] = Field(0, description="Number of records to skip")
+
+    @field_validator("sort_by")
+    @classmethod
+    def validate_sort_field(cls, v):
+        if v is None:
+            return v
+
+        allowed_fields = [
+            "title",
+            "year",
+            "released",
+            "runtime",
+            "num_mflix_comments",
+            "lastupdated",
+            "imdb.rating",
+            "imdb.votes",
+            "tomatoes.viewer.rating",
+            "tomatoes.critic.rating",
+        ]
+
+        if v not in allowed_fields:
+            raise ValueError(f"Sort field must be one of: {allowed_fields}")
+        return v
+
+    @field_validator("sort_order")
+    @classmethod
+    def validate_sort_order(cls, v):
+        if v is None:
+            return "asc"
+
+        if v not in ["asc", "desc"]:
+            raise ValueError("Sort order must be 'asc' or 'desc'")
+        return v
 
 
 class MovieResponse(BaseModel):

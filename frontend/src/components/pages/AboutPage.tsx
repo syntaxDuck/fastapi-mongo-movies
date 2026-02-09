@@ -8,7 +8,6 @@ import TechStackCard from "./TechStackCard";
 import StatCounter from "./StatCounter";
 
 const AboutPage: React.FC = () => {
-  // Motion variants for page animations
   const pageVariants: Variants = {
     initial: { opacity: 0, y: 20 },
     animate: {

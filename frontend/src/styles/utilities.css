@@ -17,7 +17,6 @@
   animation: var(--animation-pulse);
 }
 
-/* Animation Custom Properties for use in CSS Modules */
 :root {
   --animation-shimmer: shimmer 1.5s ease-in-out infinite;
   --animation-shimmer-slow: shimmer 3s ease-in-out infinite;
@@ -29,9 +28,6 @@
   --animation-fade-in-up-normal: fadeInUp var(--transition-normal) ease-out;
 }
 
-
-
-/* Enhanced Transition Utilities */
 .transition {
   transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -47,27 +43,6 @@
 .transition-bounce {
   transition: all var(--transition-bounce) cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
-
-/* Premium Button Hover Effects */
-.btn-hover-lift {
-  transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-hover-lift:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-xl);
-}
-
-.btn-hover-lift:active {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
-}
-
-
-
-
 
 /* Enhanced Card Hover Effects */
 .card-hover {

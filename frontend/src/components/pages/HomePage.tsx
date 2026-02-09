@@ -76,34 +76,36 @@ const HomePage: React.FC = () => {
         variants={sectionVariants}
         transition={{ duration: 0.5, ease: "easeOut" }}
       >
-        <h1 className={styles.heroTitle}>Welcome to MovieDB</h1>
-        <p className={styles.heroSubtitle}>
-          Explore our curated collection of movies from MongoDB sample_mflix
-          dataset
-        </p>
-        <div className={styles.heroActions}>
-          <motion.a
-            variants={buttonVariants}
-            initial="initial"
-            animate="animate"
-            whileHover="hover"
-            whileTap="tap"
-            href="/movies"
-            className={styles.btnPrimary}
-          >
-            Browse Movies
-          </motion.a>
-          <motion.a
-            variants={buttonVariants}
-            initial="initial"
-            animate="animate"
-            whileHover="hover"
-            whileTap="tap"
-            href="/top-rated"
-            className={styles.btnSecondary}
-          >
-            Top Rated
-          </motion.a>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>Welcome to MovieDB</h1>
+          <p className={styles.heroSubtitle}>
+            Explore our curated collection of movies from MongoDB sample_mflix
+            dataset
+          </p>
+          <div className={styles.heroActions}>
+            <motion.a
+              variants={buttonVariants}
+              initial="initial"
+              animate="animate"
+              whileHover="hover"
+              whileTap="tap"
+              href="/movies"
+              className={styles.btnPrimary}
+            >
+              Browse Movies
+            </motion.a>
+            <motion.a
+              variants={buttonVariants}
+              initial="initial"
+              animate="animate"
+              whileHover="hover"
+              whileTap="tap"
+              href="/top-rated"
+              className={styles.btnSecondary}
+            >
+              Top Rated
+            </motion.a>
+          </div>
         </div>
       </motion.section>
 

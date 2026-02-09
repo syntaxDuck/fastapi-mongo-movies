@@ -67,6 +67,8 @@ class BaseRepository:
         filter_query: Optional[Dict[str, Any]] = None,
         limit: Optional[int] = 10,
         skip: Optional[int] = 0,
+        sort_by: Optional[str] = None,
+        sort_order: Optional[str] = "asc",
         **kwargs,
     ) -> List[Dict[str, Any]]:
         """Find multiple documents matching filter using context manager."""
@@ -79,9 +81,13 @@ class BaseRepository:
         # Handle parameter priority (kwargs can override defaults)
         final_limit = limit if limit is not None else kwargs.get("limit", 10)
         final_skip = skip if skip is not None else kwargs.get("skip", 0)
+        final_sort_by = sort_by if sort_by is not None else kwargs.get("sort_by")
+        final_sort_order = (
+            sort_order if sort_order is not None else kwargs.get("sort_order", "asc")
+        )
 
         logger.debug(
-            f"BaseRepository._find_many() called for {self.collection_name} with filter: {original_filter}, limit: {final_limit}, skip: {final_skip}"
+            f"BaseRepository._find_many() called for {self.collection_name} with filter: {original_filter}, limit: {final_limit}, skip: {final_skip}, sort_by: {final_sort_by}, sort_order: {final_sort_order}"
         )
         logger.debug(
             f"BaseRepository._find_many() converted filter to MongoDB query: {filter_query}"
@@ -91,11 +97,21 @@ class BaseRepository:
             try:
                 collection = await self._get_collection(client)
                 logger.debug(
-                    f"BaseRepository._find_many() executing MongoDB query on {self.database_name}.{self.collection_name}: filter={filter_query}, limit={final_limit}, skip={final_skip}"
+                    f"BaseRepository._find_many() executing MongoDB query on {self.database_name}.{self.collection_name}: filter={filter_query}, limit={final_limit}, skip={final_skip}, sort_by: {final_sort_by}, sort_order: {final_sort_order}"
                 )
                 cursor = (
                     collection.find(filter_query).skip(final_skip).limit(final_limit)
                 )
+
+                # Add sorting if specified
+                if final_sort_by:
+                    sort_direction = 1 if final_sort_order == "asc" else -1
+                    cursor = cursor.sort(final_sort_by, sort_direction)
+                    logger.debug(
+                        f"BaseRepository._find_many() added sorting: {final_sort_by} {final_sort_order}"
+                    )
+                else:
+                    logger.debug(f"BaseRepository._find_many() no sorting specified")
                 documents = await cursor.to_list(length=None)
                 logger.info(
                     f"BaseRepository._find_many() found {len(documents)} {self.collection_name} documents"

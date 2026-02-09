@@ -3,18 +3,7 @@ import { Movie, Comment } from "../types";
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 export const movieService = {
-  async fetchMovies(params?: {
-    type?: string;
-    skip?: number;
-    limit?: number;
-    genre?: string;
-    director?: string;
-    minYear?: number;
-    maxYear?: number;
-    minRating?: number;
-    search?: string;
-    include_invalid_posters?: boolean;
-  }): Promise<Movie[]> {
+  async fetchMovies(params?: Record<string, any>): Promise<Movie[]> {
     const queryParams = new URLSearchParams();
 
     // Always include include_invalid_posters=false unless explicitly set to true
@@ -22,7 +11,14 @@ export const movieService = {
 
     Object.entries(finalParams).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        queryParams.append(key, value.toString());
+        // Handle array parameters (genres, cast, directors, etc.)
+        if (Array.isArray(value)) {
+          value.forEach((item) => {
+            queryParams.append(key, item.toString());
+          });
+        } else {
+          queryParams.append(key, value.toString());
+        }
       }
     });
     const response = await fetch(
@@ -62,7 +58,14 @@ export const movieService = {
 
     Object.entries(finalParams).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        queryParams.append(key, value.toString());
+        // Handle array parameters
+        if (Array.isArray(value)) {
+          value.forEach((item) => {
+            queryParams.append(key, item.toString());
+          });
+        } else {
+          queryParams.append(key, value.toString());
+        }
       }
     });
 
@@ -101,7 +104,14 @@ export const movieService = {
 
     Object.entries(finalParams).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        queryParams.append(key, value.toString());
+        // Handle array parameters
+        if (Array.isArray(value)) {
+          value.forEach((item) => {
+            queryParams.append(key, item.toString());
+          });
+        } else {
+          queryParams.append(key, value.toString());
+        }
       }
     });
 
@@ -159,7 +169,14 @@ export const movieService = {
 
     Object.entries(finalParams).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        queryParams.append(key, value.toString());
+        // Handle array parameters
+        if (Array.isArray(value)) {
+          value.forEach((item) => {
+            queryParams.append(key, item.toString());
+          });
+        } else {
+          queryParams.append(key, value.toString());
+        }
       }
     });
 

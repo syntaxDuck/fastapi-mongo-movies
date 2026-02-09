@@ -1,0 +1,270 @@
+/* SearchMenu Component Styles - CSS Modules */
+
+.searchMenuContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+}
+
+.searchBar {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-4);
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+}
+
+.searchBar:hover {
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-lg);
+}
+
+.searchInput {
+  flex: 1;
+}
+
+.searchActions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.toggleWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.toggleButton {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+}
+
+.activeIndicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: var(--primary-500);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 2px var(--bg-card);
+}
+
+/* Advanced Panel */
+.advancedPanel {
+  overflow: hidden;
+  margin-top: var(--space-4);
+}
+
+.panelContent {
+  padding: var(--space-6);
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-lg);
+}
+
+.filterGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.filterItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.filterLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-1);
+}
+
+.ratingFilter,
+.sortOptions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: end;
+}
+
+.panelActions {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: flex-end;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-primary);
+}
+
+.clearButton,
+.applyButton {
+  min-width: 120px;
+}
+
+/* Validation Errors */
+.validationErrors {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background: var(--bg-error);
+  border: 1px solid var(--border-error);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(10px);
+}
+
+.errorMessage {
+  color: var(--text-error);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.errorMessage:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .searchBar {
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+  
+  .searchInput {
+    width: 100%;
+  }
+  
+  .searchActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .filterGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  
+  .ratingFilter,
+  .sortOptions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  
+  .panelActions {
+    flex-direction: column;
+  }
+  
+  .panelContent {
+    padding: var(--space-4);
+  }
+  
+  .toggleButton {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .searchBar {
+    padding: var(--space-2);
+  }
+  
+  .searchActions {
+    gap: var(--space-2);
+  }
+  
+  .panelContent {
+    padding: var(--space-3);
+  }
+  
+  .filterGrid {
+    gap: var(--space-3);
+  }
+  
+  .panelActions {
+    gap: var(--space-3);
+  }
+}
+
+/* Animation enhancements */
+.searchMenuContainer {
+  transition: all var(--transition-normal);
+}
+
+.searchBar:focus-within {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.panelContent {
+  transition: all var(--transition-normal);
+}
+
+.filterItem {
+  transition: all var(--transition-normal);
+}
+
+.filterItem:hover {
+  transform: translateY(-2px);
+}
+
+/* Loading states */
+.searchMenuContainer.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* Focus management */
+.searchMenuContainer:focus-within .toggleButton {
+  border-color: var(--primary-500);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .searchBar,
+  .panelContent {
+    border-width: 2px;
+  }
+  
+  .activeIndicator {
+    box-shadow: 0 0 0 3px var(--bg-card);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .searchMenuContainer,
+  .searchBar,
+  .panelContent,
+  .filterItem {
+    transition: none;
+  }
+  
+  .toggleButton span,
+  .activeIndicator {
+    animation: none;
+  }
+}

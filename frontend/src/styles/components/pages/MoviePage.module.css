@@ -75,8 +75,6 @@
 .feature:hover {
   background: var(--bg-hover);
   border-color: var(--border-accent);
-  transform: translateX(4px);
-  cursor: default;
 }
 
 .featureIcon {
