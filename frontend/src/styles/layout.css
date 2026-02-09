@@ -42,7 +42,7 @@
   box-shadow: var(--shadow-xl);
   border: 1px solid var(--border-primary);
   backdrop-filter: blur(20px);
-  animation: fadeInUp var(--transition-slow) ease-out;
+  animation: var(--animation-fade-in-up);
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;

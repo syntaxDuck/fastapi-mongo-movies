@@ -9,7 +9,7 @@
   cursor: pointer;
   border: 1px solid var(--border-primary);
   position: relative;
-  animation: fadeInUp var(--transition-normal) ease-out;
+  animation: var(--animation-fade-in-up-normal);
   animation-fill-mode: both;
   display: flex;
   flex-direction: column;
@@ -136,7 +136,7 @@
     var(--bg-tertiary) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: var(--animation-shimmer);
 }
 
 .skeletonTitle {
@@ -148,31 +148,12 @@
     var(--bg-tertiary) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: var(--animation-shimmer);
   margin: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
 }
 
-/* Animation keyframes */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
 
 /* Staggered animation delays */
 .genreCard:nth-child(1) {

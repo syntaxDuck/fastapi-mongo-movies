@@ -10,7 +10,7 @@
   border: 1px solid var(--border-primary);
   backdrop-filter: blur(20px);
   box-shadow: var(--shadow-lg);
-  animation: fadeInUp var(--transition-slow) ease-out;
+  animation: var(--animation-fade-in-up);
   animation-fill-mode: both;
   aspect-ratio: 2/3;
   display: flex;
@@ -163,7 +163,7 @@
     var(--bg-tertiary) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  animation: var(--animation-shimmer);
 }
 
 .skeletonTitle {
@@ -179,7 +179,7 @@
     var(--bg-tertiary) 75%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  animation: var(--animation-shimmer);
   border-radius: var(--radius-base);
 }
 
@@ -197,90 +197,14 @@
 }
 
 .movieCard.error::before {
-  content: "⚠️";
+  content: "⚠";
   font-size: 3rem;
   opacity: 0.5;
 }
 
-/* Play Button Overlay */
-.playButton {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(10px);
-}
 
-.playButton::before {
-  content: "▶";
-  color: var(--bg-primary);
-  font-size: var(--text-xl);
-  margin-left: 2px;
-}
 
-.movieCard:hover .playButton {
-  transform: translate(-50%, -50%) scale(1);
-}
 
-/* Quality Badge */
-.qualityBadge {
-  position: absolute;
-  top: var(--space-3);
-  left: var(--space-3);
-  padding: var(--space-1) var(--space-2);
-  background: linear-gradient(135deg, var(--accent-600), var(--accent-700));
-  color: var(--text-primary);
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  border-radius: var(--radius-base);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(10px);
-  z-index: 10;
-}
-
-/* New/Featured Badge */
-.featuredBadge {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
-  padding: var(--space-1) var(--space-2);
-  background: linear-gradient(135deg, var(--error-500), var(--error-600));
-  color: var(--text-primary);
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  border-radius: var(--radius-base);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(10px);
-  z-index: 10;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-/* Staggered Animation Delays */
-.movieCard:nth-child(1) { animation-delay: 0.05s; }
-.movieCard:nth-child(2) { animation-delay: 0.1s; }
-.movieCard:nth-child(3) { animation-delay: 0.15s; }
-.movieCard:nth-child(4) { animation-delay: 0.2s; }
-.movieCard:nth-child(5) { animation-delay: 0.25s; }
-.movieCard:nth-child(6) { animation-delay: 0.3s; }
-.movieCard:nth-child(7) { animation-delay: 0.35s; }
-.movieCard:nth-child(8) { animation-delay: 0.4s; }
-.movieCard:nth-child(9) { animation-delay: 0.45s; }
-.movieCard:nth-child(10) { animation-delay: 0.5s; }
-.movieCard:nth-child(11) { animation-delay: 0.55s; }
-.movieCard:nth-child(12) { animation-delay: 0.6s; }
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -334,37 +258,7 @@
   outline: none;
 }
 
-/* Animation Keyframes */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
-}
 
 /* Grid Layout Optimizations */
 .movieGrid {

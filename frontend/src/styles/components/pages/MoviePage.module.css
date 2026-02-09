@@ -43,7 +43,7 @@
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradientShift 8s ease-in-out infinite;
+  animation: var(--animation-gradient-shift);
 }
 
 .promptText {
@@ -90,15 +90,7 @@
   font-weight: var(--font-medium);
 }
 
-/* Floating animation */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
@@ -124,11 +116,4 @@
   }
 }
 
-@keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
+

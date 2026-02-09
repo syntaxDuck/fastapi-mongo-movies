@@ -40,7 +40,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-size: 200% auto;
-  animation: gradientShift 8s ease-in-out infinite; }
+  animation: var(--animation-gradient-shift); }
 
 .navSearch {
   flex: 1;
@@ -196,20 +196,6 @@
   }
 }
 
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
 
-@keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
+
+
