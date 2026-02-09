@@ -1,0 +1,166 @@
+/* Button Component Styles - CSS Modules */
+
+.button {
+  background: var(--primary-600);
+  color: var(--text-primary);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: none;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+/* Button Variants */
+.buttonPrimary {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  color: var(--text-primary);
+}
+
+.buttonPrimary:hover {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+}
+
+.buttonSecondary {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-primary);
+  color: var(--text-secondary);
+}
+
+.buttonSecondary:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-secondary);
+  color: var(--text-primary);
+}
+
+.buttonGhost {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid transparent;
+}
+
+.buttonGhost:hover {
+  background: var(--bg-hover);
+  color: var(--text-accent);
+}
+
+.buttonDanger {
+  background: var(--error-600);
+  color: var(--text-primary);
+}
+
+.buttonDanger:hover {
+  background: var(--error-700);
+}
+
+/* Button Sizes */
+.buttonSm {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-md);
+}
+
+.buttonMd {
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-base);
+  border-radius: var(--radius-lg);
+}
+
+.buttonLg {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-lg);
+  border-radius: var(--radius-xl);
+}
+
+/* Button States */
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.button:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Loading State */
+.buttonLoading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Focus States for Accessibility */
+.button:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+/* Ripple Effect (CSS-only enhancement) */
+.button::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-full);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Full Width Button */
+.buttonFullWidth {
+  width: 100%;
+}
+
+/* Icon Button (if needed in future) */
+.buttonIcon {
+  padding: var(--space-2);
+  border-radius: var(--radius-full);
+}
+
+.buttonIconSm {
+  padding: var(--space-1);
+}
+
+.buttonIconLg {
+  padding: var(--space-3);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .buttonLg {
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-base);
+  }
+  
+  .buttonMd {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .button {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+  }
+}

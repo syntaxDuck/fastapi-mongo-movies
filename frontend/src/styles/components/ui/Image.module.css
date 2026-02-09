@@ -1,0 +1,225 @@
+/* Image Component Styles - CSS Modules */
+
+.image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  font-family: 'object-fit: cover'; /* Fallback for older browsers */
+}
+
+/* Image States */
+.image.loading {
+  filter: blur(2px);
+  background: var(--bg-surface);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.image.error {
+  background: var(--bg-error);
+  border: 1px solid var(--border-error);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-error);
+}
+
+.image.error::before {
+  content: "🖼️";
+  font-size: 2rem;
+  opacity: 0.5;
+}
+
+/* Image Aspect Ratios */
+.imageSquare {
+  aspect-ratio: 1/1;
+}
+
+.imageWide {
+  aspect-ratio: 16/9;
+}
+
+.imageTall {
+  aspect-ratio: 2/3;
+}
+
+.imagePoster {
+  aspect-ratio: 2/3;
+}
+
+.imageBanner {
+  aspect-ratio: 3/1;
+}
+
+/* Image Sizes */
+.imageSm {
+  width: 4rem;
+  height: 4rem;
+}
+
+.imageMd {
+  width: 8rem;
+  height: 8rem;
+}
+
+.imageLg {
+  width: 12rem;
+  height: 12rem;
+}
+
+.imageXl {
+  width: 16rem;
+  height: 16rem;
+}
+
+/* Image Border Radius Variants */
+.imageRounded {
+  border-radius: var(--radius-md);
+}
+
+.imageRoundedLg {
+  border-radius: var(--radius-lg);
+}
+
+.imageRoundedXl {
+  border-radius: var(--radius-xl);
+}
+
+.imageRoundedFull {
+  border-radius: var(--radius-full);
+}
+
+.imageNone {
+  border-radius: 0;
+}
+
+/* Image Object Fit Variants */
+.imageContain {
+  object-fit: contain;
+}
+
+.imageCover {
+  object-fit: cover;
+}
+
+.imageFill {
+  object-fit: fill;
+}
+
+.imageScaleDown {
+  object-fit: scale-down;
+}
+
+.imageNone {
+  object-fit: none;
+}
+
+/* Image Shadow Variants */
+.imageShadowSm {
+  box-shadow: var(--shadow-sm);
+}
+
+.imageShadow {
+  box-shadow: var(--shadow-md);
+}
+
+.imageShadowLg {
+  box-shadow: var(--shadow-lg);
+}
+
+.imageShadowXl {
+  box-shadow: var(--shadow-xl);
+}
+
+/* Image Hover Effects (CSS-only, Framer Motion handles main animations) */
+.imageHoverLift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.imageHoverGrow:hover {
+  transform: scale(1.02);
+}
+
+/* Image Container (for aspect ratio preservation) */
+.imageContainer {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+
+.imageContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Image Overlay */
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  pointer-events: none;
+}
+
+/* Image Placeholder */
+.imagePlaceholder {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.imagePlaceholder::before {
+  content: "📷";
+  font-size: 2rem;
+  opacity: 0.3;
+}
+
+/* Responsive Images */
+@media (max-width: 768px) {
+  .imageLg {
+    width: 10rem;
+    height: 10rem;
+  }
+  
+  .imageXl {
+    width: 12rem;
+    height: 12rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .imageMd {
+    width: 6rem;
+    height: 6rem;
+  }
+  
+  .imageLg {
+    width: 8rem;
+    height: 8rem;
+  }
+  
+  .imageXl {
+    width: 10rem;
+    height: 10rem;
+  }
+}
+
+/* Animation for loading state */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
