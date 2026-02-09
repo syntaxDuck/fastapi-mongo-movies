@@ -56,6 +56,21 @@
   flex-direction: column;
 }
 
+.formLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  margin-bottom: var(--space-2);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+.required {
+  color: var(--error-500);
+  margin-left: var(--space-1);
+  font-weight: var(--font-bold);
+}
+
 .formInput,
 .formTextarea {
   background: var(--bg-secondary);

@@ -72,6 +72,7 @@ const NavBar: React.FC = () => {
             <motion.input
               type="text"
               placeholder="Search movies..."
+              aria-label="Search movies"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className={styles.searchInput}
@@ -84,6 +85,7 @@ const NavBar: React.FC = () => {
             />
             <motion.button
               type="submit"
+              aria-label="Submit movie search"
               className={styles.searchBtn}
               whileHover={{
                 color: "var(--text-primary)",

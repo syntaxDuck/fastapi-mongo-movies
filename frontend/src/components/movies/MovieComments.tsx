@@ -206,7 +206,11 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
       >
         <div className={styles.formGrid}>
           <div className={styles.formField}>
+            <label htmlFor="comment-name" className={styles.formLabel}>
+              Name <span className={styles.required}>*</span>
+            </label>
             <input
+              id="comment-name"
               type="text"
               placeholder="Your name"
               className={styles.formInput}
@@ -216,7 +220,11 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
             />
           </div>
           <div className={styles.formField}>
+            <label htmlFor="comment-email" className={styles.formLabel}>
+              Email <span className={styles.required}>*</span>
+            </label>
             <input
+              id="comment-email"
               type="email"
               placeholder="Your email"
               className={styles.formInput}
@@ -227,7 +235,11 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
           </div>
         </div>
         <div className={styles.formField}>
+          <label htmlFor="comment-text" className={styles.formLabel}>
+            Comment <span className={styles.required}>*</span>
+          </label>
           <textarea
+            id="comment-text"
             placeholder="Share your thoughts about this movie..."
             className={styles.formTextarea}
             value={newComment.text}
