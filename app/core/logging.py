@@ -79,6 +79,8 @@ def configure_component_loggers() -> None:
     # API routes - info level
     logging.getLogger("app.api").setLevel(settings.LOG_LEVEL)
 
+    logging.getLogger("app.schemas").setLevel(logging.WARNING)
+
     # HTTP requests - warning level (less noisy)
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
 

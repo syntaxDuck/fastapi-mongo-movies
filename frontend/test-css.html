@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="./src/styles/index.css">
+    <style>
+        .test-box {
+            width: 100px;
+            height: 100px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            margin: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body style="background: var(--bg-primary);">
+    <div class="app">
+        <div class="container">
+            <h1>CSS Test Page</h1>
+            
+            <div class="test-box fade-in">
+                Fade In Test
+            </div>
+            
+            <div class="test-box pulse">
+                Pulse Test
+            </div>
+            
+            <div class="test-box loading-spinner-sm">
+                <div style="width: 20px; height: 20px; border: 2px solid var(--border-primary); border-top-color: var(--primary-500); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            </div>
+            
+            <div class="text-primary text-center">Text utilities test</div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="test-box">Grid 1</div>
+                <div class="test-box">Grid 2</div>
+            </div>
+            
+            <div style="display: none;">utilities loaded</div>
+        </div>
+    </div>
+</body>
+</html>

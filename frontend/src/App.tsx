@@ -17,8 +17,6 @@ import SpinnerTest from "./components/dev/SpinnerTest";
 import GenresPage from "./components/pages/GenresPage";
 import AboutPage from "./components/pages/AboutPage";
 
-import "./styles/index.css";
-
 const pageVariants = {
   initial: {
     opacity: 0,
