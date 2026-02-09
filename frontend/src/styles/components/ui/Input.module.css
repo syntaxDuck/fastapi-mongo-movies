@@ -1,5 +1,26 @@
 /* Input Component Styles - CSS Modules */
 
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-1);
+}
+
+.required {
+  color: var(--text-error);
+  margin-left: var(--space-1);
+}
+
 .inputWrapper {
   display: flex;
   flex-direction: column;
@@ -18,6 +39,7 @@
   transition: all var(--transition-normal);
   outline: none;
   box-sizing: border-box;
+  width: 100%;
 }
 
 .input::placeholder {
@@ -108,12 +130,12 @@
     padding: var(--space-3) var(--space-4);
     font-size: var(--text-base);
   }
-  
+
   .input.sm {
     padding: var(--space-2) var(--space-3);
     font-size: var(--text-sm);
   }
-  
+
   .input.lg {
     padding: var(--space-3) var(--space-4);
     font-size: var(--text-base);

@@ -202,6 +202,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
           onKeyPress={handleSearchKeyPress}
           variant="search"
           className={styles.searchInput}
+          aria-label="Search movies"
         />
         
         <motion.div className={styles.searchActions}>
@@ -221,7 +222,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
               variant="secondary"
               className={styles.toggleButton}
               aria-expanded={isExpanded}
-              aria-label={isExpanded ? 'Collapse filters' : 'Expand filters'}
+              ariaLabel={isExpanded ? 'Collapse filters' : 'Expand filters'}
               animation="scale"
             >
               <motion.span
@@ -269,8 +270,8 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
               >
                 {/* Genre Multi-Select */}
                 <motion.div className={styles.filterItem} variants={filterItemVariants}>
-                  <label className={styles.filterLabel}>Genres</label>
                   <Select
+                    label="Genres"
                     options={genreOptions}
                     value={filters.genres || []}
                     onChange={(genres) => handleFilterChange({ genres: genres as string[] })}
@@ -282,8 +283,8 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
 
                 {/* Year Range */}
                 <motion.div className={styles.filterItem} variants={filterItemVariants}>
-                  <label className={styles.filterLabel}>Year Range</label>
                   <RangeInput
+                    label="Year Range"
                     min={1900}
                     max={new Date().getFullYear() + 5}
                     value={{ 
@@ -300,9 +301,9 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
 
                 {/* Rating Range */}
                 <motion.div className={styles.filterItem} variants={filterItemVariants}>
-                  <label className={styles.filterLabel}>Rating Range</label>
                   <div className={styles.ratingFilter}>
                     <RangeInput
+                      label="Rating Range"
                       min={0}
                       max={10}
                       value={{ 
@@ -324,15 +325,16 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                       onChange={(source) => handleFilterChange({ ratingSource: source as 'imdb' | 'tomatoes' })}
                       variant="filter"
                       size="sm"
+                      aria-label="Rating source"
                     />
                   </div>
                 </motion.div>
 
                 {/* Sort Options */}
                 <motion.div className={styles.filterItem} variants={filterItemVariants}>
-                  <label className={styles.filterLabel}>Sort By</label>
                   <div className={styles.sortOptions}>
                     <Select
+                      label="Sort By"
                       options={[
                         { value: 'title', label: 'Title' },
                         { value: 'year', label: 'Year' },
@@ -353,6 +355,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                       onChange={(sortOrder) => handleFilterChange({ sort_order: sortOrder as 'asc' | 'desc' })}
                       variant="filter"
                       size="sm"
+                      aria-label="Sort order"
                     />
                   </div>
                 </motion.div>

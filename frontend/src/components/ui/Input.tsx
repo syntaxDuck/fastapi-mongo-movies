@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useId } from "react";
 import { motion } from "framer-motion";
 import styles from "../../styles/components/ui/Input.module.css";
 
@@ -6,10 +6,12 @@ import styles from "../../styles/components/ui/Input.module.css";
 export interface InputProps {
   type?: 'text' | 'email' | 'number' | 'search';
   placeholder?: string;
-  value?: string;
+  value?: string | number;
   onChange?: (value: string) => void;
   variant?: 'default' | 'search' | 'filter';
   size?: 'sm' | 'md' | 'lg';
+  label?: string;
+  required?: boolean;
   error?: string;
   disabled?: boolean;
   className?: string;
@@ -35,16 +37,21 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   onChange,
   variant = 'default',
   size = 'md',
+  label,
+  required = false,
   error,
   disabled = false,
   className,
-  id,
+  id: providedId,
   'aria-label': ariaLabel,
   'aria-describedby': ariaDescribedBy,
   onKeyPress,
   onFocus,
   onBlur
 }, ref) => {
+  const generatedId = useId();
+  const id = providedId || generatedId;
+
   // Build CSS classes
   const inputClasses = [
     styles.input,
@@ -61,41 +68,50 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   };
 
   return (
-    <motion.div
-      className={styles.inputWrapper}
-      variants={inputVariants}
-      animate={disabled ? "disabled" : "idle"}
-      whileFocus="focus"
-      transition={{ duration: 0.2 }}
-    >
-      <input
-        ref={ref}
-        type={type}
-        id={id}
-        placeholder={placeholder}
-        value={value}
-        onChange={handleChange}
-        onKeyPress={onKeyPress}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        disabled={disabled}
-        className={inputClasses}
-        aria-label={ariaLabel}
-        aria-describedby={ariaDescribedBy}
-        aria-invalid={error ? 'true' : 'false'}
-      />
-      {error && (
-        <motion.div
-          className={styles.errorMessage}
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -5 }}
-          transition={{ duration: 0.2 }}
-        >
-          {error}
-        </motion.div>
+    <div className={styles.inputContainer}>
+      {label && (
+        <label htmlFor={id} className={styles.label}>
+          {label}
+          {required && <span className={styles.required}>*</span>}
+        </label>
       )}
-    </motion.div>
+      <motion.div
+        className={styles.inputWrapper}
+        variants={inputVariants}
+        animate={disabled ? "disabled" : "idle"}
+        whileFocus="focus"
+        transition={{ duration: 0.2 }}
+      >
+        <input
+          ref={ref}
+          type={type}
+          id={id}
+          placeholder={placeholder}
+          value={value}
+          onChange={handleChange}
+          onKeyPress={onKeyPress}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          disabled={disabled}
+          className={inputClasses}
+          aria-label={ariaLabel}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={error ? 'true' : 'false'}
+          required={required}
+        />
+        {error && (
+          <motion.div
+            className={styles.errorMessage}
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.2 }}
+          >
+            {error}
+          </motion.div>
+        )}
+      </motion.div>
+    </div>
   );
 });
 
