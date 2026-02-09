@@ -1,104 +1,76 @@
-import React, { forwardRef } from "react";
-import { motion } from "framer-motion";
+import React, { useId } from "react";
 import styles from "../../styles/components/ui/Input.module.css";
 
-// Input component interface
 export interface InputProps {
-  type?: 'text' | 'email' | 'number' | 'search';
+  type?: "text" | "password" | "email" | "number" | "search" | "tel" | "url";
   placeholder?: string;
-  value?: string;
-  onChange?: (value: string) => void;
-  variant?: 'default' | 'search' | 'filter';
-  size?: 'sm' | 'md' | 'lg';
+  value: string | number;
+  onChange: (value: string) => void;
+  label?: string;
   error?: string;
+  required?: boolean;
   disabled?: boolean;
   className?: string;
   id?: string;
-  'aria-label'?: string;
-  'aria-describedby'?: string;
+  name?: string;
+  autoComplete?: string;
   onKeyPress?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
-  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  variant?: "default" | "search" | "outline";
 }
 
-// Framer Motion variants for input
-const inputVariants = {
-  idle: { scale: 1 },
-  focus: { scale: 1.02 },
-  disabled: { opacity: 0.6 }
-};
-
-const Input = forwardRef<HTMLInputElement, InputProps>(({
-  type = 'text',
+const Input: React.FC<InputProps> = ({
+  type = "text",
   placeholder,
-  value = '',
+  value,
   onChange,
-  variant = 'default',
-  size = 'md',
+  label,
   error,
+  required = false,
   disabled = false,
-  className,
-  id,
-  'aria-label': ariaLabel,
-  'aria-describedby': ariaDescribedBy,
+  className = "",
+  id: providedId,
+  name,
+  autoComplete,
   onKeyPress,
-  onFocus,
-  onBlur
-}, ref) => {
-  // Build CSS classes
+  variant = "default",
+}) => {
+  const generatedId = useId();
+  const id = providedId || generatedId;
+
   const inputClasses = [
     styles.input,
     styles[variant],
-    styles[size],
     error && styles.inputError,
     disabled && styles.inputDisabled,
-    className
-  ].filter(Boolean).join(' ');
-
-  // Handle input change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(e.target.value);
-  };
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <motion.div
-      className={styles.inputWrapper}
-      variants={inputVariants}
-      animate={disabled ? "disabled" : "idle"}
-      whileFocus="focus"
-      transition={{ duration: 0.2 }}
-    >
-      <input
-        ref={ref}
-        type={type}
-        id={id}
-        placeholder={placeholder}
-        value={value}
-        onChange={handleChange}
-        onKeyPress={onKeyPress}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        disabled={disabled}
-        className={inputClasses}
-        aria-label={ariaLabel}
-        aria-describedby={ariaDescribedBy}
-        aria-invalid={error ? 'true' : 'false'}
-      />
-      {error && (
-        <motion.div
-          className={styles.errorMessage}
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -5 }}
-          transition={{ duration: 0.2 }}
-        >
-          {error}
-        </motion.div>
+    <div className={styles.inputContainer}>
+      {label && (
+        <label htmlFor={id} className={styles.label}>
+          {label}
+          {required && <span className={styles.required}>*</span>}
+        </label>
       )}
-    </motion.div>
+      <input
+        id={id}
+        name={name}
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyPress={onKeyPress}
+        placeholder={placeholder}
+        disabled={disabled}
+        required={required}
+        autoComplete={autoComplete}
+        className={inputClasses}
+      />
+      {error && <span className={styles.errorText}>{error}</span>}
+    </div>
   );
-});
-
-Input.displayName = 'Input';
+};
 
 export default Input;

@@ -1,0 +1,3 @@
+## 2026-02-09 - Accessible Form Labels Pattern
+**Learning:** In complex search interfaces, manual label management often leads to disconnected or missing programmatic associations between labels and inputs. Internalizing label and ID management within core UI components (Input, Select, RangeInput) using React's `useId` hook ensures that every input is always correctly associated with a `<label>` or `<legend>`, improving screen reader support without increasing developer friction.
+**Action:** Use the enhanced `Input`, `Select`, and `RangeInput` components which now handle their own unique IDs and label associations. Prefer `RangeInput` for numeric ranges as it now correctly uses semantic `<fieldset>` and `<legend>` elements.
