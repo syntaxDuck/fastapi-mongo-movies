@@ -1,7 +1,10 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion, Variants } from "framer-motion";
 
 import styles from "../../styles/components/pages/HomePage.module.css";
+
+const MotionLink = motion(Link);
 
 const HomePage: React.FC = () => {
   // Motion variants for page animations
@@ -9,28 +12,28 @@ const HomePage: React.FC = () => {
     initial: { opacity: 0, y: 20 },
     animate: {
       opacity: 1,
-      y: 0
-    }
+      y: 0,
+    },
   };
 
   const sectionVariants: Variants = {
     initial: { opacity: 0, y: 30 },
     animate: {
       opacity: 1,
-      y: 0
-    }
+      y: 0,
+    },
   };
 
   const featureVariants: Variants = {
     initial: { opacity: 0, scale: 0.9 },
     animate: {
       opacity: 1,
-      scale: 1
+      scale: 1,
     },
     hover: {
       y: -8,
-      scale: 1.02
-    }
+      scale: 1.02,
+    },
   };
 
   const buttonVariants: Variants = {
@@ -38,30 +41,30 @@ const HomePage: React.FC = () => {
     animate: { opacity: 1, y: 0 },
     hover: {
       y: -3,
-      boxShadow: "var(--shadow-xl)"
+      boxShadow: "var(--shadow-xl)",
     },
     tap: {
       y: -1,
-      boxShadow: "var(--shadow-lg)"
-    }
+      boxShadow: "var(--shadow-lg)",
+    },
   };
 
   const features = [
     {
       icon: "Films",
       title: "Extensive Collection",
-      description: "Discover thousands of movies across all genres and decades"
+      description: "Discover thousands of movies across all genres and decades",
     },
     {
       icon: "Rating",
-      title: "Curated Ratings", 
-      description: "IMDb and Rotten Tomatoes ratings to help you choose"
+      title: "Curated Ratings",
+      description: "IMDb and Rotten Tomatoes ratings to help you choose",
     },
     {
       icon: "Search",
       title: "Smart Search",
-      description: "Find exactly what you're looking for with powerful filters"
-    }
+      description: "Find exactly what you're looking for with powerful filters",
+    },
   ];
   return (
     <motion.div
@@ -83,28 +86,28 @@ const HomePage: React.FC = () => {
             dataset
           </p>
           <div className={styles.heroActions}>
-            <motion.a
+            <MotionLink
               variants={buttonVariants}
               initial="initial"
               animate="animate"
               whileHover="hover"
               whileTap="tap"
-              href="/movies"
+              to="/movies"
               className={styles.btnPrimary}
             >
               Browse Movies
-            </motion.a>
-            <motion.a
+            </MotionLink>
+            <MotionLink
               variants={buttonVariants}
               initial="initial"
               animate="animate"
               whileHover="hover"
               whileTap="tap"
-              href="/top-rated"
+              to="/top-rated"
               className={styles.btnSecondary}
             >
               Top Rated
-            </motion.a>
+            </MotionLink>
           </div>
         </div>
       </motion.section>
@@ -118,10 +121,10 @@ const HomePage: React.FC = () => {
             key={index}
             className={`${styles.featureCard} card-hover`}
             variants={featureVariants}
-            transition={{ 
-              duration: 0.5, 
-              ease: "easeOut", 
-              delay: index * 0.1 
+            transition={{
+              duration: 0.5,
+              ease: "easeOut",
+              delay: index * 0.1,
             }}
             whileHover="hover"
           >

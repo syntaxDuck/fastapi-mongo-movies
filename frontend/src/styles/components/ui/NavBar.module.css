@@ -40,7 +40,8 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-size: 200% auto;
-  animation: var(--animation-gradient-shift); }
+  animation: var(--animation-gradient-shift);
+}
 
 .navSearch {
   flex: 1;
@@ -56,7 +57,7 @@
 
 .searchInput {
   width: 100%;
-  padding: var(--space-3) var(--space-10) var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-16) var(--space-3) var(--space-4);
   background: var(--bg-secondary);
   border: 1px solid var(--border-primary);
   border-radius: var(--radius-lg);
@@ -79,6 +80,22 @@
   padding: var(--space-2);
   border-radius: var(--radius-md);
   font-size: 1rem;
+}
+
+.clearBtn {
+  position: absolute;
+  right: var(--space-10);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .navToggle {
@@ -191,7 +208,3 @@
     padding: 0 var(--space-2);
   }
 }
-
-
-
-
