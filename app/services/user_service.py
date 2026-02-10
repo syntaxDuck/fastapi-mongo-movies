@@ -2,6 +2,8 @@
 User Service layer for business logic using proper protocol-based dependency injection.
 """
 
+import hashlib
+import os
 from typing import List, Optional
 from ..repositories.protocol import UserRepositoryProtocol
 from ..core.exceptions import NotFoundError, DatabaseError, DuplicateResourceError
@@ -54,7 +56,14 @@ class UserService:
         logger.info(f"Found {len(users)} users")
         return users
 
-    # TODO: Need to add hashing for user password with salt added
+    def _hash_password(self, password: str) -> str:
+        """Hash a password using PBKDF2 with a random salt."""
+        salt = os.urandom(32)
+        # Use 100,000 iterations of SHA-256
+        key = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 100000)
+        # Store as salt_hex:key_hex
+        return f"{salt.hex()}:{key.hex()}"
+
     async def create_user(self, user_data: UserCreate) -> MessageResponse:
         """Create a new user."""
         email = user_data.email
@@ -126,6 +135,9 @@ class UserService:
                 f"UserService.create_user() failed: Email '{email}' already exists"
             )
             raise DuplicateResourceError(f"User with email '{email}' already exists")
+
+        # Hash the password before storing
+        user_data.password = self._hash_password(user_data.password)
 
         user_id = await self.user_repository.create_user(user_data)
         if not user_id:
