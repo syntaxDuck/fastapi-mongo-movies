@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from .routes.movies import router as movies_router
 from .routes.users import router as users_router
 from .routes.comments import router as comments_router
@@ -39,6 +40,9 @@ def create_app() -> FastAPI:
     )
 
     app.middleware("http")(log_requests)
+
+    # Add GZip compression for large JSON payloads
+    app.add_middleware(GZipMiddleware, minimum_size=1000)
 
     app.add_middleware(
         CORSMiddleware,

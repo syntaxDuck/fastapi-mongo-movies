@@ -1,0 +1,3 @@
+## 2026-02-10 - [GZip Compression & React.memo Risks]
+**Learning:** Adding GZipMiddleware to FastAPI is a high-impact, low-effort optimization that significantly reduces payload size for large JSON responses (like movie lists). However, when optimizing React components with `React.memo`, using a custom comparison function that only checks IDs can lead to "stale UI" bugs if other data fields update but the ID remains the same.
+**Action:** Always prefer system-level optimizations like GZip for general performance boosts. When using `React.memo`, ensure the comparison logic is exhaustive or rely on default shallow comparison to avoid synchronization issues between the data and the UI.
