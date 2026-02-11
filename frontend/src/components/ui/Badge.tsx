@@ -6,7 +6,14 @@ export interface BadgeProps {
   /** Badge content */
   children: React.ReactNode;
   /** Badge variant for styling */
-  variant?: "default" | "success" | "warning" | "error" | "info" | "primary" | "secondary";
+  variant?:
+    | "default"
+    | "success"
+    | "warning"
+    | "error"
+    | "info"
+    | "primary"
+    | "secondary";
   /** Badge size */
   size?: "sm" | "md" | "lg";
   /** Badge position for absolute positioning */
@@ -41,19 +48,29 @@ const Badge: React.FC<BadgeProps> = ({
   icon,
   disabled = false,
   id,
-  ariaLabel
+  ariaLabel,
 }) => {
   const badgeClasses = [
     styles.badge,
-    styles[variant],
-    styles[size],
-    position && styles[position.replace("-", "")],
-    shape !== "rounded" && styles[`badge${shape.charAt(0).toUpperCase() + shape.slice(1)}`],
+    styles["badge" + variant.charAt(0).toUpperCase() + variant.slice(1)],
+    styles["badge" + size.charAt(0).toUpperCase() + size.slice(1)],
+    position &&
+      styles[
+        "badge" +
+          position
+            .split("-")
+            .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+            .join("")
+      ],
+    shape !== "rounded" &&
+      styles[`badge${shape.charAt(0).toUpperCase() + shape.slice(1)}`],
     style === "outlined" && styles.badgeOutlined,
     icon && styles.badgeIcon,
     disabled && styles.disabled,
-    className
-  ].filter(Boolean).join(" ");
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const getAnimationProps = () => {
     if (animation === "none" || disabled) {
@@ -65,12 +82,12 @@ const Badge: React.FC<BadgeProps> = ({
         return {
           whileHover: { scale: 1.05 },
           whileTap: { scale: 0.95 },
-          transition: { duration: 0.2 } as any
+          transition: { duration: 0.2 } as any,
         };
       case "fade":
         return {
           whileHover: { opacity: 0.8 },
-          transition: { duration: 0.2 } as any
+          transition: { duration: 0.2 } as any,
         };
       default:
         return {};

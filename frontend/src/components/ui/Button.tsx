@@ -30,15 +30,17 @@ const Button: React.FC<ButtonProps> = ({
   type = "button",
   fullWidth = false,
   id,
-  ariaLabel
+  ariaLabel,
 }) => {
   const buttonClasses = [
     styles.button,
-    styles[variant],
-    styles[size],
+    styles["button" + variant.charAt(0).toUpperCase() + variant.slice(1)],
+    styles["button" + size.charAt(0).toUpperCase() + size.slice(1)],
     fullWidth && styles.buttonFullWidth,
-    className
-  ].filter(Boolean).join(" ");
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const getAnimationProps = () => {
     switch (animation) {
@@ -46,26 +48,33 @@ const Button: React.FC<ButtonProps> = ({
         return {
           whileHover: { scale: 1.05 },
           whileTap: { scale: 0.95 },
-          transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] } as any
+          transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] } as any,
         };
       case "slide":
         return {
           whileHover: { y: -2 },
           whileTap: { y: 0 },
-          transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] } as any
+          transition: { duration: 0.2, ease: [0.4, 0, 0.2, 1] } as any,
         };
       case "glow":
         return {
           whileHover: { boxShadow: "0 0 20px rgba(59, 130, 246, 0.5)" },
           whileTap: { boxShadow: "0 0 10px rgba(59, 130, 246, 0.3)" },
-          transition: { duration: 0.2 } as any
+          transition: { duration: 0.2 } as any,
         };
       default:
         return {};
     }
   };
 
-  const getSpinnerColor = (): "primary" | "accent" | "success" | "warning" | "error" | "white" | "gray" => {
+  const getSpinnerColor = ():
+    | "primary"
+    | "accent"
+    | "success"
+    | "warning"
+    | "error"
+    | "white"
+    | "gray" => {
     switch (variant) {
       case "primary":
       case "danger":
@@ -91,12 +100,7 @@ const Button: React.FC<ButtonProps> = ({
     >
       {loading ? (
         <div className={styles.buttonLoading}>
-          <Spinner
-            size="sm"
-            color={getSpinnerColor()}
-            type="dots"
-            inline
-          />
+          <Spinner size="sm" color={getSpinnerColor()} type="dots" inline />
           <span>Loading...</span>
         </div>
       ) : (
