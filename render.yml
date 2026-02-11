@@ -1,0 +1,23 @@
+
+services:
+  - type: web # Backend Web Service
+    name: fastapi
+    runtime: python # Or python, etc., if not using a Dockerfile
+    rootDir: .
+    buildCommand: uv install --freeze
+    startCommand: uv run main.py -b # Or your specific start command
+    # Internal communication uses the service name (e.g., http://my-backend)
+    envVars:
+      - key: FRONTEND_URL
+        value: https://my-frontend.onrender.com # Public URL of the frontend
+      # Other sensitive environment variables should be set in the Render dashboard
+
+  - type: static # Frontend Static Site
+    name: react
+    rootDir: frontend
+    buildCommand: pnpm run build
+    publishPath: dist # The directory where your build command outputs static files
+    envVars:
+      - key: REACT_APP_BACKEND_URL # Or specific env var name for your framework
+        value: https://my-backend.onrender.com # Public URL of the backend
+
