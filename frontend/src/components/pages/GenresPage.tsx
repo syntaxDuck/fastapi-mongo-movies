@@ -39,14 +39,18 @@ const GenresPage: React.FC = () => {
       const finalGenres: { genre: string; movie: Movie }[] = [];
 
       for (const { genre, movie_batch } of results) {
-        if (movie_batch.length === 0) continue;
+        // Try to find a movie not already used as a poster for another genre
+        const uniqueMovie = movie_batch.find((m) => !usedMovieIds.has(m._id));
 
-        // Try to find a movie not already used as a poster
-        const movie =
-          movie_batch.find((m) => !usedMovieIds.has(m._id)) || movie_batch[0];
-
-        usedMovieIds.add(movie._id);
-        finalGenres.push({ genre, movie });
+        // Only add the genre if we found a unique candidate, preserving the uniqueness invariant
+        if (uniqueMovie) {
+          usedMovieIds.add(uniqueMovie._id);
+          finalGenres.push({ genre, movie: uniqueMovie });
+        } else {
+          console.debug(
+            `Skipping genre ${genre} - no unique poster available in batch`,
+          );
+        }
       }
 
       setGenres(finalGenres);
