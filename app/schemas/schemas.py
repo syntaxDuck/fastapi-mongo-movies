@@ -202,7 +202,6 @@ class UserQuery(BaseModel):
 
     id: Optional[str] = Field(None, alias="_id", description="Filter by user ID")
     name: Optional[str] = Field(None, description="Filter by user name")
-    password: Optional[str] = Field(None, description="Filter by user password")
     email: Optional[EmailStr] = Field(None, description="Filter by user email")
     limit: Optional[int] = Field(10, description="Number of users to return")
     skip: Optional[int] = Field(0, description="Number of records to skip")

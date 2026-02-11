@@ -85,7 +85,7 @@ async def get_user_by_id(
 
 @router.post("/", response_model=MessageResponse)
 async def create_user(
-    user_data: Annotated[UserCreate, Query()],
+    user_data: UserCreate,
     user_service: UserService = Depends(get_user_service),
 ):
     """
@@ -100,9 +100,9 @@ async def create_user(
     )
 
     try:
-        user_id = await user_service.create_user(user_data)
-        logger.info(f"API: create_user() successfully created user with ID: {user_id}")
-        return MessageResponse(message=f"User created successfully: {user_id}")
+        response = await user_service.create_user(user_data)
+        logger.info(f"API: create_user() successfully created user: {user_data.email}")
+        return response
 
     except DuplicateResourceError as e:
         logger.warning(f"API: create_user() duplicate resource error: {e}")
