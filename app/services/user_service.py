@@ -4,6 +4,7 @@ User Service layer for business logic using proper protocol-based dependency inj
 
 from typing import List, Optional
 from ..repositories.protocol import UserRepositoryProtocol
+from ..core.security import hash_password
 from ..core.exceptions import NotFoundError, DatabaseError, DuplicateResourceError
 from ..core.logging import get_logger
 from ..schemas.schemas import MessageResponse, UserCreate, UserResponse
@@ -54,7 +55,6 @@ class UserService:
         logger.info(f"Found {len(users)} users")
         return users
 
-    # TODO: Need to add hashing for user password with salt added
     async def create_user(self, user_data: UserCreate) -> MessageResponse:
         """Create a new user."""
         email = user_data.email
@@ -126,6 +126,9 @@ class UserService:
                 f"UserService.create_user() failed: Email '{email}' already exists"
             )
             raise DuplicateResourceError(f"User with email '{email}' already exists")
+
+        # Hash the password before storing
+        user_data.password = hash_password(user_data.password)
 
         user_id = await self.user_repository.create_user(user_data)
         if not user_id:
