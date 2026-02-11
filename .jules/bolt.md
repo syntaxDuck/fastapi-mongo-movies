@@ -1,0 +1,3 @@
+## 2026-02-11 - [Parallelizing Genre Fetching]
+**Learning:** Sequential API calls in a loop (N+1 pattern) from the frontend can significantly slow down page loads, especially when each call fetches more data than needed. Parallelizing these calls with `Promise.all` and reducing the fetch limit from 25 to 5 reduced the theoretical load time from O(N) to O(1) and decreased the payload size by 80%.
+**Action:** Always check for sequential loops containing API calls in frontend components and replace them with `Promise.all` where possible. Also, ensure fetch limits are tuned to the minimum required for the UI.
