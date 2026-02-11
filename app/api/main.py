@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from .routes.movies import router as movies_router
 from .routes.users import router as users_router
 from .routes.comments import router as comments_router
@@ -47,6 +48,9 @@ def create_app() -> FastAPI:
         allow_methods=settings.CORS_ALLOW_METHODS,
         allow_headers=settings.CORS_ALLOW_HEADERS,
     )
+
+    # Add GZip compression for large JSON responses to improve network efficiency
+    app.add_middleware(GZipMiddleware, minimum_size=1000)
 
     logger.info("Including API routers")
     app.include_router(movies_router)
