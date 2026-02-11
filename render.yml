@@ -12,7 +12,7 @@ services:
         value: https://my-frontend.onrender.com # Public URL of the frontend
       # Other sensitive environment variables should be set in the Render dashboard
 
-  - type: static # Frontend Static Site
+  - type: web # Frontend Static Site
     name: react
     rootDir: frontend
     buildCommand: pnpm run build
