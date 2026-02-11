@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routes.movies import router as movies_router
 from .routes.users import router as users_router
 from .routes.comments import router as comments_router
+from .routes.admin import router as admin_router
 from ..core.config import settings
 from ..core.middleware import log_requests
 from ..core.logging import setup_logging, get_logger
@@ -52,6 +53,7 @@ def create_app() -> FastAPI:
     app.include_router(movies_router)
     app.include_router(users_router)
     app.include_router(comments_router)
+    app.include_router(admin_router)
 
     @app.get("/health")
     async def health_check():
