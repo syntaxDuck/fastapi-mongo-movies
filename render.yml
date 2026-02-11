@@ -16,7 +16,7 @@ services:
     name: react
     rootDir: frontend
     buildCommand: pnpm run build
-    publishPath: dist # The directory where your build command outputs static files
+    publishPath: build # The directory where your build command outputs static files
     envVars:
       - key: REACT_APP_BACKEND_URL # Or specific env var name for your framework
         value: https://my-backend.onrender.com # Public URL of the backend
