@@ -7,13 +7,13 @@ import asyncio
 from unittest.mock import AsyncMock, MagicMock
 from mongomock import MongoClient
 
-from app.core.database import DatabaseHandler, DatabaseConfig
-from app.repositories.movie_repository import (
+from backend.core.database import DatabaseHandler, DatabaseConfig
+from backend.repositories.movie_repository import (
     MovieRepository,
     UserRepository,
     CommentRepository,
 )
-from app.services.movie_service import MovieService, UserService, CommentService
+from backend.services.movie_service import MovieService, UserService, CommentService
 
 
 @pytest.fixture

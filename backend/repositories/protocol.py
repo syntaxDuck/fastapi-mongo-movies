@@ -4,7 +4,7 @@ Repository protocol definitions for type safety and dependency injection.
 
 from typing import Protocol, Dict, Any, List, Optional, runtime_checkable
 
-from app.schemas.schemas import (
+from backend.schemas.schemas import (
     MessageResponse,
     MovieResponse,
     CommentResponse,

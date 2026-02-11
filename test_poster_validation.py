@@ -4,9 +4,9 @@ Test script for Poster Validation API functionality.
 
 import asyncio
 import sys
-from app.services.poster_validation_service import PosterValidationService
-from app.services.job_management_service import JobManagementService
-from app.core.logging import get_logger
+from backend.services.poster_validation_service import PosterValidationService
+from backend.services.job_management_service import JobManagementService
+from backend.core.logging import get_logger
 
 logger = get_logger(__name__)
 

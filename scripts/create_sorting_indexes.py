@@ -5,8 +5,8 @@ This script creates indexes that support the new sorting functionality.
 
 import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
-from app.core.logging import get_logger
-from app.core.database import get_database_client
+from backend.core.logging import get_logger
+from backend.core.database import get_database_client
 import os
 
 logger = get_logger(__name__)

@@ -5,7 +5,7 @@ Repository layer using context manager pattern.
 from typing import Dict, Any, List, Optional
 from bson import ObjectId
 
-from app.core.exceptions import DatabaseError
+from backend.core.exceptions import DatabaseError
 from ..core.database import get_database_client
 from ..core.logging import get_logger
 

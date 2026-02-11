@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, Any
 from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_validator
 from bson import ObjectId
-from app.core.logging import get_logger
+from backend.core.logging import get_logger
 
 logger = get_logger(__name__)
 

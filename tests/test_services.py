@@ -5,8 +5,8 @@ Unit tests for the restructured application services.
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from app.core.exceptions import NotFoundError, DuplicateResourceError
-from app.schemas.schemas import UserCreate, MessageResponse
+from backend.core.exceptions import NotFoundError, DuplicateResourceError
+from backend.schemas.schemas import UserCreate, MessageResponse
 
 
 class TestMovieService:

@@ -4,8 +4,8 @@ Movie Repository layer using context manager pattern.
 
 from typing import Dict, Any, List, Optional
 from .base import BaseRepository
-from app.core.logging import get_logger
-from app.schemas.schemas import MovieResponse
+from backend.core.logging import get_logger
+from backend.schemas.schemas import MovieResponse
 
 logger = get_logger(__name__)
 

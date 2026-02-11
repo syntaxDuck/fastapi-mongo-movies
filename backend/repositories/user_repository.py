@@ -5,7 +5,7 @@ User Repository layer using context manager pattern.
 from typing import List, Optional
 from bson import ObjectId
 from .base import BaseRepository
-from app.core.logging import get_logger
+from backend.core.logging import get_logger
 from ..schemas.schemas import MessageResponse, UserCreate, UserResponse
 
 logger = get_logger(__name__)

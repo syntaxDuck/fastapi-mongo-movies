@@ -24,7 +24,7 @@ def main():
         api_proc = subprocess.Popen(
             [
                 "uvicorn",
-                "app.main:app",
+                "backend.main:app",
                 "--reload",
                 "--host",
                 "0.0.0.0",

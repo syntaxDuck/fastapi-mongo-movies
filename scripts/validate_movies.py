@@ -1,6 +1,6 @@
-# from ..app.repositories.base import BaseRepository
-from app.repositories.movie_repository import MovieRepository
-from app.core.database import DatabaseManager
+# from ..backend.repositories.base import BaseRepository
+from backend.repositories.movie_repository import MovieRepository
+from backend.core.database import DatabaseManager
 import asyncio
 
 import requests

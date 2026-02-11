@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["app*"]
+include = ["backend*"]
 
 [project.optional-dependencies]
 test = [
@@ -41,7 +41,7 @@ addopts = [
     "-v",
     "--tb=short",
     "--strict-markers",
-    "--cov=app",
+    "--cov=backend",
     "--cov=frontend",
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
@@ -62,7 +62,7 @@ markers = [
 
 # Coverage configuration
 [tool.coverage.run]
-source = ["app", "frontend"]
+source = ["backend", "frontend"]
 omit = [
     "*/tests/*",
     "*/test_*",
