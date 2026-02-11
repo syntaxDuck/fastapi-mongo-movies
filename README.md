@@ -1,410 +1,193 @@
-# FastAPI Mongo Movies
+# FastAPI MongoDB Movies
 
-A FastAPI application with MongoDB for movie data management, featuring a clean architecture with separate API and frontend components.
+Full-stack movie application with a FastAPI backend, MongoDB data access via Motor, and a React + TypeScript frontend.
 
-## Features
+## Demo
+![Frontend Demo](artifacts/frontend-demo.gif)
 
-- **Movie Catalog**: Browse and search movies from MongoDB sample_mflix database
-- **User Management**: Create and manage user accounts
-- **Comments System**: View and manage movie comments
-- **Genre Browsing**: Explore movies by genre with interactive cards
-- **Search Functionality**: Full-text search across movie titles and descriptions
-- **Responsive Design**: Mobile-first design with desktop optimizations
-- **Clean Architecture**: Layered service-repository pattern with dependency injection
-- **React Frontend**: Modern web interface using React with TypeScript
-- **Async Operations**: Full async/await support for database operations
+The demo above shows navigation across the app, movie search, movie details, and scrolling to the bottom of a movie-details session.
 
-## Architecture
-
-```
-fastapi-mongo-movies/
-├── app/                          # Backend clean architecture
-│   ├── api/                       # FastAPI REST API endpoints
-│   │   └── routes/               # Route definitions
-│   ├── services/                   # Business logic layer
-│   ├── repositories/               # Data access abstraction
-│   │   └── protocol.py          # Repository interfaces
-│   ├── schemas/                   # API request/response models
-│   ├── core/                      # Configuration, database, exceptions
-│   └── main.py                   # Backend application entry point
-├── frontend/                      # React frontend application
-│   ├── public/                    # Static assets
-│   ├── src/                      # Source code
-│   │   ├── components/           # React components
-│   │   │   ├── genres/          # Genre-related components
-│   │   │   ├── movies/          # Movie-related components
-│   │   │   ├── util/            # Utility components
-│   │   │   └── views/           # Page view components
-│   │   ├── services/             # API service layer
-│   │   ├── styles/               # CSS modules and styling
-│   │   ├── types.ts              # TypeScript type definitions
-│   │   └── App.tsx              # Main application component
-│   ├── build/                    # Production build output
-│   └── package.json              # Frontend dependencies
-├── tests/                        # Test suites
-│   ├── backend/                  # Backend tests
-│   ├── frontend/                 # Frontend tests
-│   └── fixtures/                # Test data fixtures
-├── scripts/                      # Utility scripts
-├── logs/                         # Application logs
-└── main.py                      # Service launcher
-```
+## Current Project State
+- Layered backend architecture: `API -> Service -> Repository -> Database`
+- Async MongoDB access with connection pooling via Motor
+- React frontend with route transitions using Framer Motion
+- Feature routes for movies, genres, top-rated, recent, and about pages
+- Admin API for poster validation jobs and job status management
+- Python and frontend tests in `tests/` and `frontend` test setup
 
 ## Tech Stack
+- Backend: FastAPI, Motor, Pydantic v2, Uvicorn
+- Frontend: React 18, TypeScript, React Router, Framer Motion, CSS Modules
+- Tooling: `uv` for Python dependency/runtime management, npm for frontend
+- Database: MongoDB (`sample_mflix`-style collections)
 
-### Backend
-- **API Framework**: FastAPI with Python 3.12+
-- **Database**: MongoDB with Motor (async driver)
-- **Validation**: Pydantic with email support
-- **Environment**: Python-dotenv for configuration
-- **Server**: Uvicorn with hot reload
-
-### Frontend
-- **Framework**: React 18 with TypeScript
-- **Styling**: CSS Modules with custom design system
-- **Routing**: React Router DOM
-- **Build Tool**: Create React App
-- **State Management**: React hooks and context
-- **HTTP Client**: Fetch API with custom service layer
+## Repository Structure
+```text
+fastapi-mongo-movies/
+├── backend/
+│   ├── api/                # FastAPI app + route modules
+│   │   └── routes/         # movies, users, comments, admin
+│   ├── services/           # Business logic layer
+│   ├── repositories/       # Data access layer
+│   ├── schemas/            # Pydantic request/response schemas
+│   └── core/               # Config, DB manager, logging, exceptions
+├── frontend/
+│   ├── src/
+│   │   ├── components/     # Domain + UI components
+│   │   ├── styles/         # CSS modules
+│   │   ├── services/       # API client layer
+│   │   └── utils/          # Frontend utilities
+│   └── package.json
+├── scripts/                # Utility scripts (indexes, validation helpers)
+├── tests/                  # Backend and frontend-oriented tests
+├── docker-compose.yml
+├── docker-compose.prod.yml
+└── main.py                 # Local service launcher
+```
 
 ## Prerequisites
+- Python `3.12+`
+- Node.js `16+` (npm)
+- MongoDB instance with movie/user/comment data
+- `uv` installed
 
-- Python 3.12 or higher
-- MongoDB database (uses sample_mflix dataset)
-- uv package manager
-
-## Installation
-
-1. Clone the repository:
+## Setup
 ```bash
-git clone <repository-url>
-cd fastapi-mongo-movies
-```
-
-2. Install backend dependencies using uv:
-```bash
+# Install backend dependencies
 uv sync
-```
 
-3. Install frontend dependencies:
-```bash
-cd frontend
-npm install
-cd ..
-```
-
-4. Install test dependencies (optional):
-```bash
+# Install test extras (optional but recommended)
 uv sync --group test
+
+# Install frontend dependencies
+cd frontend && npm install && cd ..
 ```
 
 ## Configuration
+Create `.env` in repo root.
 
-Create a `.env` file in the root directory with your MongoDB configuration:
-
+Required database settings:
 ```env
-DB_USER=your_mongodb_username
-DB_PASS=your_mongodb_password
-DB_HOST=your_mongodb_host
+DB_HOST=
+DB_NAME=
+DB_USER=
+DB_PASS=
 ```
 
-## Running the Application
+Common optional settings:
+```env
+MONGODB_TLS=true
+MONGODB_TLS_ALLOW_INVALID_CERTS=true
+MONGODB_CONNECTION_TIMEOUT=10
+MONGODB_MAX_POOL_SIZE=10
 
-### Option 1: Run both services together (Recommended)
+LOG_LEVEL=INFO
+LOG_TO_CONSOLE=true
+LOG_TO_FILE=true
+```
+
+## Run Locally
+
+Run backend + frontend together:
 ```bash
-# Terminal 1 - Start backend
-uv run python main.py
-
-# Terminal 2 - Start frontend  
-cd frontend && npm start
+uv run main.py -bf
 ```
 
-### Option 2: Run services individually
-
-**Backend API Service:**
+Run only backend:
 ```bash
-uv run uvicorn app.main:app --reload --port 8000
+uv run main.py -b
 ```
 
-**Frontend Development Server:**
+Run only frontend:
 ```bash
-cd frontend
-npm start
+uv run main.py -f
 ```
 
-**Production Build:**
+Key local URLs:
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:8000`
+- OpenAPI docs: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+- Health check: `http://localhost:8000/health`
+
+## API Surface (Summary)
+
+Movies (`/movies`)
+- `GET /movies/`
+- `GET /movies/{movie_id}`
+- `GET /movies/genres`
+- `GET /movies/genres/{movie_genre}`
+- `GET /movies/types`
+- `GET /movies/types/{movie_type}`
+- `GET /movies/year/{year}`
+- `GET /movies/rating/{rating}`
+
+Users (`/users`)
+- `GET /users/`
+- `GET /users/{user_id}`
+- `POST /users/`
+- `GET /users/email/{email}`
+- `GET /users/name/{name}`
+
+Comments (`/comments`)
+- `GET /comments/`
+- `GET /comments/{comment_id}`
+- `GET /comments/movie/{movie_id}`
+- `GET /comments/email/{email}`
+- `GET /comments/name/{name}`
+
+Admin (`/admin`)
+- `POST /admin/movies/validate-posters`
+- `GET /admin/movies/validate-posters/{job_id}`
+- `GET /admin/movies/validate-posters/statistics`
+- `GET /admin/movies/validate-posters/invalid`
+- `POST /admin/movies/{movie_id}/validate-poster`
+- `POST /admin/movies/validate-posters/revalidate/{movie_id}`
+- `DELETE /admin/jobs/{job_id}`
+
+For exact schemas and query params, use `http://localhost:8000/docs`.
+
+## Frontend Routes
+- `/` home
+- `/movies`
+- `/movie/:movieId`
+- `/genres`
+- `/genres/:genre`
+- `/top-rated`
+- `/recent`
+- `/about`
+- `/debug`
+
+Development-only routes are also available in development mode (`/dev`, `/spinners-test`).
+
+## Testing
+Backend tests:
 ```bash
-cd frontend
-npm run build
-```
-
-### Access Points
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-- **Frontend Application**: http://localhost:3000
-- **Frontend Production Build**: Serve `frontend/build/` directory
-
-## API Endpoints
-
-### Movies
-- `GET /movies/` - List movies with filtering, search, and pagination
-- `GET /movies/{movie_id}` - Get specific movie by ID
-- `GET /movies/type/{movie_type}` - Get movies by type
-- `GET /movies/year/{year}` - Get movies by release year
-- `GET /movies/genres` - Get all available movie genres
-- `GET /movies/genres/{genre}` - Get movies by genre
-- `GET /movies/types` - Get all available movie types
-- Query parameters: `_id`, `title`, `search`, `type`, `limit`, `skip`, `include_invalid_posters`
-
-### Users
-- `GET /users/` - List users with filtering
-- `POST /users/` - Create new user
-- `GET /users/{user_id}` - Get specific user by ID
-- `GET /users/email/{email}` - Get users by email
-- `GET /users/name/{name}` - Get users by name
-- Query parameters: `_id`, `name`, `email`, `limit`, `skip`
-
-### Comments
-- `GET /comments/` - List comments with filtering
-- `GET /comments/{comment_id}` - Get specific comment by ID
-- `GET /comments/movie/{movie_id}` - Get comments by movie
-- `GET /comments/email/{email}` - Get comments by email
-- `GET /comments/name/{name}` - Get comments by name
-- Query parameters: `movie_id`, `limit`, `skip`
-
-### Legacy API (Deprecated)
-- `GET /movies` - Old endpoint (still functional)
-
-### Users
-- `GET /users` - List users with filtering
-- `POST /users/` - Create a new user
-- Query parameters: `_id`, `name`, `email`, `limit`, `skip`
-
-### Comments
-- `GET /comments` - List comments with filtering
-- Query parameters: `movie_id`, `limit`, `skip`
-
-## Data Models
-
-### Movie
-```python
-- id: str
-- title: str
-- plot: str
-- genres: list[str]
-- cast: list[str]
-- directors: list[str]
-- year: int
-- runtime: int
-- countries: list[str]
-- released: datetime
-- imdb: dict
-- tomatoes: dict
-- awards: dict
-```
-
-### User
-```python
-- id: str
-- name: str
-- email: EmailStr
-- password: str
-```
-
-### Comment
-```python
-- id: str
-- name: str
-- email: str
-- movie_id: str
-- text: str
-- date: datetime
-```
-
-## Development
-
-### Adding Dependencies
-
-**Backend Dependencies:**
-```bash
-uv add <package-name>
-```
-
-**Frontend Dependencies:**
-```bash
-cd frontend
-npm install <package-name>
-```
-
-### Frontend Development
-
-The React frontend uses a component-based architecture with:
-- **Feature-based organization**: Components grouped by functionality
-- **CSS Modules**: Scoped styling with design system variables
-- **TypeScript**: Full type safety throughout the application
-- **Responsive Design**: Mobile-first approach with desktop enhancements
-
-**Component Structure:**
-- `genres/`: Genre browsing and selection components
-- `movies/`: Movie display, lists, and details components  
-- `util/`: Reusable utility components
-- `views/`: Page-level view components
-
-**Styling:**
-- Design system with CSS custom properties
-- Component-scoped CSS modules
-- Responsive breakpoints and utilities
-- Dark theme with accessibility focus
-
-### Logging
-
-The application includes comprehensive logging:
-
-#### Environment Variables
-```bash
-# Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-export LOG_LEVEL=INFO
-
-# Enable/disable console logging
-export LOG_TO_CONSOLE=true
-
-# Enable/disable file logging  
-export LOG_TO_FILE=true
-
-# Log format (simple, detailed)
-export LOG_FORMAT=detailed
-```
-
-#### Log Files
-- `logs/app.log` - All application logs
-- `logs/errors.log` - Error and critical logs only
-
-#### Log Levels by Component
-- **app.core.database**: DEBUG (query details)
-- **app.repositories**: INFO
-- **app.services**: INFO  
-- **app.api**: INFO
-- **uvicorn.access**: WARNING
-
-#### Testing Logging
-```bash
-# Test logging configuration
-uv run python test_logging.py
-```
-
-### Running Tests
-
-**Backend Tests:**
-```bash
-# Run all backend tests
 uv run pytest
-
-# Run tests by category
-uv run pytest -m unit
-uv run pytest -m integration
-uv run pytest -m api
-
-# Run with coverage
-uv run pytest --cov=app --cov-report=html
 ```
 
-**Frontend Tests:**
+Frontend tests:
 ```bash
-cd frontend
-npm test
+cd frontend && npm test
 ```
 
-**Combined Tests:**
+Coverage output is configured in `pyproject.toml` (terminal + `htmlcov` + `coverage.xml`).
+
+## Docker
+Development stack:
 ```bash
-# Run both backend and frontend tests
-uv run pytest && cd frontend && npm test
-```
-
-## Database Schema
-
-The application uses the MongoDB sample_mflix dataset with the following collections:
-
-- **movies**: Movie information and metadata
-- **users**: User accounts and profiles
-- **comments**: User comments on movies
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Docker Deployment
-
-### Quick Start with Docker
-```bash
-# Copy environment template and configure
-cp .env.docker .env
-# Edit .env with your MongoDB credentials
-
-# Start all services
-./deploy.sh
-
-# Or use docker-compose directly
 docker-compose up -d
-
-# Production deployment
-./deploy.sh --prod
 ```
 
-### Docker Commands
+Production stack:
 ```bash
-# Development environment
-./deploy.sh
-
-# Production environment  
-./deploy.sh --prod
-
-# Rebuild images
-./deploy.sh --build
-
-# Stop services
-./deploy.sh --down
-
-# View logs
-./deploy.sh --logs
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
-### Docker Services
-- **Backend**: FastAPI on port 8000
-- **Frontend**: React on port 3000 (dev) / 80 (prod)
-- **Database**: MongoDB on port 27017
-- **Documentation**: See `DOCKER.md` for detailed guide
+See `DOCKER.md` for details.
 
 ## Troubleshooting
-
-### Common Issues
-
-1. **MongoDB Connection**: Ensure your MongoDB credentials are correct in `.env` file
-2. **Port Conflicts**: Make sure ports 8000 and 3000 are available
-3. **Dependencies**: 
-   - Backend: Run `uv sync` if you encounter missing package errors
-   - Frontend: Run `npm install` in frontend directory
-4. **TypeScript Errors**: Check `frontend/src/types.ts` for proper type definitions
-5. **Build Failures**: Clear `node_modules` and `npm install` again
-6. **Docker Issues**: 
-   - Check Docker installation: `docker --version`
-   - Check Docker Compose: `docker-compose --version`
-   - Restart Docker service if needed
-
-### Getting Help
-
-- **API Documentation**: http://localhost:8000/docs (when backend is running)
-- **Frontend Dev Tools**: Use React Developer Tools for component inspection
-- **Network Issues**: Check browser console for API connection errors
-- **Database Issues**: Verify MongoDB connection strings and permissions
-- Check logs in `logs/` directory for backend debugging
-- React hot reload provides instant frontend updates during development
-- **Docker Logs**: `./deploy.sh --logs` or `docker-compose logs -f`
-
+- If frontend is unreachable, verify `npm --prefix frontend start` is running (or start via `uv run main.py -bf`).
+- If API calls fail, confirm backend health at `http://localhost:8000/health`.
+- If Mongo connection fails, re-check `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` and TLS settings in `.env`.
+- For logs, inspect `logs/app.log` and `logs/errors.log`.
