@@ -2,7 +2,7 @@
 User Repository layer using context manager pattern.
 """
 
-from typing import List, Optional
+from typing import List, Optional, Any
 from bson import ObjectId
 from .base import BaseRepository
 from app.core.logging import get_logger
@@ -91,9 +91,14 @@ class UserRepository(BaseRepository):
         users = await self._find_many(filter_query, **kwargs)
         return [UserResponse.from_dict(user) for user in users]
 
-    async def create_user(self, user_data: UserCreate) -> Optional[MessageResponse]:
+    async def create_user(
+        self, user_data: UserCreate | dict[str, Any]
+    ) -> Optional[MessageResponse]:
         """Create a new user."""
-        user_data_dict = user_data.model_dump()
+        if hasattr(user_data, "model_dump"):
+            user_data_dict = user_data.model_dump()
+        else:
+            user_data_dict = user_data
         logger.debug(
             f"UserRepository.create_user() called with user_data keys: {list(user_data_dict)}"
         )
@@ -103,7 +108,7 @@ class UserRepository(BaseRepository):
             f"UserRepository.create_user() creating user with data: {safe_user_data}"
         )
 
-        if not user_data.email:
+        if not user_data_dict.get("email"):
             logger.warning("UserRepository.create_user() missing email in user_data")
 
         user_id = await self._create_one(user_data_dict)

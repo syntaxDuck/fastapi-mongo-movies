@@ -85,7 +85,7 @@ async def get_user_by_id(
 
 @router.post("/", response_model=MessageResponse)
 async def create_user(
-    user_data: Annotated[UserCreate, Query()],
+    user_data: UserCreate,
     user_service: UserService = Depends(get_user_service),
 ):
     """

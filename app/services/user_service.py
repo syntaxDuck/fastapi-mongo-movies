@@ -2,7 +2,9 @@
 User Service layer for business logic using proper protocol-based dependency injection.
 """
 
-from typing import List, Optional
+import hashlib
+import secrets
+from typing import List, Optional, Dict, Any
 from ..repositories.protocol import UserRepositoryProtocol
 from ..core.exceptions import NotFoundError, DatabaseError, DuplicateResourceError
 from ..core.logging import get_logger
@@ -54,7 +56,17 @@ class UserService:
         logger.info(f"Found {len(users)} users")
         return users
 
-    # TODO: Need to add hashing for user password with salt added
+    def _hash_password(self, password: str) -> str:
+        """Hash a password using PBKDF2 with SHA-256 and a random salt."""
+        salt = secrets.token_hex(16)
+        hash_obj = hashlib.pbkdf2_hmac(
+            "sha256",
+            password.encode("utf-8"),
+            salt.encode("utf-8"),
+            100000,  # Number of iterations
+        )
+        return f"{salt}:{hash_obj.hex()}"
+
     async def create_user(self, user_data: UserCreate) -> MessageResponse:
         """Create a new user."""
         email = user_data.email
@@ -127,7 +139,12 @@ class UserService:
             )
             raise DuplicateResourceError(f"User with email '{email}' already exists")
 
-        user_id = await self.user_repository.create_user(user_data)
+        # Hash password before storage
+        hashed_password = self._hash_password(user_data.password)
+        user_dict = user_data.model_dump()
+        user_dict["password"] = hashed_password
+
+        user_id = await self.user_repository.create_user(user_dict)
         if not user_id:
             logger.error(
                 f"UserService.create_user() failed: Could not create user with email: {email}"

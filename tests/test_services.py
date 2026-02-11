@@ -3,9 +3,10 @@ Unit tests for the restructured application services.
 """
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, ANY
 
 from app.core.exceptions import NotFoundError, DuplicateResourceError
+from app.schemas.schemas import UserCreate
 
 
 class TestMovieService:
@@ -86,14 +87,14 @@ class TestUserService:
     @pytest.mark.asyncio
     async def test_create_user_success(self, user_service):
         """Test creating a user successfully."""
-        user_data = {
-            "name": "New User",
-            "email": "newuser@example.com",
-            "password": "password123",
-        }
+        user_data = UserCreate(
+            name="New User",
+            email="newuser@example.com",
+            password="password123",
+        )
 
         user_service.user_repository.email_exists = AsyncMock(return_value=False)
-        user_service.user_repository.create_one = AsyncMock(return_value="new_user_id")
+        user_service.user_repository.create_user = AsyncMock(return_value="new_user_id")
 
         result = await user_service.create_user(user_data)
 
@@ -101,16 +102,20 @@ class TestUserService:
         user_service.user_repository.email_exists.assert_called_once_with(
             "newuser@example.com"
         )
-        user_service.user_repository.create_one.assert_called_once_with(user_data)
+        # Verify it was called with the hashed password
+        call_args = user_service.user_repository.create_user.call_args[0][0]
+        assert call_args["email"] == "newuser@example.com"
+        assert call_args["password"] != "password123"
+        assert ":" in call_args["password"]
 
     @pytest.mark.asyncio
     async def test_create_user_duplicate_email(self, user_service):
         """Test creating a user with duplicate email."""
-        user_data = {
-            "name": "Duplicate User",
-            "email": "existing@example.com",
-            "password": "password123",
-        }
+        user_data = UserCreate(
+            name="Duplicate User",
+            email="existing@example.com",
+            password="password123",
+        )
 
         user_service.user_repository.email_exists = AsyncMock(return_value=True)
 
@@ -123,10 +128,19 @@ class TestUserService:
     @pytest.mark.asyncio
     async def test_create_user_missing_email(self, user_service):
         """Test creating a user without email."""
-        user_data = {"name": "No Email User", "password": "password123"}
+        # Using dict and then mocking to test validation in service if needed,
+        # but UserCreate requires email. We can test with a mocked object or invalid dict.
+        # However, the service expects UserCreate which Pydantic already validates.
+        # To reach the service's "if not email" check, we'd need to bypass Pydantic.
+
+        # Let's just update the test to use a valid UserCreate and skip the "missing email"
+        # as Pydantic handles it now. Or mock the object.
+        mock_user = MagicMock(spec=UserCreate)
+        mock_user.email = None
+        mock_user.password = "password123"
 
         with pytest.raises(ValueError, match="Email is required"):
-            await user_service.create_user(user_data)
+            await user_service.create_user(mock_user)
 
 
 class TestCommentService:
