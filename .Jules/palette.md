@@ -1,3 +1,7 @@
 ## 2026-02-09 - Accessible Form Labels Pattern
 **Learning:** In complex search interfaces, manual label management often leads to disconnected or missing programmatic associations between labels and inputs. Internalizing label and ID management within core UI components (Input, Select, RangeInput) using React's `useId` hook ensures that every input is always correctly associated with a `<label>` or `<legend>`, improving screen reader support without increasing developer friction.
 **Action:** Use the enhanced `Input`, `Select`, and `RangeInput` components which now handle their own unique IDs and label associations. Prefer `RangeInput` for numeric ranges as it now correctly uses semantic `<fieldset>` and `<legend>` elements.
+
+## 2026-02-10 - UI Component Styling Convention
+**Learning:** In this project, UI components (Button, Badge) use a specific naming convention for CSS module classes: `[componentName][Variant/Size]` (e.g., `buttonPrimary`, `badgeSm`). Standard dynamic access like `styles[variant]` fails because the variant name is not enough; it must be prefixed and capitalized to match the CSS module's exported keys.
+**Action:** When adding or modifying UI components with variants or sizes, ensure the class mapping logic correctly matches the CSS module naming convention (e.g., `styles['button' + variant.charAt(0).toUpperCase() + variant.slice(1)]`).

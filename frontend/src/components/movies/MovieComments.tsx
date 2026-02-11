@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { commentService } from '../../services/api';
-import { Comment } from '../../types'
+import React, { useState, useEffect, useCallback } from "react";
+import { commentService } from "../../services/api";
+import { Comment } from "../../types";
 import { motion, AnimatePresence } from "framer-motion";
+import { Input, Button } from "../ui";
 import styles from "../../styles/components/movies/MovieComments.module.css";
 
 interface MovieCommentsProps {
@@ -13,28 +14,29 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [initialLoad, setInitialLoad] = useState(true);
-  const [newComment, setNewComment] = useState({ name: "", email: "", text: "" });
+  const [newComment, setNewComment] = useState({
+    name: "",
+    email: "",
+    text: "",
+  });
   const [submitting, setSubmitting] = useState(false);
 
-  const loadComments = useCallback(
-    async () => {
-      try {
-        setLoading(true);
-        const comments = await commentService.fetchComments(movieId);
+  const loadComments = useCallback(async () => {
+    try {
+      setLoading(true);
+      const comments = await commentService.fetchComments(movieId);
 
-        setComments(comments);
-        setError(null);
-        setInitialLoad(false);
-      } catch (err) {
-        setError("Failed to load comments");
-        console.error("Error loading comments:", err);
-        setInitialLoad(false);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [movieId]
-  );
+      setComments(comments);
+      setError(null);
+      setInitialLoad(false);
+    } catch (err) {
+      setError("Failed to load comments");
+      console.error("Error loading comments:", err);
+      setInitialLoad(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [movieId]);
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,10 +48,10 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
         _id: Date.now().toString(),
         movie_id: movieId,
         ...newComment,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
       };
 
-      setComments(prev => [comment, ...prev]);
+      setComments((prev) => [comment, ...prev]);
       setNewComment({ name: "", email: "", text: "" });
     } catch (err) {
       setError("Failed to submit comment");
@@ -79,7 +81,7 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
     hidden: {
       opacity: 0,
       y: 20,
-      scale: 0.95
+      scale: 0.95,
     },
     visible: {
       opacity: 1,
@@ -88,15 +90,15 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
       transition: {
         type: "spring" as const,
         stiffness: 300,
-        damping: 30
-      }
+        damping: 30,
+      },
     },
     exit: {
       opacity: 0,
       y: -20,
       scale: 0.95,
-      transition: { duration: 0.2 }
-    }
+      transition: { duration: 0.2 },
+    },
   };
 
   const formVariants = {
@@ -107,16 +109,16 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
       transition: {
         type: "spring" as const,
         stiffness: 400,
-        damping: 25
-      }
-    }
+        damping: 25,
+      },
+    },
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -135,7 +137,9 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
           transition={{ duration: 0.5, delay: 0.1 }}
         >
           <h2 className={styles.commentsTitle}>Comments</h2>
-          <p className={styles.commentsSubtitle}>Loading reviews and discussions...</p>
+          <p className={styles.commentsSubtitle}>
+            Loading reviews and discussions...
+          </p>
         </motion.div>
 
         <motion.div
@@ -205,57 +209,51 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
         onSubmit={handleSubmitComment}
       >
         <div className={styles.formGrid}>
-          <div className={styles.formField}>
-            <input
-              type="text"
-              placeholder="Your name"
-              className={styles.formInput}
-              value={newComment.name}
-              onChange={(e) => setNewComment(prev => ({ ...prev, name: e.target.value }))}
-              required
-            />
-          </div>
-          <div className={styles.formField}>
-            <input
-              type="email"
-              placeholder="Your email"
-              className={styles.formInput}
-              value={newComment.email}
-              onChange={(e) => setNewComment(prev => ({ ...prev, email: e.target.value }))}
-              required
-            />
-          </div>
+          <Input
+            label="Name"
+            placeholder="Your name"
+            value={newComment.name}
+            onChange={(val) =>
+              setNewComment((prev) => ({ ...prev, name: val }))
+            }
+            required
+          />
+          <Input
+            type="email"
+            label="Email"
+            placeholder="Your email"
+            value={newComment.email}
+            onChange={(val) =>
+              setNewComment((prev) => ({ ...prev, email: val }))
+            }
+            required
+          />
         </div>
         <div className={styles.formField}>
+          <label htmlFor="comment-text" className={styles.formLabel}>
+            Comment <span className={styles.required}>*</span>
+          </label>
           <textarea
+            id="comment-text"
             placeholder="Share your thoughts about this movie..."
             className={styles.formTextarea}
             value={newComment.text}
-            onChange={(e) => setNewComment(prev => ({ ...prev, text: e.target.value }))}
+            onChange={(e) =>
+              setNewComment((prev) => ({ ...prev, text: e.target.value }))
+            }
             rows={3}
             required
           />
         </div>
-        <motion.button
+        <Button
           type="submit"
+          loading={submitting}
+          disabled={!newComment.name || !newComment.email || !newComment.text}
           className={styles.submitButton}
-          disabled={submitting || !newComment.name || !newComment.email || !newComment.text}
-          whileHover={{
-            scale: submitting ? 1 : 1.02,
-            transition: { duration: 0.2 }
-          }}
-          whileTap={{ scale: submitting ? 1 : 0.98 }}
+          fullWidth
         >
-          {submitting ? (
-            <motion.div
-              className={styles.loadingSpinner}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            />
-          ) : (
-            "Post Comment"
-          )}
-        </motion.button>
+          Post Comment
+        </Button>
       </motion.form>
 
       {/* Comments List */}
@@ -278,7 +276,7 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
                 exit="exit"
                 whileHover={{
                   y: -2,
-                  transition: { duration: 0.2 }
+                  transition: { duration: 0.2 },
                 }}
                 layout
                 style={{ originY: 0 }}
@@ -289,7 +287,9 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
                   </div>
                   <div className={styles.commentMeta}>
                     <h4 className={styles.commentAuthor}>{comment.name}</h4>
-                    <p className={styles.commentDate}>{formatDate(comment.date)}</p>
+                    <p className={styles.commentDate}>
+                      {formatDate(comment.date)}
+                    </p>
                   </div>
                 </div>
                 <p className={styles.commentText}>{comment.text}</p>
@@ -304,13 +304,9 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <div className={styles.emptyIcon}>{"💬"}</div>
-            <h3 className={styles.emptyTitle}>
-              {"No comments yet"}
-            </h3>
+            <h3 className={styles.emptyTitle}>{"No comments yet"}</h3>
             <p className={styles.emptyMessage}>
-              {
-                "Be the first to share your thoughts about this movie!"
-              }
+              {"Be the first to share your thoughts about this movie!"}
             </p>
             {error && (
               <motion.button

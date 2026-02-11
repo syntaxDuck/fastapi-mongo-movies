@@ -522,3 +522,17 @@
     border: 2px solid var(--text-primary);
   }
 }
+
+.formLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-1);
+}
+
+.required {
+  color: var(--text-error);
+  margin-left: var(--space-1);
+}
