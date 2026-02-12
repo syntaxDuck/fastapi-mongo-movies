@@ -8,10 +8,10 @@ services:
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - Key: DB_USER
-        sync: true
+        sync: false
       - Key: DB_PASS
-        sync: true
+        sync: false
       - Key: DB_HOST
-        sync: true
+        sync: false
       - Key: DB_NAME
-        sync: true
+        sync: false
