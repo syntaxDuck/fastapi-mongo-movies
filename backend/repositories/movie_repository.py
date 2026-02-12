@@ -103,6 +103,14 @@ class MovieRepository(BaseRepository):
         logger.debug(
             f"MovieRepository.find_by_year() called with year={year}, include_invalid_posters={include_invalid_posters}, kwargs={kwargs}"
         )
+        # Validate mod to prevent NoSQL injection
+        allowed_mods = {"eq", "ne", "gt", "gte", "lt", "lte"}
+        if mod not in allowed_mods:
+            logger.warning(
+                f"Invalid mod '{mod}' provided to find_by_year, defaulting to 'eq'"
+            )
+            mod = "eq"
+
         filter_query = {"year": {f"${mod}": year}}
         filter_query = self._add_valid_poster_filter(
             filter_query, include_invalid_posters
@@ -122,6 +130,14 @@ class MovieRepository(BaseRepository):
         logger.debug(
             f"MovieRepository.find_by_rating() called with rating={rating}, include_invalid_posters={include_invalid_posters}, kwargs={kwargs}"
         )
+        # Validate mod to prevent NoSQL injection
+        allowed_mods = {"eq", "ne", "gt", "gte", "lt", "lte"}
+        if mod not in allowed_mods:
+            logger.warning(
+                f"Invalid mod '{mod}' provided to find_by_rating, defaulting to 'eq'"
+            )
+            mod = "eq"
+
         filter_query = {"imdb.rating": {f"${mod}": rating}}
         filter_query = self._add_valid_poster_filter(
             filter_query, include_invalid_posters

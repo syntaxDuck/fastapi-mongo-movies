@@ -63,7 +63,7 @@ class Settings(BaseSettings):
         default="true", description="Enable TLS for MongoDB connection"
     )
     MONGODB_TLS_ALLOW_INVALID_CERTS: str = Field(
-        default="true", description="Allow invalid TLS certificates"
+        default="false", description="Allow invalid TLS certificates"
     )
     MONGODB_CONNECTION_TIMEOUT: int = Field(
         default=10, ge=1, le=30, description="MongoDB connection timeout in seconds"
