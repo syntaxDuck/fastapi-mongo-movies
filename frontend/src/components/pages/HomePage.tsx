@@ -1,7 +1,10 @@
 import React from "react";
 import { motion, Variants } from "framer-motion";
+import { Link } from "react-router-dom";
 
 import styles from "../../styles/components/pages/HomePage.module.css";
+
+const MotionLink = motion(Link);
 
 const HomePage: React.FC = () => {
   // Motion variants for page animations
@@ -83,28 +86,28 @@ const HomePage: React.FC = () => {
             dataset
           </p>
           <div className={styles.heroActions}>
-            <motion.a
+            <MotionLink
               variants={buttonVariants}
               initial="initial"
               animate="animate"
               whileHover="hover"
               whileTap="tap"
-              href="/movies"
+              to="/movies"
               className={styles.btnPrimary}
             >
               Browse Movies
-            </motion.a>
-            <motion.a
+            </MotionLink>
+            <MotionLink
               variants={buttonVariants}
               initial="initial"
               animate="animate"
               whileHover="hover"
               whileTap="tap"
-              href="/top-rated"
+              to="/top-rated"
               className={styles.btnSecondary}
             >
               Top Rated
-            </motion.a>
+            </MotionLink>
           </div>
         </div>
       </motion.section>

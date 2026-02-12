@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, Variants } from "framer-motion";
+import { Link } from "react-router-dom";
 import styles from "../../styles/components/pages/AboutPage.module.css";
 
 // Reusable components
@@ -104,12 +105,12 @@ const AboutPage: React.FC = () => {
             powerful search capabilities, and an exceptional user experience.
           </p>
           <div className={styles.heroActions}>
-            <a href="/movies" className={styles.btnPrimary}>
+            <Link to="/movies" className={styles.btnPrimary}>
               Browse Movies
-            </a>
-            <a href="/genres" className={styles.btnSecondary}>
+            </Link>
+            <Link to="/genres" className={styles.btnSecondary}>
               Explore Genres
-            </a>
+            </Link>
           </div>
         </div>
       </motion.section>
@@ -278,12 +279,12 @@ const AboutPage: React.FC = () => {
             Dive into our extensive movie collection and discover your next favorite film
           </p>
           <div className={styles.ctaActions}>
-            <a href="/movies" className={styles.btnPrimary}>
+            <Link to="/movies" className={styles.btnPrimary}>
               Browse All Movies
-            </a>
-            <a href="/top-rated" className={styles.btnSecondary}>
+            </Link>
+            <Link to="/top-rated" className={styles.btnSecondary}>
               Top Rated Films
-            </a>
+            </Link>
           </div>
         </div>
       </motion.section>

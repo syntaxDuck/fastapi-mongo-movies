@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const DevelopmentRoutes: React.FC = () => {
   return (
@@ -10,9 +11,9 @@ const DevelopmentRoutes: React.FC = () => {
         <div className="bg-surface rounded-lg p-6 md:col-span-2">
           <h2 className="text-2xl font-bold mb-4">Spinner Showcase</h2>
           <p className="text-gray-300 mb-4">Comprehensive spinner showcase with quick tests and full variant demonstrations. Features tabbed interface for easy navigation.</p>
-          <a href="/spinners-test" className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors">
+          <Link to="/spinners-test" className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors">
             Open Spinner Showcase →
-          </a>
+          </Link>
         </div>
       </div>
 
