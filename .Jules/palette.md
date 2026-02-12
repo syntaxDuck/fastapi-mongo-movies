@@ -5,3 +5,7 @@
 ## 2026-02-10 - UI Component Styling Convention
 **Learning:** In this project, UI components (Button, Badge) use a specific naming convention for CSS module classes: `[componentName][Variant/Size]` (e.g., `buttonPrimary`, `badgeSm`). Standard dynamic access like `styles[variant]` fails because the variant name is not enough; it must be prefixed and capitalized to match the CSS module's exported keys.
 **Action:** When adding or modifying UI components with variants or sizes, ensure the class mapping logic correctly matches the CSS module naming convention (e.g., `styles['button' + variant.charAt(0).toUpperCase() + variant.slice(1)]`).
+
+## 2026-02-12 - Stable State Initialization
+**Learning:** Initializing state from props in a `useEffect` with the prop as a dependency (e.g., `initialFilters`) causes infinite re-render loops if the parent passes a literal object (e.g., `initialFilters={{}}`). Objects in JS have different identities on every render even if their content is identical.
+**Action:** Initialize state once using the functional initializer in `useState`. If prop-to-state synchronization is required, ensure the parent memoizes the prop or use a deep equality check before updating state in `useEffect`.

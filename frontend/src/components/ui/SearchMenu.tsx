@@ -112,10 +112,12 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Initialize filters from props
+  // Sync state with prop if initialFilters changes
+  // Using stringified version to avoid infinite loops from object identity
+  const initialFiltersKey = JSON.stringify(initialFilters);
   useEffect(() => {
     setFilters(initialFilters);
-  }, [initialFilters]);
+  }, [initialFiltersKey]);
 
   // Filter change handler
   const handleFilterChange = (newFilters: Partial<MovieFilters>) => {
@@ -199,6 +201,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
           placeholder={placeholder}
           value={searchQuery}
           onChange={setSearchQuery}
+          onClear={() => setSearchQuery('')}
           onKeyPress={handleSearchKeyPress}
           variant="search"
           className={styles.searchInput}
