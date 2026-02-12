@@ -165,7 +165,7 @@ class MovieService:
                 f"MovieService.get_movies_by_rating() invalid skip parameter: {skip}, using default 0"
             )
             skip = 0
-        if mod not in ["lte", "gt", "eq"]:
+        if mod not in ["eq", "ne", "gt", "gte", "lt", "lte"]:
             logger.warning(
                 f"MovieService.get_movies_by_rating() invalid mod parameter: {mod}, using default eq"
             )
@@ -222,7 +222,7 @@ class MovieService:
                 f"MovieService.get_movies_by_year() invalid skip parameter: {skip}, using default 0"
             )
             skip = 0
-        if mod not in ["lte", "gt", "eq"]:
+        if mod not in ["eq", "ne", "gt", "gte", "lt", "lte"]:
             logger.warning(
                 f"MovieService.get_movies_by_year() invalid mod parameter: {mod}, using default eq"
             )
