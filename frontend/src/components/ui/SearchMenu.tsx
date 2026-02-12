@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { FilterBuilder, MovieFilters } from "../../utils/filterBuilder";
 
@@ -112,11 +112,6 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Initialize filters from props
-  useEffect(() => {
-    setFilters(initialFilters);
-  }, [initialFilters]);
-
   // Filter change handler
   const handleFilterChange = (newFilters: Partial<MovieFilters>) => {
     const updatedFilters = { ...filters, ...newFilters };
@@ -199,6 +194,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
           placeholder={placeholder}
           value={searchQuery}
           onChange={setSearchQuery}
+          onClear={() => setSearchQuery('')}
           onKeyPress={handleSearchKeyPress}
           variant="search"
           className={styles.searchInput}

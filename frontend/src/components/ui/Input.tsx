@@ -8,6 +8,7 @@ export interface InputProps {
   placeholder?: string;
   value?: string | number;
   onChange?: (value: string) => void;
+  onClear?: () => void;
   variant?: 'default' | 'search' | 'filter';
   size?: 'sm' | 'md' | 'lg';
   label?: string;
@@ -35,6 +36,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
   placeholder,
   value = '',
   onChange,
+  onClear,
   variant = 'default',
   size = 'md',
   label,
@@ -57,6 +59,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
     styles.input,
     styles[variant],
     styles[size],
+    onClear && styles.hasClearButton,
     error && styles.inputError,
     disabled && styles.inputDisabled,
     className
@@ -99,6 +102,21 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
           aria-invalid={error ? 'true' : 'false'}
           required={required}
         />
+        {onClear && value && (
+          <motion.button
+            type="button"
+            className={styles.clearButton}
+            onClick={onClear}
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            aria-label="Clear input"
+          >
+            ×
+          </motion.button>
+        )}
         {error && (
           <motion.div
             className={styles.errorMessage}

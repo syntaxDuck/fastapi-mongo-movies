@@ -5,6 +5,7 @@
   flex-direction: column;
   gap: var(--space-1);
   width: 100%;
+  position: relative;
 }
 
 .label {
@@ -92,6 +93,35 @@
 .input.lg {
   padding: var(--space-4) var(--space-5);
   font-size: var(--text-lg);
+}
+
+.input.hasClearButton {
+  padding-right: var(--space-10);
+}
+
+.clearButton {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  padding: var(--space-1);
+  z-index: 1;
+  color: var(--text-secondary);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.clearButton:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 /* States */
