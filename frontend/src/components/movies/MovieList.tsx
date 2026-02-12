@@ -8,10 +8,11 @@ import styles from "../../styles/components/movies/MovieList.module.css";
 import MovieCard from "./MovieCard";
 import { LoadingWrapper, LoadingSpinners } from "../ui/LoadingComponents";
 
+const PAGE_SIZE = 24;
 
 interface MovieListProps {
   filter?: MovieFilters;
-  onMovieSelect?: CallableFunction;
+  onMovieSelect?: (movieId: string) => void;
   disableCardLink?: boolean;
 }
 
@@ -23,8 +24,6 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
-
-  const pageSize = 24;
 
   // Get search query from URL
   const searchQuery = searchParams.get("search");
@@ -38,8 +37,8 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
         const queryParams = FilterBuilder.buildQueryParams(filter || {});
         
         // Add pagination parameters
-        queryParams.skip = pageNum * pageSize;
-        queryParams.limit = pageSize;
+        queryParams.skip = pageNum * PAGE_SIZE;
+        queryParams.limit = PAGE_SIZE;
         
         // Add search query if present
         if (searchQuery) {
@@ -66,7 +65,7 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
           setMovies((prev) => [...prev, ...newMovies]);
         }
 
-        setHasMore(newMovies.length === pageSize);
+        setHasMore(newMovies.length === PAGE_SIZE);
         setError(null);
         setInitialLoad(false);
       } catch (err) {
@@ -77,7 +76,7 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
         setLoading(false);
       }
     },
-    [filter, pageSize, searchQuery],
+    [filter, searchQuery],
   );
 
   useEffect(() => {
@@ -86,11 +85,17 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
     loadMovies(0, true);
   }, [filter, loadMovies]);
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     const nextPage = page + 1;
     setPage(nextPage);
     loadMovies(nextPage, false);
-  };
+  }, [page, loadMovies]);
+
+  const handleMovieClick = useCallback((movieId: string) => {
+    if (onMovieSelect) {
+      onMovieSelect(movieId);
+    }
+  }, [onMovieSelect]);
 
   if (initialLoad && loading) {
     return (
@@ -157,7 +162,7 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
               whileTap={{ scale: 0.98 }}
             >
               <MovieCard
-                onClick={() => onMovieSelect ? onMovieSelect(movie._id) : null}
+                onMovieClick={handleMovieClick}
                 movie={movie}
                 disableLink={disableCardLink}
               />
