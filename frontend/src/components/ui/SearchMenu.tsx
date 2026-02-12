@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { FilterBuilder, MovieFilters } from "../../utils/filterBuilder";
 
@@ -111,6 +111,13 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  // Sync state with prop if initialFilters changes
+  // Using stringified version to avoid infinite loops from object identity
+  const initialFiltersKey = JSON.stringify(initialFilters);
+  useEffect(() => {
+    setFilters(initialFilters);
+  }, [initialFiltersKey]);
 
   // Filter change handler
   const handleFilterChange = (newFilters: Partial<MovieFilters>) => {

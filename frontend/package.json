@@ -40,6 +40,7 @@
   },
   "proxy": "http://localhost:8000",
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "prettier": "3.8.1"
   }
 }
