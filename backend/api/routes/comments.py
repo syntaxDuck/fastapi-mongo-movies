@@ -15,6 +15,7 @@ logger = get_logger(__name__)
 router = APIRouter(prefix="/comments", tags=["comments"])
 
 
+# BUG: Unable to post comment currently, get 404 on the backend when attempting to submit a comment from the forntend
 async def get_comment_repository() -> CommentRepository:
     """Dependency to get comment repository instance."""
     return CommentRepository()
