@@ -8,11 +8,11 @@ services:
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - Key: DB_USER
-        sync: false
+        sync: true
       - Key: DB_PASS
-        sync: false
+        sync: true
       - Key: DB_HOST
-        sync: false
+        sync: true
       - Key: DB_NAME
-        sync: false
+        sync: true
       - fromGroup: fastapi-group
