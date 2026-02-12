@@ -1,8 +1,17 @@
 services:
   - type: web
-    name: backend
+    name: fast-api-backend
     runtime: python
     plan: free
     autoDeploy: false
     buildCommand: uv sync --frozen
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - Key: DB_USER
+        sync: true
+      - Key: DB_PASS
+        sync: true
+      - Key: DB_HOST
+        sync: true
+      - Key: DB_NAME
+        sync: true
