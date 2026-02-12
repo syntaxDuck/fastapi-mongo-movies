@@ -7,6 +7,8 @@ import styles from "../../styles/components/genres/GenreMoviesView.module.css";
 import MovieCard from "../movies/MovieCard";
 import { LoadingWrapper, LoadingSpinners } from "../ui/LoadingComponents";
 
+const PAGE_SIZE = 24;
+
 const GenreMoviesView: React.FC = () => {
   const { genre } = useParams<{ genre: string }>();
   const navigate = useNavigate();
@@ -17,8 +19,6 @@ const GenreMoviesView: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
 
-  const pageSize = 24;
-
   const loadMovies = useCallback(
     async (pageNum: number, reset = false) => {
       if (!genre) return;
@@ -26,8 +26,8 @@ const GenreMoviesView: React.FC = () => {
       try {
         setLoading(true);
         const params = {
-          limit: pageSize,
-          skip: pageNum * pageSize,
+          limit: PAGE_SIZE,
+          skip: pageNum * PAGE_SIZE,
         };
 
         const newMovies = await movieService.getMovieByGenre(genre, params);
@@ -38,7 +38,7 @@ const GenreMoviesView: React.FC = () => {
           setMovies((prev) => [...prev, ...newMovies]);
         }
 
-        setHasMore(newMovies.length === pageSize);
+        setHasMore(newMovies.length === PAGE_SIZE);
         setError(null);
         setInitialLoad(false);
       } catch (err) {
@@ -49,7 +49,7 @@ const GenreMoviesView: React.FC = () => {
         setLoading(false);
       }
     },
-    [genre, pageSize]
+    [genre]
   );
 
   useEffect(() => {
@@ -60,11 +60,11 @@ const GenreMoviesView: React.FC = () => {
     }
   }, [genre, loadMovies]);
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     const nextPage = page + 1;
     setPage(nextPage);
     loadMovies(nextPage, false);
-  };
+  }, [page, loadMovies]);
 
   const goBack = () => {
     navigate("/genres");

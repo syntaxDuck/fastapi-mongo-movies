@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Image, Badge } from "../ui";
@@ -7,12 +7,21 @@ import { Movie } from "../../types";
 import styles from "../../styles/components/movies/MovieList.module.css";
 
 interface MovieCardProps {
-  movie?: Movie,
-  disableLink?: boolean,
-  onClick?: () => void,
+  movie?: Movie;
+  disableLink?: boolean;
+  onMovieClick?: (movieId: string) => void;
 }
 
-const MovieCard: React.FC<MovieCardProps> = ({ movie, disableLink = false, onClick }) => {
+/**
+ * Optimized MovieCard component with memoization to prevent unnecessary re-renders.
+ */
+const MovieCard: React.FC<MovieCardProps> = memo(({ movie, disableLink = false, onMovieClick }) => {
+
+  const handleInternalClick = useCallback(() => {
+    if (onMovieClick && movie?._id) {
+      onMovieClick(movie._id);
+    }
+  }, [onMovieClick, movie?._id]);
 
   if (!movie) {
     return (<div className={`${styles.movie} skeleton`}>
@@ -67,7 +76,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, disableLink = false, onCli
     return (
       <motion.div 
         className={styles.movie} 
-        onClick={onClick}
+        onClick={handleInternalClick}
         whileHover={AnimationVariants.movieCard.whileHover}
         whileTap={AnimationVariants.movieCard.whileTap}
         transition={AnimationVariants.movieCard.transition as any}
@@ -89,6 +98,8 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, disableLink = false, onCli
       </Link>
     </motion.div>
   );
-}
+});
 
-export default MovieCard
+MovieCard.displayName = "MovieCard";
+
+export default MovieCard;
