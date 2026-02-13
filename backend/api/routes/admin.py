@@ -13,10 +13,15 @@ from ...services.poster_validation_service import PosterValidationService
 from ...services.job_management_service import JobManagementService
 from ...core.logging import get_logger
 from ...core.exceptions import NotFoundError, DatabaseError
+from ...core.security import verify_admin_api_key
 
 logger = get_logger(__name__)
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+router = APIRouter(
+    prefix="/admin",
+    tags=["admin"],
+    dependencies=[Depends(verify_admin_api_key)]
+)
 
 
 # Response models
@@ -156,6 +161,26 @@ async def start_poster_validation(
         )
 
 
+@router.get("/movies/validate-posters/statistics", response_model=ValidationStats)
+async def get_validation_statistics(
+    poster_service: PosterValidationService = Depends(get_poster_validation_service),
+):
+    """
+    Get comprehensive poster validation statistics.
+    """
+    logger.info("Getting poster validation statistics")
+
+    try:
+        stats = await poster_service.get_validation_statistics()
+        return stats
+
+    except Exception as e:
+        logger.error(f"Failed to get validation statistics: {e}")
+        raise HTTPException(
+            status_code=500, detail="Failed to get validation statistics"
+        )
+
+
 @router.get("/movies/validate-posters/{job_id}", response_model=JobStatus)
 async def get_validation_status(
     job_id: str,
@@ -208,26 +233,6 @@ async def validate_single_poster(
     except Exception as e:
         logger.error(f"Failed to validate poster for movie {movie_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to validate poster")
-
-
-@router.get("/movies/validate-posters/statistics", response_model=ValidationStats)
-async def get_validation_statistics(
-    poster_service: PosterValidationService = Depends(get_poster_validation_service),
-):
-    """
-    Get comprehensive poster validation statistics.
-    """
-    logger.info("Getting poster validation statistics")
-
-    try:
-        stats = await poster_service.get_validation_statistics()
-        return stats
-
-    except Exception as e:
-        logger.error(f"Failed to get validation statistics: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get validation statistics"
-        )
 
 
 @router.get("/movies/validate-posters/invalid", response_model=List[MovieResponse])

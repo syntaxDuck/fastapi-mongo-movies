@@ -1,5 +1,35 @@
 import hashlib
 import secrets
+from fastapi import HTTPException, Security, status
+from fastapi.security import APIKeyHeader
+from .config import settings
+
+# API Key configuration
+admin_api_key_header = APIKeyHeader(name="X-Admin-API-Key", auto_error=False)
+
+async def verify_admin_api_key(api_key: str = Security(admin_api_key_header)):
+    """
+    Verify the admin API key provided in the request header.
+    """
+    if not settings.ADMIN_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin API is locked (no API key configured)",
+        )
+
+    if not api_key:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin API Key is missing",
+        )
+
+    if not secrets.compare_digest(api_key, settings.ADMIN_API_KEY):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid Admin API Key",
+        )
+
+    return api_key
 
 def hash_password(password: str) -> str:
     """
