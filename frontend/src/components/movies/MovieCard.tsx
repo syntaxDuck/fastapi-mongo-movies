@@ -6,6 +6,8 @@ import { AnimationVariants } from "../../utils/animationVariants";
 import { Movie } from "../../types";
 import styles from "../../styles/components/movies/MovieList.module.css";
 
+const MotionLink = motion(Link);
+
 interface MovieCardProps {
   movie?: Movie;
   disableLink?: boolean;
@@ -14,6 +16,7 @@ interface MovieCardProps {
 
 /**
  * Optimized MovieCard component with memoization to prevent unnecessary re-renders.
+ * Enhanced with focus states and keyboard accessibility for better UX.
  */
 const MovieCard: React.FC<MovieCardProps> = memo(({ movie, disableLink = false, onMovieClick }) => {
 
@@ -23,11 +26,29 @@ const MovieCard: React.FC<MovieCardProps> = memo(({ movie, disableLink = false, 
     }
   }, [onMovieClick, movie?._id]);
 
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleInternalClick();
+    }
+  }, [handleInternalClick]);
+
   if (!movie) {
     return (<div className={`${styles.movie} skeleton`}>
       <div className={styles.skeletonPoster}></div>
     </div>)
   }
+
+  const overlayVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  const cardVariants = {
+    hidden: { y: 0, scale: 1 },
+    visible: AnimationVariants.movieCard.whileHover,
+    tap: AnimationVariants.movieCard.whileTap
+  };
 
   const content = (
     <>
@@ -41,8 +62,7 @@ const MovieCard: React.FC<MovieCardProps> = memo(({ movie, disableLink = false, 
       />
       <motion.div 
         className={styles.movieHoverText}
-        initial={{ opacity: 0, y: 20 }}
-        whileHover={{ opacity: 1, y: 0 }}
+        variants={overlayVariants}
         transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
       >
         {movie.title}
@@ -77,9 +97,16 @@ const MovieCard: React.FC<MovieCardProps> = memo(({ movie, disableLink = false, 
       <motion.div 
         className={styles.movie} 
         onClick={handleInternalClick}
-        whileHover={AnimationVariants.movieCard.whileHover}
-        whileTap={AnimationVariants.movieCard.whileTap}
-        transition={AnimationVariants.movieCard.transition as any}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+        role="button"
+        aria-label={`View details for ${movie.title}`}
+        initial="hidden"
+        whileHover="visible"
+        whileFocus="visible"
+        whileTap="tap"
+        variants={cardVariants}
+        transition={AnimationVariants.movieCard.transition}
       >
         {content}
       </motion.div>
@@ -89,13 +116,20 @@ const MovieCard: React.FC<MovieCardProps> = memo(({ movie, disableLink = false, 
   return (
     <motion.div 
       className={styles.movie}
-      whileHover={AnimationVariants.movieCard.whileHover}
-      whileTap={AnimationVariants.movieCard.whileTap}
-      transition={AnimationVariants.movieCard.transition as any}
+      transition={AnimationVariants.movieCard.transition}
     >
-      <Link to={`/movie/${movie._id}`} className={styles.movieLink}>
+      <MotionLink
+        to={`/movie/${movie._id}`}
+        className={styles.movieLink}
+        aria-label={`View details for ${movie.title}`}
+        initial="hidden"
+        whileHover="visible"
+        whileFocus="visible"
+        whileTap="tap"
+        variants={cardVariants}
+      >
         {content}
-      </Link>
+      </MotionLink>
     </motion.div>
   );
 });
