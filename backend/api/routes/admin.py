@@ -2,25 +2,21 @@
 Admin API routes for utility endpoints including poster validation.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from pydantic import BaseModel, Field
 from datetime import datetime
-import uuid
 
 from ...schemas.schemas import MovieResponse
 from ...services.poster_validation_service import PosterValidationService
 from ...services.job_management_service import JobManagementService
 from ...core.logging import get_logger
-from ...core.exceptions import NotFoundError, DatabaseError
 from ...core.security import verify_admin_api_key
 
 logger = get_logger(__name__)
 
 router = APIRouter(
-    prefix="/admin",
-    tags=["admin"],
-    dependencies=[Depends(verify_admin_api_key)]
+    prefix="/admin", tags=["admin"], dependencies=[Depends(verify_admin_api_key)]
 )
 
 
