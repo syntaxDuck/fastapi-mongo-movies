@@ -99,6 +99,11 @@ class Settings(BaseSettings):
         default=["*"], description="Allowed CORS headers"
     )
 
+    # Security settings
+    ADMIN_API_KEY: str = Field(
+        default="dev-admin-key", description="API Key for admin operations"
+    )
+
     # Feature flags
     ENABLE_DOCS: bool = Field(default=True, description="Enable API documentation")
 
