@@ -11,13 +11,19 @@ async def verify_admin_api_key(api_key: str = Security(admin_api_key_header)):
     """
     Verify the admin API key provided in the request header.
     """
+    if not settings.ADMIN_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin API is locked (no API key configured)",
+        )
+
     if not api_key:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin API Key is missing",
         )
 
-    if api_key != settings.ADMIN_API_KEY:
+    if not secrets.compare_digest(api_key, settings.ADMIN_API_KEY):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid Admin API Key",

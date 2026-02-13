@@ -10,14 +10,16 @@ def client():
     app = create_app()
     return TestClient(app)
 
-def test_admin_stats_unauthorized_no_key(client):
+def test_admin_stats_unauthorized_no_key(client, mocker):
     """Test accessing admin endpoint without API key."""
+    mocker.patch("backend.core.config.settings.ADMIN_API_KEY", "test-key")
     response = client.get("/admin/movies/validate-posters/statistics")
     assert response.status_code == 403
     assert response.json()["detail"] == "Admin API Key is missing"
 
-def test_admin_stats_unauthorized_wrong_key(client):
+def test_admin_stats_unauthorized_wrong_key(client, mocker):
     """Test accessing admin endpoint with wrong API key."""
+    mocker.patch("backend.core.config.settings.ADMIN_API_KEY", "test-key")
     response = client.get(
         "/admin/movies/validate-posters/statistics",
         headers={"X-Admin-API-Key": "wrong-key"}
@@ -25,9 +27,20 @@ def test_admin_stats_unauthorized_wrong_key(client):
     assert response.status_code == 403
     assert response.json()["detail"] == "Invalid Admin API Key"
 
+def test_admin_stats_locked(client, mocker):
+    """Test accessing admin endpoint when API is locked."""
+    mocker.patch("backend.core.config.settings.ADMIN_API_KEY", "")
+    response = client.get(
+        "/admin/movies/validate-posters/statistics",
+        headers={"X-Admin-API-Key": "any-key"}
+    )
+    assert response.status_code == 403
+    assert response.json()["detail"] == "Admin API is locked (no API key configured)"
+
 @pytest.mark.asyncio
 async def test_admin_stats_authorized(client, mocker):
     """Test accessing admin endpoint with correct API key."""
+    mocker.patch("backend.core.config.settings.ADMIN_API_KEY", "test-key")
     # Mock the service to avoid actual DB/HTTP calls
     mock_stats = ValidationStats(
         total_movies=100,
@@ -45,7 +58,7 @@ async def test_admin_stats_authorized(client, mocker):
 
     response = client.get(
         "/admin/movies/validate-posters/statistics",
-        headers={"X-Admin-API-Key": settings.ADMIN_API_KEY}
+        headers={"X-Admin-API-Key": "test-key"}
     )
 
     assert response.status_code == 200

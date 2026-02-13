@@ -101,7 +101,7 @@ class Settings(BaseSettings):
 
     # Security settings
     ADMIN_API_KEY: str = Field(
-        default="dev-admin-key", description="API Key for admin operations"
+        default="", description="API Key for admin operations"
     )
 
     # Feature flags
