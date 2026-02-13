@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,18 +31,8 @@ class Settings(BaseSettings):
     )
     FRONTEND_PORT: int = Field(default=3000, description="Port for the frontend server")
 
-    # API settings
-    API_URL: str = Field(
-        default="http://localhost:8000", description="Base URL for API"
-    )
-    API_HOST: str = Field(default="0.0.0.0", description="Host to bind the API server")
-    API_PORT: int = Field(default=8000, description="Port for the API server")
-
     # Application behavior
     DEBUG: bool = Field(default=False, description="Enable debug mode")
-    RELOAD: bool = Field(
-        default=True, description="Enable auto-reload during development"
-    )
 
     # Pagination settings
     DEFAULT_LIST_PAGE_SIZE: int = Field(
@@ -89,20 +79,14 @@ class Settings(BaseSettings):
         default=True, description="Allow credentials in CORS"
     )
     CORS_ORIGINS: list[str] = Field(
-        default=["*"],
+        ...,
         description="Allowed CORS origins",
     )
-    CORS_ALLOW_METHODS: list[str] = Field(
-        default=["*"], description="Allowed CORS methods"
-    )
-    CORS_ALLOW_HEADERS: list[str] = Field(
-        default=["*"], description="Allowed CORS headers"
-    )
+    CORS_ALLOW_METHODS: list[str] = Field(..., description="Allowed CORS methods")
+    CORS_ALLOW_HEADERS: list[str] = Field(..., description="Allowed CORS headers")
 
     # Security settings
-    ADMIN_API_KEY: str = Field(
-        default="", description="API Key for admin operations"
-    )
+    ADMIN_API_KEY: str = Field(..., description="API Key for admin operations")
 
     # Feature flags
     ENABLE_DOCS: bool = Field(default=True, description="Enable API documentation")
@@ -127,7 +111,7 @@ class Settings(BaseSettings):
     @property
     def is_development(self) -> bool:
         """Check if running in development mode."""
-        return self.DEBUG or self.RELOAD
+        return self.DEBUG
 
     @property
     def cors_config(self) -> dict:
@@ -137,6 +121,18 @@ class Settings(BaseSettings):
             "allow_credentials": self.CORS_ALLOW_CREDENTIALS,
             "allow_methods": self.CORS_ALLOW_METHODS,
         }
+
+    @model_validator(mode="after")
+    def validate_admin_key(self):
+        if not self.is_development and len(self.ADMIN_API_KEY) < 32:
+            raise ValueError(
+                "ADMIN_API_KEY must be at least 32 characters outside development"
+            )
+
+        if self.is_development and len(self.ADMIN_API_KEY) < 4:
+            raise ValueError("Dev ADMIN_API_KEY must still be at least 4 characters")
+
+        return self
 
 
 # Create global settings instance
