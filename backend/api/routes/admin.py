@@ -12,6 +12,8 @@ from ...services.poster_validation_service import PosterValidationService
 from ...services.job_management_service import JobManagementService
 from ...core.logging import get_logger
 from ...core.security import verify_admin_api_key
+from ...core.metrics import get_metrics as get_db_metrics
+from ...core.request_metrics import get_request_metrics
 
 logger = get_logger(__name__)
 
@@ -309,3 +311,135 @@ async def cancel_job(
     except Exception as e:
         logger.error(f"Failed to cancel job {job_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to cancel job")
+
+
+@router.get("/db-stats")
+async def get_database_stats():
+    """
+    Get database operation statistics and metrics.
+
+    Returns aggregated metrics for database operations including:
+    - Total operations in the last hour and 24 hours
+    - Operations by type (find, insert, update, delete, distinct)
+    - Operations by collection
+    - Average query duration
+    - Recent operation details
+    """
+    logger.info("Getting database statistics")
+
+    try:
+        metrics = get_db_metrics()
+
+        return {
+            "summary": metrics.get_summary(),
+            "recent_operations": metrics.get_recent_operations(limit=50),
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to get database stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get database stats")
+
+
+@router.delete("/db-stats")
+async def reset_database_stats():
+    """
+    Reset all database statistics and metrics.
+    """
+    logger.info("Resetting database statistics")
+
+    try:
+        metrics = get_db_metrics()
+        metrics.reset()
+
+        return {"message": "Database statistics reset successfully"}
+
+    except Exception as e:
+        logger.error(f"Failed to reset database stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to reset database stats")
+
+
+@router.get("/request-metrics")
+async def get_request_metrics_stats():
+    """
+    Get HTTP request statistics and metrics.
+
+    Returns aggregated metrics for HTTP requests including:
+    - Total requests in the last hour and 24 hours
+    - Unique IPs making requests
+    - Blocked requests count
+    - Requests by endpoint
+    - Top IPs by request volume
+    """
+    logger.info("Getting request metrics")
+
+    try:
+        metrics = get_request_metrics()
+
+        return {
+            "summary": metrics.get_summary(),
+            "top_ips": metrics.get_top_ips(limit=20),
+            "recent_requests": metrics.get_recent_requests(limit=50),
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to get request metrics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get request metrics")
+
+
+@router.get("/request-metrics/ip/{ip}")
+async def get_request_metrics_by_ip(ip: str):
+    """
+    Get detailed metrics for a specific IP address.
+    """
+    logger.info(f"Getting request metrics for IP: {ip}")
+
+    try:
+        metrics = get_request_metrics()
+        details = metrics.get_ip_details(ip)
+
+        if not details:
+            raise HTTPException(
+                status_code=404, detail=f"No metrics found for IP: {ip}"
+            )
+
+        return details
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get request metrics for IP {ip}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get IP metrics")
+
+
+@router.get("/request-metrics/blocked")
+async def get_blocked_ips():
+    """
+    Get list of IPs with blocked requests.
+    """
+    logger.info("Getting blocked IPs")
+
+    try:
+        metrics = get_request_metrics()
+        return {"blocked_ips": metrics.get_blocked_ips()}
+
+    except Exception as e:
+        logger.error(f"Failed to get blocked IPs: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get blocked IPs")
+
+
+@router.delete("/request-metrics")
+async def reset_request_metrics():
+    """
+    Reset all request metrics.
+    """
+    logger.info("Resetting request metrics")
+
+    try:
+        metrics = get_request_metrics()
+        metrics.reset()
+
+        return {"message": "Request metrics reset successfully"}
+
+    except Exception as e:
+        logger.error(f"Failed to reset request metrics: {e}")
+        raise HTTPException(status_code=500, detail="Failed to reset request metrics")

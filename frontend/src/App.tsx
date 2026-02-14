@@ -6,6 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import NavBar from "./components/ui/nav/NavBar";
 import MovieDetails from "./components/movies/MovieDetails";
 import GenreMoviesView from "./components/genres/GenreMoviesView";
@@ -16,6 +17,16 @@ import DevelopmentRoutes from "./components/dev/DevelopmentRoutes";
 import SpinnerTest from "./components/dev/SpinnerTest";
 import GenresPage from "./components/pages/GenresPage";
 import AboutPage from "./components/pages/AboutPage";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const pageVariants = {
   initial: {
@@ -149,9 +160,11 @@ const Debug: React.FC = () => (
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <AppWithTransitions />
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AppWithTransitions />
+      </Router>
+    </QueryClientProvider>
   );
 };
 

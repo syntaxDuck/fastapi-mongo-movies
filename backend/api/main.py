@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from slowapi.errors import RateLimitExceeded
 from .routes.movies import router as movies_router
 from .routes.users import router as users_router
 from .routes.comments import router as comments_router
@@ -10,8 +11,11 @@ from ..core.config import settings
 from ..core.middleware import log_requests
 from ..core.logging import setup_logging, get_logger
 from ..core.database import DatabaseManager
+from ..core.rate_limiter import (
+    limiter,
+    rate_limit_exceeded_handler,
+)
 
-# Initialize logging
 setup_logging()
 logger = get_logger(__name__)
 
@@ -39,6 +43,9 @@ def create_app() -> FastAPI:
         redoc_url="/redoc" if settings.ENABLE_DOCS else None,
         lifespan=lifespan,
     )
+
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
     app.middleware("http")(log_requests)
 

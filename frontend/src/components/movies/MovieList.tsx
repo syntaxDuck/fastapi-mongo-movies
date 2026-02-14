@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Movie } from "../../types";
-import { movieService } from "../../services/api";
 import { FilterBuilder, MovieFilters } from "../../utils/filterBuilder";
 import styles from "../../styles/components/movies/MovieList.module.css";
 import MovieCard from "./MovieCard";
 import { LoadingWrapper, LoadingSpinners } from "../ui/LoadingComponents";
-
-const PAGE_SIZE = 24;
+import { useMovies } from "../../hooks";
 
 interface MovieListProps {
   filter?: MovieFilters;
@@ -18,78 +16,23 @@ interface MovieListProps {
 
 const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, disableCardLink = false }) => {
   const [searchParams] = useSearchParams();
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [initialLoad, setInitialLoad] = useState(true);
-
-  // Get search query from URL
   const searchQuery = searchParams.get("search");
 
-  const loadMovies = useCallback(
-    async (pageNum: number, reset = false) => {
-      try {
-        setLoading(true);
-        
-        // Build dynamic query parameters using FilterBuilder
-        const queryParams = FilterBuilder.buildQueryParams(filter || {});
-        
-        // Add pagination parameters
-        queryParams.skip = pageNum * PAGE_SIZE;
-        queryParams.limit = PAGE_SIZE;
-        
-        // Add search query if present
-        if (searchQuery) {
-          queryParams.search = searchQuery;
-        }
-        
-        // Default to movies only if type not specified
-        if (!queryParams.type) {
-          queryParams.type = "movie";
-        }
-        
-        // Validate filters before making API call
-        const validation = FilterBuilder.validateFilters(filter || {});
-        if (!validation.isValid) {
-          console.warn("Filter validation warnings:", validation.errors);
-        }
-        
-        // Single API call to flexible endpoint
-        const newMovies = await movieService.fetchMovies(queryParams);
+  const queryParams = {
+    ...filter,
+    ...(searchQuery && { search: searchQuery }),
+  };
 
-        if (reset) {
-          setMovies(newMovies);
-        } else {
-          setMovies((prev) => [...prev, ...newMovies]);
-        }
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useMovies(queryParams);
 
-        setHasMore(newMovies.length === PAGE_SIZE);
-        setError(null);
-        setInitialLoad(false);
-      } catch (err) {
-        setError("Failed to load movies");
-        console.error("Error loading movies:", err);
-        setInitialLoad(false);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [filter, searchQuery],
-  );
-
-  useEffect(() => {
-    setPage(0);
-    setInitialLoad(true);
-    loadMovies(0, true);
-  }, [filter, loadMovies]);
-
-  const loadMore = useCallback(() => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    loadMovies(nextPage, false);
-  }, [page, loadMovies]);
+  const movies = data?.pages.flat() ?? [];
 
   const handleMovieClick = useCallback((movieId: string) => {
     if (onMovieSelect) {
@@ -97,7 +40,17 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
     }
   }, [onMovieSelect]);
 
-  if (initialLoad && loading) {
+  const handleLoadMore = useCallback(() => {
+    fetchNextPage();
+  }, [fetchNextPage]);
+
+  useEffect(() => {
+    if (error) {
+      console.error("Error loading movies:", error);
+    }
+  }, [error]);
+
+  if (isLoading) {
     return (
       <div className={styles.movieListContainer}>
         <LoadingWrapper
@@ -120,7 +73,7 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
   }
 
   if (error) {
-    return <div className={styles.error}>{error}</div>;
+    return <div className={styles.error}>Failed to load movies</div>;
   }
 
   return (
@@ -171,15 +124,15 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
         </AnimatePresence>
       </motion.div>
 
-      {hasMore && (
+      {hasNextPage && (
         <div className={styles.loadMoreContainer}>
           <button
-            onClick={loadMore}
-            disabled={loading}
+            onClick={handleLoadMore}
+            disabled={isFetchingNextPage}
             className={styles.loadMoreBtn}
-            aria-busy={loading}
+            aria-busy={isFetchingNextPage}
           >
-            {loading ? (
+            {isFetchingNextPage ? (
               <div className="flex items-center gap-2">
                 <LoadingSpinners.Inline size="sm" color="white" type="dots" />
                 <span>Loading...</span>
@@ -191,7 +144,7 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
         </div>
       )}
 
-      {!hasMore && movies.length > 0 && (
+      {!hasNextPage && movies.length > 0 && (
         <div className={styles.noMore}>
           <p>You've reached the end!</p>
           <p>No more movies to load</p>

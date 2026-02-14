@@ -216,6 +216,25 @@ export const movieService = {
     }
 
     return response.json();
+  },
+
+  async getMovieTypes(): Promise<Array<string>> {
+    const response = await fetch(`${API_BASE_URL}/movies/types`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API Error:", response.status, errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`,
+      );
+    }
+
+    return response.json();
   }
 };
 

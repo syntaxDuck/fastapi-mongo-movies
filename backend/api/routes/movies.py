@@ -1,15 +1,22 @@
 from typing import List, Annotated, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import ValidationError
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from ...schemas.schemas import MovieResponse, MovieQuery
 from ...services.movie_service import MovieService
 from ...repositories.movie_repository import MovieRepository
 from ...core.exceptions import NotFoundError
 from ...core.logging import get_logger
+from ...core.rate_limiter import rate_limit_key, get_rate_limit_config
 
 logger = get_logger(__name__)
 
+config = get_rate_limit_config()
+
 router = APIRouter(prefix="/movies", tags=["movies"])
+
+limiter = Limiter(key_func=rate_limit_key)
 
 
 # TODO: Might be nice to implement some sorting on the backend so the forntend doens't have to do it
@@ -28,7 +35,9 @@ async def get_movie_service(
 
 
 @router.get("/", response_model=List[MovieResponse])
+@limiter.limit(config.general)
 async def get_movies(
+    request: Request,
     query: Annotated[MovieQuery, Query()],
     movie_service: MovieService = Depends(get_movie_service),
 ):
@@ -87,7 +96,9 @@ async def get_movies(
 
 
 @router.get("/genres")
+@limiter.limit(config.general)
 async def get_movie_genres(
+    request: Request,
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get movie genres."""
@@ -109,7 +120,9 @@ async def get_movie_genres(
 
 
 @router.get("/genres/{movie_genre}", response_model=List[MovieResponse])
+@limiter.limit(config.general)
 async def get_movies_by_genre(
+    request: Request,
     movie_genre: str,
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
@@ -151,7 +164,9 @@ async def get_movies_by_genre(
 
 
 @router.get("/types")
+@limiter.limit(config.general)
 async def get_movie_types(
+    request: Request,
     movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get movie types."""
@@ -171,7 +186,9 @@ async def get_movie_types(
 
 
 @router.get("/types/{movie_type}", response_model=List[MovieResponse])
+@limiter.limit(config.general)
 async def get_movies_by_type(
+    request: Request,
     movie_type: str,
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
@@ -210,7 +227,9 @@ async def get_movies_by_type(
 
 
 @router.get("/year/{year}", response_model=List[MovieResponse])
+@limiter.limit(config.general)
 async def get_movies_by_year(
+    request: Request,
     year: int,
     mod: str = Query("eq", description="Determin search modifier for query"),
     limit: int = Query(10, ge=1, le=100),
@@ -250,7 +269,9 @@ async def get_movies_by_year(
 
 
 @router.get("/rating/{rating}", response_model=List[MovieResponse])
+@limiter.limit(config.general)
 async def get_movies_by_rating(
+    request: Request,
     rating: int,
     mod: str = Query("eq", description="Determin search modifier for query"),
     limit: int = Query(10, ge=1, le=100),
@@ -290,8 +311,11 @@ async def get_movies_by_rating(
 
 
 @router.get("/{movie_id}", response_model=MovieResponse)
+@limiter.limit(config.general)
 async def get_movie_by_id(
-    movie_id: str, movie_service: MovieService = Depends(get_movie_service)
+    request: Request,
+    movie_id: str,
+    movie_service: MovieService = Depends(get_movie_service),
 ):
     """Get a specific movie by ID."""
     logger.info(f"API: get_movie_by_id() called with movie_id={movie_id}")

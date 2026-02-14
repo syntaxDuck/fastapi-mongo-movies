@@ -1,12 +1,17 @@
 from typing import List, Annotated
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from slowapi import Limiter
 from ...schemas.schemas import UserResponse, UserQuery, UserCreate, MessageResponse
 from ...services.user_service import UserService
 from ...repositories.user_repository import UserRepository
 from ...core.exceptions import NotFoundError, DuplicateResourceError
 from ...core.logging import get_logger
+from ...core.rate_limiter import rate_limit_key, get_rate_limit_config
 
 logger = get_logger(__name__)
+
+config = get_rate_limit_config()
+limiter = Limiter(key_func=rate_limit_key)
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -24,7 +29,9 @@ async def get_user_service(
 
 
 @router.get("/", response_model=List[UserResponse])
+@limiter.limit(config.users)
 async def get_users(
+    request: Request,
     query: Annotated[UserQuery, Query()],
     user_service: UserService = Depends(get_user_service),
 ):
@@ -62,8 +69,11 @@ async def get_users(
 
 
 @router.get("/{user_id}", response_model=UserResponse)
+@limiter.limit(config.users)
 async def get_user_by_id(
-    user_id: str, user_service: UserService = Depends(get_user_service)
+    request: Request,
+    user_id: str,
+    user_service: UserService = Depends(get_user_service),
 ):
     """Get a specific user by ID."""
     logger.info(f"API: get_user_by_id() called with user_id={user_id}")
@@ -84,7 +94,9 @@ async def get_user_by_id(
 
 
 @router.post("/", response_model=MessageResponse)
+@limiter.limit(config.users)
 async def create_user(
+    request: Request,
     user_data: UserCreate,
     user_service: UserService = Depends(get_user_service),
 ):
@@ -116,8 +128,11 @@ async def create_user(
 
 
 @router.get("/email/{email}", response_model=List[UserResponse])
-async def get_users_by_email(
-    email: str, user_service: UserService = Depends(get_user_service)
+@limiter.limit(config.users)
+async def get_user_by_email(
+    request: Request,
+    email: str,
+    user_service: UserService = Depends(get_user_service),
 ):
     """Get users by email."""
     logger.info(f"API: get_users_by_email() called with email='{email}'")
@@ -138,8 +153,11 @@ async def get_users_by_email(
 
 
 @router.get("/name/{name}", response_model=List[UserResponse])
-async def get_users_by_name(
-    name: str, user_service: UserService = Depends(get_user_service)
+@limiter.limit(config.users)
+async def get_user_by_name(
+    request: Request,
+    name: str,
+    user_service: UserService = Depends(get_user_service),
 ):
     """Get users by name."""
     logger.info(f"API: get_users_by_name() called with name='{name}'")

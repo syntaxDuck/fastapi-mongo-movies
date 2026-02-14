@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Movie } from "../../types";
-import { movieService } from "../../services/api";
 import {
   ImdbRating,
   TomatoesCriticRating,
@@ -11,6 +10,7 @@ import {
 import styles from "../../styles/components/movies/MovieDetails.module.css";
 import { CenteredLoading } from "../ui/LoadingComponents";
 import MovieComments from "./MovieComments";
+import { useMovieById } from "../../hooks";
 
 const MovieDetail: React.FC<{ name: string; value: string; item: any }> = ({
   name,
@@ -103,45 +103,32 @@ const MoviePlot: React.FC<{ movie: Movie }> = ({ movie }) => {
 
 interface MovieDetailsProps {
   id?: string;
-  movie?: Movie; // Allow passing movie data directly
+  movie?: Movie;
 }
 
 const MovieDetails: React.FC<MovieDetailsProps> = ({ id = "", movie: propMovie }) => {
   const { movieId } = useParams<{ movieId: string }>();
-  const [movie, setMovie] = useState<Movie | null>(propMovie || null);
-  const [loading, setLoading] = useState(!propMovie); // Don't load if movie is passed as prop
-  const [error, setError] = useState<string | null>(null);
+  const targetId = id || movieId;
+  
+  const { data: movie, isLoading, error } = useMovieById(targetId || "");
 
-  useEffect(() => {
-    // If movie is passed as prop, use it directly
-    if (propMovie) {
-      setMovie(propMovie);
-      setLoading(false);
-      return;
-    }
+  if (propMovie) {
+    return (
+      <motion.div
+        className={styles.movieDetails}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+      >
+        <MovieDetailsHeader movie={propMovie} />
+        <MovieDetailsBody movie={propMovie} />
+        <MoviePlot movie={propMovie} />
+        <MovieComments movieId={propMovie._id} />
+      </motion.div>
+    );
+  }
 
-    // Otherwise load movie by ID
-    const loadMovie = async () => {
-      const targetId = id || movieId;
-      if (!targetId) return;
-
-      try {
-        setLoading(true);
-        const movieData = await movieService.getMovieById(targetId);
-        setMovie(movieData);
-        setError(null);
-      } catch (err) {
-        setError("Failed to load movie details");
-        console.error("Error loading movie:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadMovie();
-  }, [movieId, id, propMovie]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <CenteredLoading
         message="Loading movie details..."

@@ -171,7 +171,7 @@ uv run python main.py -b
 Frontend:
 
 ``` bash
-cd frontend && npm start
+cd frontend && pnpm start
 ```
 
 Both:
@@ -179,6 +179,19 @@ Both:
 ``` bash
 uv run python main.py -b
 uv run python main.py -f
+```
+
+## Package Manager
+
+Use **pnpm** for all frontend operations:
+
+```bash
+pnpm install
+pnpm add <package>
+pnpm remove <package>
+pnpm start
+pnpm test
+pnpm typecheck
 ```
 
 ------------------------------------------------------------------------
@@ -415,6 +428,36 @@ Avoid prints.
 Keep logs structured and professional.
 
 No emojis in backend code.
+
+------------------------------------------------------------------------
+
+# Caching Implementation
+
+Use **React Query (TanStack Query)** for frontend API caching.
+
+## Query Hooks
+
+Create typed query hooks in `frontend/src/hooks/useQueries.ts`:
+
+- `useMovies(params)` - stale time: 5 minutes
+- `useMovieById(id)` - stale time: 10 minutes
+- `useMovieGenres()` - stale time: 24 hours
+- `useMovieTypes()` - stale time: 24 hours
+- `useMovieComments(movieId)` - stale time: 2 minutes
+
+## Cache Strategy by Endpoint
+
+| Endpoint | Cache Duration | Rationale |
+|----------|---------------|-----------|
+| `/movies/genres` | 24 hours | Rarely changes |
+| `/movies/types` | 24 hours | Rarely changes |
+| `/movies/` | 5 minutes | Paginated, filterable |
+| `/movies/{id}` | 10 minutes | Individual movie |
+| `/comments/movie/{id}` | 2 minutes | Can change |
+
+## Provider Setup
+
+Wrap app in `QueryClientProvider` in `App.tsx` with client-side cache config.
 
 ------------------------------------------------------------------------
 

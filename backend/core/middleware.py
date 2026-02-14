@@ -6,6 +6,8 @@ import time
 from fastapi import Request, Response
 from typing import Callable
 from .logging import get_logger
+from .rate_limiter import get_real_ip
+from .request_metrics import get_request_metrics
 
 logger = get_logger(__name__)
 
@@ -13,38 +15,41 @@ logger = get_logger(__name__)
 async def log_requests(request: Request, call_next: Callable) -> Response:
     """
     Middleware to log incoming HTTP requests and responses.
+    Records metrics and handles rate limiting tracking.
     """
     start_time = time.time()
+    client_ip = get_real_ip(request)
+    request_metrics = get_request_metrics()
 
-    # Log request details
-    logger.info(
-        f"{request.method} {request.url.path} - "
-        f"Client: {request.client.host if request.client else 'unknown'} - "
-        f"User-Agent: {request.headers.get('user-agent', 'unknown')}"
-    )
+    blocked = False
+    status_code = 200
 
-    # Process the request
     try:
         response = await call_next(request)
+        status_code = response.status_code
+        return response
+    except Exception:
+        status_code = 500
+        raise
+    finally:
+        duration_ms = (time.time() - start_time) * 1000
 
-        # Calculate processing time
+        if status_code == 429:
+            blocked = True
+
+        request_metrics.record_request(
+            ip=client_ip,
+            method=request.method,
+            path=request.url.path,
+            status_code=status_code,
+            duration_ms=duration_ms,
+            blocked=blocked,
+        )
+
         process_time = time.time() - start_time
-
-        # Log response details
         logger.info(
             f"{request.method} {request.url.path} - "
-            f"Status: {response.status_code} - "
+            f"Status: {status_code} - "
             f"Duration: {process_time:.3f}s - "
-            f"Size: {len(response.body) if hasattr(response, 'body') else 'unknown'} bytes"
+            f"Client: {client_ip}"
         )
-
-        return response
-
-    except Exception as e:
-        process_time = time.time() - start_time
-        logger.error(
-            f"{request.method} {request.url.path} - "
-            f"Error: {str(e)} - "
-            f"Duration: {process_time:.3f}s"
-        )
-        raise

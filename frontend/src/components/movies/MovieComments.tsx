@@ -1,42 +1,23 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { commentService } from "../../services/api";
 import { Comment } from "../../types";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input, Button } from "../ui";
 import styles from "../../styles/components/movies/MovieComments.module.css";
+import { useMovieComments } from "../../hooks";
 
 interface MovieCommentsProps {
   movieId?: string;
 }
 
 const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [initialLoad, setInitialLoad] = useState(true);
+  const { data: comments = [], isLoading, error, refetch } = useMovieComments(movieId);
   const [newComment, setNewComment] = useState({
     name: "",
     email: "",
     text: "",
   });
   const [submitting, setSubmitting] = useState(false);
-
-  const loadComments = useCallback(async () => {
-    try {
-      setLoading(true);
-      const comments = await commentService.fetchComments(movieId);
-
-      setComments(comments);
-      setError(null);
-      setInitialLoad(false);
-    } catch (err) {
-      setError("Failed to load comments");
-      console.error("Error loading comments:", err);
-      setInitialLoad(false);
-    } finally {
-      setLoading(false);
-    }
-  }, [movieId]);
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,20 +32,17 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
         date: new Date().toISOString(),
       };
 
-      setComments((prev) => [comment, ...prev]);
       setNewComment({ name: "", email: "", text: "" });
     } catch (err) {
-      setError("Failed to submit comment");
       console.error("Error submitting comment:", err);
     } finally {
       setSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    setInitialLoad(true);
-    loadComments();
-  }, [movieId, loadComments]);
+  const handleRefresh = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -122,7 +100,7 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
     });
   };
 
-  if (initialLoad && loading) {
+  if (isLoading) {
     return (
       <motion.div
         className={styles.commentsContainer}
@@ -311,7 +289,7 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
             {error && (
               <motion.button
                 className={styles.retryButton}
-                onClick={loadComments}
+                onClick={handleRefresh}
                 whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -321,23 +299,6 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Refresh button */}
-      {loading && !initialLoad && (
-        <motion.div
-          className={styles.refreshIndicator}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div
-            className={styles.refreshSpinner}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          />
-          <span>Refreshing comments...</span>
-        </motion.div>
-      )}
     </motion.div>
   );
 };

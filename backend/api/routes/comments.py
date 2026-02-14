@@ -3,14 +3,19 @@ Comment Repository layer using context manager pattern.
 """
 
 from typing import List, Annotated
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from slowapi import Limiter
 from ...schemas.schemas import CommentResponse, CommentQuery
 from ...services.comment_service import CommentService
 from ...repositories.comment_repository import CommentRepository
 from ...core.exceptions import NotFoundError
 from ...core.logging import get_logger
+from ...core.rate_limiter import rate_limit_key, get_rate_limit_config
 
 logger = get_logger(__name__)
+
+config = get_rate_limit_config()
+limiter = Limiter(key_func=rate_limit_key)
 
 router = APIRouter(prefix="/comments", tags=["comments"])
 
@@ -29,7 +34,9 @@ async def get_comment_service(
 
 
 @router.get("/", response_model=List[CommentResponse])
+@limiter.limit(config.comments)
 async def get_comments(
+    request: Request,
     query: Annotated[CommentQuery, Query()],
     comment_service: CommentService = Depends(get_comment_service),
 ):
@@ -70,7 +77,9 @@ async def get_comments(
 
 
 @router.get("/movie/{movie_id}", response_model=List[CommentResponse])
-async def get_comments_by_movie_id(
+@limiter.limit(config.comments)
+async def get_comments_by_movie(
+    request: Request,
     movie_id: str,
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
@@ -99,7 +108,9 @@ async def get_comments_by_movie_id(
 
 
 @router.get("/email/{email}", response_model=List[CommentResponse])
+@limiter.limit(config.comments)
 async def get_comments_by_email(
+    request: Request,
     email: str,
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
@@ -128,7 +139,9 @@ async def get_comments_by_email(
 
 
 @router.get("/name/{name}", response_model=List[CommentResponse])
+@limiter.limit(config.comments)
 async def get_comments_by_name(
+    request: Request,
     name: str,
     limit: int = Query(10, ge=1, le=100),
     skip: int = Query(0, ge=0),
@@ -157,8 +170,11 @@ async def get_comments_by_name(
 
 
 @router.get("/{comment_id}", response_model=CommentResponse)
+@limiter.limit(config.comments)
 async def get_comment_by_id(
-    comment_id: str, comment_service: CommentService = Depends(get_comment_service)
+    request: Request,
+    comment_id: str,
+    comment_service: CommentService = Depends(get_comment_service),
 ):
     """Get a specific comment by ID."""
     logger.info(f"API: get_comment_by_id() called with comment_id={comment_id}")
