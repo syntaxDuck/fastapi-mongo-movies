@@ -21,30 +21,49 @@ async def verify_admin_api_key(api_key: str = Security(admin_api_key_header)):
     return api_key
 
 
+PBKDF2_ITERATIONS = 600000
+
+
 def hash_password(password: str) -> str:
     """
     Hash a password using PBKDF2 with SHA-256 and a random salt.
-    Format: salt$hash
+    Format: iterations$salt$hash
     """
     salt = secrets.token_hex(16)
     key = hashlib.pbkdf2_hmac(
         "sha256",
         password.encode("utf-8"),
         salt.encode("utf-8"),
-        100000,  # Number of iterations
+        PBKDF2_ITERATIONS,
     )
-    return f"{salt}${key.hex()}"
+    return f"{PBKDF2_ITERATIONS}${salt}${key.hex()}"
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Verify a plain password against a hashed password.
+    Supports both legacy (salt$hash) and enhanced (iterations$salt$hash) formats.
+    Uses secrets.compare_digest to prevent timing attacks.
     """
     try:
-        salt, stored_hash = hashed_password.split("$")
+        parts = hashed_password.split("$")
+        if len(parts) == 3:
+            # Enhanced format: iterations$salt$hash
+            iterations, salt, stored_hash = parts
+            iterations = int(iterations)
+        elif len(parts) == 2:
+            # Legacy format: salt$hash
+            salt, stored_hash = parts
+            iterations = 100000
+        else:
+            return False
+
         key = hashlib.pbkdf2_hmac(
-            "sha256", plain_password.encode("utf-8"), salt.encode("utf-8"), 100000
+            "sha256",
+            plain_password.encode("utf-8"),
+            salt.encode("utf-8"),
+            iterations,
         )
-        return key.hex() == stored_hash
+        return secrets.compare_digest(key.hex(), stored_hash)
     except (ValueError, AttributeError):
         return False
