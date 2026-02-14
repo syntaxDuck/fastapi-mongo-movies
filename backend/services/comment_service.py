@@ -6,7 +6,7 @@ from typing import List, Optional
 from ..repositories.protocol import CommentRepositoryProtocol
 from ..core.exceptions import NotFoundError
 from ..core.logging import get_logger
-from ..schemas.schemas import CommentResponse
+from ..schemas.comment import CommentResponse
 
 logger = get_logger(__name__)
 

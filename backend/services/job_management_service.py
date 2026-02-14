@@ -4,16 +4,15 @@ Job Management Service for background job tracking and progress monitoring.
 
 import asyncio
 from typing import Dict, Any, Optional, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
 import uuid
-import json
 
 from ..core.logging import get_logger
 
 logger = get_logger(__name__)
 
-
+#TODO: Make periodic jobs that trigger on time
 @dataclass
 class JobStatus:
     """Background job status information."""
@@ -28,7 +27,7 @@ class JobStatus:
     success_count: int = 0
     error_count: int = 0
     errors: List[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda x=timezone.utc: datetime.now(x))
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     estimated_remaining_minutes: Optional[float] = None
@@ -53,9 +52,9 @@ class JobManagementService:
         """Clean up jobs older than 24 hours."""
         while True:
             try:
-                await asyncio.sleep(3600)  # Run every hour
+                await asyncio.sleep(3600)
 
-                cutoff_time = datetime.utcnow() - timedelta(hours=24)
+                cutoff_time = datetime.now(timezone.utc) - timedelta(hours=24)
                 jobs_to_remove = [
                     job_id
                     for job_id, job in self.jobs.items()
@@ -108,7 +107,6 @@ class JobManagementService:
         """
         job = self.jobs.get(job_id)
         if job:
-            # Update estimated remaining time if job is running
             if job.status == "running" and job.started_at:
                 await self._update_estimated_remaining_time(job)
 
@@ -142,7 +140,7 @@ class JobManagementService:
         # Update job status to running if this is the first progress update
         if job.status == "queued":
             job.status = "running"
-            job.started_at = datetime.utcnow()
+            job.started_at = datetime.now(timezone.utc)
             logger.info(f"Job {job_id} started running")
 
         # Update progress metrics
@@ -177,7 +175,7 @@ class JobManagementService:
             return
 
         job.status = "completed"
-        job.completed_at = datetime.utcnow()
+        job.completed_at = datetime.now(timezone.utc)
         job.result = result
         job.progress_percentage = 100.0
 
@@ -197,7 +195,7 @@ class JobManagementService:
             return
 
         job.status = "failed"
-        job.completed_at = datetime.utcnow()
+        job.completed_at = datetime.now(timezone.utc)
         job.errors.append(error_message)
 
         logger.error(f"Job {job_id} failed: {error_message}")
@@ -220,7 +218,7 @@ class JobManagementService:
             return False
 
         job.status = "cancelled"
-        job.completed_at = datetime.utcnow()
+        job.completed_at = datetime.now(timezone.utc)
 
         logger.info(f"Job {job_id} cancelled")
         return True
@@ -294,7 +292,7 @@ class JobManagementService:
             return
 
         # Calculate elapsed time
-        elapsed_time = datetime.utcnow() - job.started_at
+        elapsed_time = datetime.now(timezone.utc) - job.started_at
         elapsed_minutes = elapsed_time.total_seconds() / 60
 
         # Calculate processing rate (items per minute)

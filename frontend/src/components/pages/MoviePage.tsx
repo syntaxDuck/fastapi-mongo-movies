@@ -85,6 +85,7 @@ const MoviePage: React.FC<MoviePageProps> = ({ filter }) => {
     },
   };
 
+  //BUG: Movie Page Container error screen currently isn't styled properly
   return (
     <div className={styles.moviePageContainer}>
       {isDesktop && (

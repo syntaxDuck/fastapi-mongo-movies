@@ -36,13 +36,17 @@ class TestMovieService:
             await movie_service.get_movie_by_id("123")
 
     @pytest.mark.asyncio
-    async def test_search_movies_multiple_criteria_success(self, movie_service, sample_movie_data):
+    async def test_search_movies_multiple_criteria_success(
+        self, movie_service, sample_movie_data
+    ):
         """Test getting movies with filters successfully."""
         movie_service.movie_repository.search_movies = AsyncMock(
             return_value=[sample_movie_data]
         )
 
-        result = await movie_service.search_movies_multiple_criteria(title="Blacksmith Scene")
+        result = await movie_service.search_movies_multiple_criteria(
+            title="Blacksmith Scene"
+        )
 
         assert result == [sample_movie_data]
         movie_service.movie_repository.search_movies.assert_called_once_with(
@@ -55,7 +59,7 @@ class TestMovieService:
             skip=0,
             include_invalid_posters=False,
             sort_by=None,
-            sort_order='asc',
+            sort_order="asc",
         )
 
     @pytest.mark.asyncio
@@ -66,7 +70,9 @@ class TestMovieService:
         with pytest.raises(
             NotFoundError, match="No movies found matching the criteria"
         ):
-            await movie_service.search_movies_multiple_criteria(title="Nonexistent Movie")
+            await movie_service.search_movies_multiple_criteria(
+                title="Nonexistent Movie"
+            )
 
 
 class TestUserService:
@@ -133,6 +139,7 @@ class TestUserService:
     async def test_create_user_missing_email(self, user_service):
         """Test creating a user without email."""
         from pydantic import ValidationError
+
         with pytest.raises(ValidationError):
             UserCreate(name="No Email User", password="password123")
 

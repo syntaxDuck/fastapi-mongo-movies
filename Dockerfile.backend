@@ -10,12 +10,11 @@ WORKDIR /app
 RUN pip install --no-cache-dir uv
 
 # Install dependencies first for better layer caching.
-COPY pyproject.toml uv.lock ./
+COPY backend/pyproject.toml backend/uv.lock ./
 RUN uv sync --frozen --no-install-project
 
 # Copy application code and install the project package.
 COPY backend ./backend
-COPY main.py ./
 RUN uv sync --frozen
 
 EXPOSE 8000

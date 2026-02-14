@@ -3,9 +3,9 @@ from fastapi.testclient import TestClient
 from unittest.mock import AsyncMock, patch
 from bson import ObjectId
 
-from api.main import app, get_mongo_connection
-from api.models import Movie, MovieQuery, User, UserQuery, Comment, CommentQuery
-from tests.fixtures.mongodb_fixtures import mock_db_handler
+from backend.api.main import app, get_mongo_connection
+from backend.api.models import Movie, MovieQuery, User, UserQuery, Comment, CommentQuery
+from backend.tests.fixtures.mongodb_fixtures import mock_db_handler
 
 
 class TestMovieEndpoints:

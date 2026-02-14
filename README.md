@@ -24,25 +24,92 @@ The demo above shows navigation across the app, movie search, movie details, and
 ## Repository Structure
 ```text
 fastapi-mongo-movies/
-├── backend/
-│   ├── api/                # FastAPI app + route modules
-│   │   └── routes/         # movies, users, comments, admin
-│   ├── services/           # Business logic layer
-│   ├── repositories/       # Data access layer
-│   ├── schemas/            # Pydantic request/response schemas
-│   └── core/               # Config, DB manager, logging, exceptions
-├── frontend/
+├── main                      # Service launcher script (executable)
+├── frontend/                 # React frontend
 │   ├── src/
 │   │   ├── components/     # Domain + UI components
 │   │   ├── styles/         # CSS modules
 │   │   ├── services/       # API client layer
-│   │   └── utils/          # Frontend utilities
+│   │   └── utils/         # Frontend utilities
 │   └── package.json
-├── scripts/                # Utility scripts (indexes, validation helpers)
-├── tests/                  # Backend and frontend-oriented tests
-├── docker-compose.yml
-├── docker-compose.prod.yml
-└── main.py                 # Local service launcher
+├── backend/                 # FastAPI backend
+│   ├── pyproject.toml     # Python package config
+│   ├── .env               # Environment variables
+│   ├── main.py            # FastAPI application entry
+│   ├── api/               # FastAPI app + route modules
+│   │   └── routes/        # movies, users, comments, admin
+│   ├── services/          # Business logic layer
+│   ├── repositories/      # Data access layer
+│   ├── schemas/           # Pydantic request/response schemas
+│   ├── core/              # Config, DB manager, logging, exceptions
+│   └── tests/             # Backend tests
+├── Dockerfile
+└── README.md
+```
+
+## Architecture
+
+### Request Flow
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant FastAPI
+    participant Middleware
+    participant RateLimiter
+    participant Route
+    participant Service
+    participant Repository
+    participant Database
+    participant Metrics
+
+    Client->>FastAPI: HTTP Request
+    FastAPI->>Middleware: Pass to middleware chain
+    Middleware->>Middleware: Extract IP, start timer
+    Middleware->>RateLimiter: Forward request
+    RateLimiter->>RateLimiter: Check rate limit (100/min)
+    alt Rate limited
+        RateLimiter-->>Client: 429 Too Many Requests
+    else Allowed
+        RateLimiter->>Route: Execute route handler
+        Route->>Service: Call business logic
+        Service->>Repository: Request data
+        Repository->>Database: MongoDB query
+        Database-->>Repository: Return results
+        Repository-->>Service: Return data
+        Service-->>Route: Return response
+        Route-->>Client: HTTP Response
+    end
+    Note over Middleware,Metrics: After response: record metrics & log
+```
+
+### Layers
+
+| Layer | Responsibility | Location |
+|-------|----------------|----------|
+| **API** | HTTP handling, request validation, response formatting | `backend/api/routes/` |
+| **Service** | Business logic, validation, orchestration | `backend/services/` |
+| **Repository** | Data access, query building, MongoDB operations | `backend/repositories/` |
+| **Database** | Data persistence (MongoDB via Motor) | `backend/core/database.py` |
+
+### Metrics Tracking
+
+| Component | Tracks |
+|-----------|--------|
+| **Middleware** (`core/middleware.py`) | HTTP requests: IP, method, path, status, duration |
+| **Repository** (`core/metrics.py`) | DB operations: type, collection, duration, success |
+| **Rate Limiter** (`core/rate_limiter.py`) | Blocked requests per IP |
+
+### Exception Handling
+
+Exceptions bubble up from lower layers and are handled by global handlers in `backend/api/main.py`:
+
+```python
+app.add_exception_handler(NotFoundError, not_found_handler)       # 404
+app.add_exception_handler(DuplicateResourceError, duplicate_handler) # 409
+app.add_exception_handler(ValidationError, validation_handler)     # 422
+app.add_exception_handler(DatabaseError, database_error_handler)   # 500
+app.add_exception_handler(Exception, generic_exception_handler)    # 500
 ```
 
 ## Prerequisites
@@ -53,18 +120,15 @@ fastapi-mongo-movies/
 
 ## Setup
 ```bash
-# Install backend dependencies
-uv sync
-
-# Install test extras (optional but recommended)
-uv sync --group test
-
 # Install frontend dependencies
 cd frontend && npm install && cd ..
+
+# Install backend dependencies (uses pyproject.toml in backend/)
+cd backend && uv sync && cd ..
 ```
 
 ## Configuration
-Create `.env` in repo root.
+Create `backend/.env` with required settings:
 
 Required database settings:
 ```env
@@ -88,19 +152,25 @@ LOG_TO_FILE=true
 
 ## Run Locally
 
-Run backend + frontend together:
+Run backend + frontend together (default ports):
 ```bash
-uv run main.py -bf
+./main
+```
+
+Run with custom ports:
+```bash
+./main -p 9000           # Both on port 9000
+./main --backend-port 8080 --frontend-port 8081
 ```
 
 Run only backend:
 ```bash
-uv run main.py -b
+./main -b
 ```
 
 Run only frontend:
 ```bash
-uv run main.py -f
+./main -f
 ```
 
 Key local URLs:
@@ -109,6 +179,18 @@ Key local URLs:
 - OpenAPI docs: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
 - Health check: `http://localhost:8000/health`
+
+## Testing
+
+Backend tests:
+```bash
+cd backend && uv run pytest
+```
+
+Frontend tests:
+```bash
+cd frontend && npm test
+```
 
 ## API Surface (Summary)
 
@@ -159,19 +241,6 @@ For exact schemas and query params, use `http://localhost:8000/docs`.
 - `/debug`
 
 Development-only routes are also available in development mode (`/dev`, `/spinners-test`).
-
-## Testing
-Backend tests:
-```bash
-uv run pytest
-```
-
-Frontend tests:
-```bash
-cd frontend && npm test
-```
-
-Coverage output is configured in `pyproject.toml` (terminal + `htmlcov` + `coverage.xml`).
 
 ## Docker
 Development stack:

@@ -2,13 +2,8 @@ import pytest
 import asyncio
 from unittest.mock import AsyncMock, patch, MagicMock
 from bson import ObjectId
-import sys
-import os
 
-# Add backend directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../backend"))
-
-from main import main
+from backend.main import main
 
 
 class TestBackendMain:
@@ -17,12 +12,12 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_successful_execution(self):
-        """Test successful execution of main function."""
+        """Test successful execution of backend.main function."""
         # Mock the config and dependencies
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             # Setup config mocks
             mock_config.DB_USER = "test_user"
@@ -78,11 +73,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_with_config_values(self):
-        """Test main function uses correct config values."""
+        """Test backend.main function uses correct config values."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             # Setup specific config values
             mock_config.DB_USER = "prod_user"
@@ -118,11 +113,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_database_insertion_failure(self):
-        """Test main function when database insertion fails."""
+        """Test backend.main function when database insertion fails."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             mock_config.DB_USER = "test_user"
             mock_config.DB_PASS = "test_pass"
@@ -153,11 +148,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_context_manager_exception(self):
-        """Test main function when context manager raises exception."""
+        """Test backend.main function when context manager raises exception."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             mock_config.DB_USER = "test_user"
             mock_config.DB_PASS = "test_pass"
@@ -187,11 +182,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_config_error(self):
-        """Test main function when config values are missing."""
+        """Test backend.main function when config values are missing."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             # Mock missing config values
             mock_config.DB_USER = None
@@ -222,11 +217,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_different_document_data(self):
-        """Test main function with different document data structures."""
+        """Test backend.main function with different document data structures."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             mock_config.DB_USER = "test_user"
             mock_config.DB_PASS = "test_pass"
@@ -257,11 +252,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_database_names_used(self):
-        """Test main function uses correct database and collection names."""
+        """Test backend.main function uses correct database and collection names."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             mock_config.DB_USER = "test_user"
             mock_config.DB_PASS = "test_pass"
@@ -289,11 +284,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_config_options(self):
-        """Test main function passes correct options to MongoDBConfig."""
+        """Test backend.main function passes correct options to MongoDBConfig."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             mock_config.DB_USER = "test_user"
             mock_config.DB_PASS = "test_pass"
@@ -329,11 +324,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_print_output_format(self):
-        """Test main function print output format."""
+        """Test backend.main function print output format."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             mock_config.DB_USER = "test_user"
             mock_config.DB_PASS = "test_pass"
@@ -362,11 +357,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_no_result_inserted_id(self):
-        """Test main function when insertion returns no inserted_id."""
+        """Test backend.main function when insertion returns no inserted_id."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             mock_config.DB_USER = "test_user"
             mock_config.DB_PASS = "test_pass"
@@ -394,8 +389,7 @@ class TestBackendMain:
     @pytest.mark.backend
     def test_main_function_imports(self):
         """Test that main function imports are working correctly."""
-        # This test verifies that the module can be imported and the main function exists
-        from main import main
+        from backend.main import main
 
         assert callable(main)
         assert asyncio.iscoroutinefunction(main)
@@ -403,11 +397,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_connection_cleanup(self):
-        """Test main function properly cleans up connections."""
+        """Test backend.main function properly cleans up connections."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             mock_config.DB_USER = "test_user"
             mock_config.DB_PASS = "test_pass"
@@ -434,11 +428,11 @@ class TestBackendMain:
     @pytest.mark.backend
     @pytest.mark.asyncio
     async def test_main_function_user_data_structure(self):
-        """Test main function inserts correct user data structure."""
+        """Test backend.main function inserts correct user data structure."""
         with (
-            patch("main.config") as mock_config,
-            patch("main.MongoDBConfig") as mock_config_class,
-            patch("main.MongoDBClientHandler") as mock_handler_class,
+            patch("backend.main.config") as mock_config,
+            patch("backend.main.MongoDBConfig") as mock_config_class,
+            patch("backend.main.MongoDBClientHandler") as mock_handler_class,
         ):
             mock_config.DB_USER = "test_user"
             mock_config.DB_PASS = "test_pass"

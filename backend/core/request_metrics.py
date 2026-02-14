@@ -3,7 +3,6 @@ User request metrics tracking module.
 Tracks HTTP requests by IP for monitoring and security analysis.
 """
 
-import time
 from collections import defaultdict
 from datetime import datetime, timedelta
 from threading import Lock
@@ -186,12 +185,12 @@ class RequestMetrics:
                 "ip": ip,
                 "total_requests": metrics.total_requests,
                 "blocked_requests": metrics.blocked_requests,
-                "first_seen": metrics.first_seen.isoformat()
-                if metrics.first_seen
-                else None,
-                "last_seen": metrics.last_seen.isoformat()
-                if metrics.last_seen
-                else None,
+                "first_seen": (
+                    metrics.first_seen.isoformat() if metrics.first_seen else None
+                ),
+                "last_seen": (
+                    metrics.last_seen.isoformat() if metrics.last_seen else None
+                ),
                 "by_path": dict(metrics.by_path),
                 "by_status": dict(metrics.by_status),
             }
@@ -221,9 +220,9 @@ class RequestMetrics:
                     "ip": ip,
                     "blocked_requests": metrics.blocked_requests,
                     "total_requests": metrics.total_requests,
-                    "last_seen": metrics.last_seen.isoformat()
-                    if metrics.last_seen
-                    else None,
+                    "last_seen": (
+                        metrics.last_seen.isoformat() if metrics.last_seen else None
+                    ),
                 }
                 for ip, metrics in self._ip_metrics.items()
                 if metrics.blocked_requests > 0

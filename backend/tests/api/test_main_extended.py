@@ -5,9 +5,9 @@ from bson import ObjectId
 from fastapi import HTTPException
 import json
 
-from api.main import app, get_mongo_connection
-from api.models import Movie, MovieQuery, User, UserQuery, Comment, CommentQuery
-from tests.fixtures.mongodb_fixtures import (
+from backend.api.main import app, get_mongo_connection
+from backend.api.models import Movie, MovieQuery, User, UserQuery, Comment, CommentQuery
+from backend.tests.fixtures.mongodb_fixtures import (
     sample_user_data,
 )
 

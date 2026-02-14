@@ -3,18 +3,14 @@ Rate limiting configuration and utilities.
 """
 
 from fastapi import Request
-from fastapi.responses import JSONResponse
 from slowapi import Limiter
-from slowapi.errors import RateLimitExceeded
-from starlette.exceptions import HTTPException
-from typing import Any, Callable
 
 
 def get_real_ip(request: Request) -> str:
     """
     Get the real client IP address, handling proxies properly.
 
-    Checks X-Forwarded-For header first (for hosted frontends like Render),
+    Checks X-Forwarded-For header first,
     then falls back to the direct client IP.
     """
     forwarded_for = request.headers.get("X-Forwarded-For")
@@ -45,27 +41,6 @@ limiter = Limiter(
     default_limits=["100 per minute"],
     strategy="fixed-window",
 )
-
-
-async def rate_limit_exceeded_handler(request: Request, exc: Exception) -> JSONResponse:
-    """
-    Custom handler for rate limit exceeded errors.
-
-    Returns a JSON error response instead of the default SlowAPI response.
-    """
-    if isinstance(exc, RateLimitExceeded):
-        return JSONResponse(
-            status_code=429,
-            content={
-                "error": "Rate limit exceeded",
-                "detail": str(exc.detail),
-                "retry_after": exc.detail,
-            },
-        )
-    return JSONResponse(
-        status_code=500,
-        content={"error": "Internal server error"},
-    )
 
 
 class RateLimitConfig:

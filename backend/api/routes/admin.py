@@ -2,18 +2,27 @@
 Admin API routes for utility endpoints including poster validation.
 """
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
-from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, timezone
+from typing import Any, List
 
-from ...schemas.schemas import MovieResponse
-from ...services.poster_validation_service import PosterValidationService
-from ...services.job_management_service import JobManagementService
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
+
+from ...core.config import settings
+from ...core.database import DatabaseManager
 from ...core.logging import get_logger
-from ...core.security import verify_admin_api_key
 from ...core.metrics import get_metrics as get_db_metrics
 from ...core.request_metrics import get_request_metrics
+from ...core.security import verify_admin_api_key
+from ...schemas.job import (
+    JobResponse,
+    JobStatus,
+    ValidationResult,
+    ValidationStats,
+)
+from ...schemas.movie import MovieResponse
+from ...services.job_management_service import JobManagementService
+from ...services.poster_validation_service import PosterValidationService
+from ...core.exceptions import NotFoundError
 
 logger = get_logger(__name__)
 
@@ -22,71 +31,6 @@ router = APIRouter(
 )
 
 
-# Response models
-class JobResponse(BaseModel):
-    job_id: str = Field(..., description="Unique job identifier")
-    status: str = Field(
-        ..., description="Job status: 'queued', 'running', 'completed', 'failed'"
-    )
-    message: str = Field(..., description="Job description or status message")
-    created_at: datetime = Field(..., description="Job creation timestamp")
-
-
-class JobStatus(BaseModel):
-    job_id: str = Field(..., description="Unique job identifier")
-    status: str = Field(
-        ..., description="Job status: 'queued', 'running', 'completed', 'failed'"
-    )
-    progress_percentage: float = Field(..., description="Progress percentage (0-100)")
-    total_movies: int = Field(..., description="Total number of movies to process")
-    processed_movies: int = Field(..., description="Number of movies processed so far")
-    valid_posters: int = Field(..., description="Number of valid posters found")
-    invalid_posters: int = Field(..., description="Number of invalid posters found")
-    errors: List[str] = Field(
-        default_factory=list, description="List of errors encountered"
-    )
-    started_at: Optional[datetime] = Field(None, description="Job start timestamp")
-    completed_at: Optional[datetime] = Field(
-        None, description="Job completion timestamp"
-    )
-    estimated_remaining_minutes: Optional[float] = Field(
-        None, description="Estimated time remaining in minutes"
-    )
-
-
-class ValidationResult(BaseModel):
-    movie_id: str = Field(..., description="Movie ID")
-    is_valid: bool = Field(..., description="Whether poster is valid")
-    http_status: Optional[int] = Field(None, description="HTTP status code")
-    content_type: Optional[str] = Field(None, description="Content type header")
-    response_time_ms: Optional[float] = Field(
-        None, description="Response time in milliseconds"
-    )
-    file_size_bytes: Optional[int] = Field(
-        None, description="Estimated file size in bytes"
-    )
-    error_reason: Optional[str] = Field(
-        None, description="Reason for validation failure"
-    )
-    validation_timestamp: datetime = Field(
-        ..., description="When validation was performed"
-    )
-
-
-class ValidationStats(BaseModel):
-    total_movies: int = Field(..., description="Total movies in database")
-    movies_with_posters: int = Field(..., description="Movies that have poster URLs")
-    valid_posters: int = Field(..., description="Movies with valid posters")
-    invalid_posters: int = Field(..., description="Movies with invalid posters")
-    last_validation_date: Optional[datetime] = Field(
-        None, description="Last full validation date"
-    )
-    validation_success_rate: float = Field(
-        ..., description="Percentage of posters that are valid"
-    )
-
-
-# Dependency injection
 async def get_poster_validation_service() -> PosterValidationService:
     """Dependency to get poster validation service instance."""
     return PosterValidationService()
@@ -95,6 +39,18 @@ async def get_poster_validation_service() -> PosterValidationService:
 async def get_job_management_service() -> JobManagementService:
     """Dependency to get job management service instance."""
     return JobManagementService()
+
+
+@router.get("/health")
+async def health_check() -> dict[str, Any]:
+    logger.debug("Health check requested")
+    pool_status = await DatabaseManager.get_pool_status()
+    return {
+        "status": "healthy",
+        "service": "FastAPI Backend",
+        "version": settings.__VERSION__,
+        "database_pool": pool_status,
+    }
 
 
 @router.post("/movies/validate-posters", response_model=JobResponse)
@@ -123,40 +79,31 @@ async def start_poster_validation(
         f"Starting poster validation job with batch_size={batch_size}, concurrent_requests={concurrent_requests}"
     )
 
-    try:
-        # Create job
-        job_id = await job_service.create_job(
-            job_type="poster_validation",
-            parameters={
-                "batch_size": batch_size,
-                "concurrent_requests": concurrent_requests,
-                "update_database": update_database,
-            },
-        )
+    job_id = await job_service.create_job(
+        job_type="poster_validation",
+        parameters={
+            "batch_size": batch_size,
+            "concurrent_requests": concurrent_requests,
+            "update_database": update_database,
+        },
+    )
 
-        # Start background task
-        background_tasks.add_task(
-            poster_service.validate_all_posters,
-            job_id=job_id,
-            batch_size=batch_size,
-            concurrent_requests=concurrent_requests,
-            update_database=update_database,
-        )
+    background_tasks.add_task(
+        poster_service.validate_all_posters,
+        job_id=job_id,
+        batch_size=batch_size,
+        concurrent_requests=concurrent_requests,
+        update_database=update_database,
+    )
 
-        logger.info(f"Poster validation job started: {job_id}")
+    logger.info(f"Poster validation job started: {job_id}")
 
-        return JobResponse(
-            job_id=job_id,
-            status="queued",
-            message="Poster validation job queued and starting",
-            created_at=datetime.utcnow(),
-        )
-
-    except Exception as e:
-        logger.error(f"Failed to start poster validation job: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to start poster validation job"
-        )
+    return JobResponse(
+        job_id=job_id,
+        status="queued",
+        message="Poster validation job queued and starting",
+        created_at=datetime.now(timezone.utc),
+    )
 
 
 @router.get("/movies/validate-posters/statistics", response_model=ValidationStats)
@@ -168,15 +115,8 @@ async def get_validation_statistics(
     """
     logger.info("Getting poster validation statistics")
 
-    try:
-        stats = await poster_service.get_validation_statistics()
-        return stats
-
-    except Exception as e:
-        logger.error(f"Failed to get validation statistics: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get validation statistics"
-        )
+    stats = await poster_service.get_validation_statistics()
+    return stats
 
 
 @router.get("/movies/validate-posters/{job_id}", response_model=JobStatus)
@@ -191,20 +131,13 @@ async def get_validation_status(
     """
     logger.info(f"Getting validation job status: {job_id}")
 
-    try:
-        job_status = await job_service.get_job_status(job_id)
+    job_status = await job_service.get_job_status(job_id)
 
-        if not job_status:
-            logger.warning(f"Validation job not found: {job_id}")
-            raise HTTPException(status_code=404, detail="Validation job not found")
+    if not job_status:
+        logger.warning(f"Validation job not found: {job_id}")
+        raise NotFoundError("Validation job not found")
 
-        return job_status
-
-    except Exception as e:
-        logger.error(f"Failed to get validation job status: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get validation job status"
-        )
+    return job_status
 
 
 @router.post("/movies/{movie_id}/validate-poster", response_model=ValidationResult)
@@ -219,20 +152,16 @@ async def validate_single_poster(
     """
     logger.info(f"Validating poster for movie: {movie_id}")
 
-    try:
-        result = await poster_service.validate_movie_poster(movie_id)
+    result = await poster_service.validate_movie_poster(movie_id)
 
-        if not result:
-            logger.warning(f"Movie not found for poster validation: {movie_id}")
-            raise HTTPException(status_code=404, detail="Movie not found")
+    if not result:
+        logger.warning(f"Movie not found for poster validation: {movie_id}")
+        raise NotFoundError("Movie not found")
 
-        return result
-
-    except Exception as e:
-        logger.error(f"Failed to validate poster for movie {movie_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to validate poster")
+    return result
 
 
+# TODO: Could probably add pagination here
 @router.get("/movies/validate-posters/invalid", response_model=List[MovieResponse])
 async def get_invalid_posters(
     limit: int = Query(
@@ -247,13 +176,8 @@ async def get_invalid_posters(
     """
     logger.info(f"Getting movies with invalid posters (limit: {limit})")
 
-    try:
-        invalid_movies = await poster_service.get_invalid_posters(limit=limit)
-        return invalid_movies
-
-    except Exception as e:
-        logger.error(f"Failed to get invalid posters: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get invalid posters")
+    invalid_movies = await poster_service.get_invalid_posters(limit=limit)
+    return invalid_movies
 
 
 @router.post("/movies/validate-posters/revalidate/{movie_id}")
@@ -268,21 +192,16 @@ async def revalidate_movie_poster(
     """
     logger.info(f"Revalidating poster for movie: {movie_id}")
 
-    try:
-        result = await poster_service.revalidate_movie_poster(movie_id)
+    result = await poster_service.revalidate_movie_poster(movie_id)
 
-        if not result:
-            logger.warning(f"Movie not found for revalidation: {movie_id}")
-            raise HTTPException(status_code=404, detail="Movie not found")
+    if not result:
+        logger.warning(f"Movie not found for revalidation: {movie_id}")
+        raise NotFoundError("Movie not found")
 
-        return {
-            "message": f"Poster revalidation completed for movie {movie_id}",
-            "result": result,
-        }
-
-    except Exception as e:
-        logger.error(f"Failed to revalidate poster for movie {movie_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to revalidate poster")
+    return {
+        "message": f"Poster revalidation completed for movie {movie_id}",
+        "result": result,
+    }
 
 
 @router.delete("/jobs/{job_id}")
@@ -297,20 +216,13 @@ async def cancel_job(
     """
     logger.info(f"Cancelling job: {job_id}")
 
-    try:
-        success = await job_service.cancel_job(job_id)
+    success = await job_service.cancel_job(job_id)
 
-        if not success:
-            logger.warning(f"Job not found or cannot be cancelled: {job_id}")
-            raise HTTPException(
-                status_code=404, detail="Job not found or cannot be cancelled"
-            )
+    if not success:
+        logger.warning(f"Job not found or cannot be cancelled: {job_id}")
+        raise NotFoundError(f"Job id: {job_id} not found or cannot be cancelled")
 
-        return {"message": f"Job {job_id} cancelled successfully"}
-
-    except Exception as e:
-        logger.error(f"Failed to cancel job {job_id}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to cancel job")
+    return {"message": f"Job {job_id} cancelled successfully"}
 
 
 @router.get("/db-stats")
@@ -327,17 +239,12 @@ async def get_database_stats():
     """
     logger.info("Getting database statistics")
 
-    try:
-        metrics = get_db_metrics()
+    metrics = get_db_metrics()
 
-        return {
-            "summary": metrics.get_summary(),
-            "recent_operations": metrics.get_recent_operations(limit=50),
-        }
-
-    except Exception as e:
-        logger.error(f"Failed to get database stats: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get database stats")
+    return {
+        "summary": metrics.get_summary(),
+        "recent_operations": metrics.get_recent_operations(limit=50),
+    }
 
 
 @router.delete("/db-stats")
@@ -347,15 +254,10 @@ async def reset_database_stats():
     """
     logger.info("Resetting database statistics")
 
-    try:
-        metrics = get_db_metrics()
-        metrics.reset()
+    metrics = get_db_metrics()
+    metrics.reset()
 
-        return {"message": "Database statistics reset successfully"}
-
-    except Exception as e:
-        logger.error(f"Failed to reset database stats: {e}")
-        raise HTTPException(status_code=500, detail="Failed to reset database stats")
+    return {"message": "Database statistics reset successfully"}
 
 
 @router.get("/request-metrics")
@@ -372,18 +274,13 @@ async def get_request_metrics_stats():
     """
     logger.info("Getting request metrics")
 
-    try:
-        metrics = get_request_metrics()
+    metrics = get_request_metrics()
 
-        return {
-            "summary": metrics.get_summary(),
-            "top_ips": metrics.get_top_ips(limit=20),
-            "recent_requests": metrics.get_recent_requests(limit=50),
-        }
-
-    except Exception as e:
-        logger.error(f"Failed to get request metrics: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get request metrics")
+    return {
+        "summary": metrics.get_summary(),
+        "top_ips": metrics.get_top_ips(limit=20),
+        "recent_requests": metrics.get_recent_requests(limit=50),
+    }
 
 
 @router.get("/request-metrics/ip/{ip}")
@@ -393,22 +290,13 @@ async def get_request_metrics_by_ip(ip: str):
     """
     logger.info(f"Getting request metrics for IP: {ip}")
 
-    try:
-        metrics = get_request_metrics()
-        details = metrics.get_ip_details(ip)
+    metrics = get_request_metrics()
+    details = metrics.get_ip_details(ip)
 
-        if not details:
-            raise HTTPException(
-                status_code=404, detail=f"No metrics found for IP: {ip}"
-            )
+    if not details:
+        raise NotFoundError(f"No metrics found for IP: {ip}")
 
-        return details
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Failed to get request metrics for IP {ip}: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get IP metrics")
+    return details
 
 
 @router.get("/request-metrics/blocked")
@@ -418,13 +306,8 @@ async def get_blocked_ips():
     """
     logger.info("Getting blocked IPs")
 
-    try:
-        metrics = get_request_metrics()
-        return {"blocked_ips": metrics.get_blocked_ips()}
-
-    except Exception as e:
-        logger.error(f"Failed to get blocked IPs: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get blocked IPs")
+    metrics = get_request_metrics()
+    return {"blocked_ips": metrics.get_blocked_ips()}
 
 
 @router.delete("/request-metrics")
@@ -434,12 +317,7 @@ async def reset_request_metrics():
     """
     logger.info("Resetting request metrics")
 
-    try:
-        metrics = get_request_metrics()
-        metrics.reset()
+    metrics = get_request_metrics()
+    metrics.reset()
 
-        return {"message": "Request metrics reset successfully"}
-
-    except Exception as e:
-        logger.error(f"Failed to reset request metrics: {e}")
-        raise HTTPException(status_code=500, detail="Failed to reset request metrics")
+    return {"message": "Request metrics reset successfully"}

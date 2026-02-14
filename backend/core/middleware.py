@@ -12,7 +12,7 @@ from .request_metrics import get_request_metrics
 logger = get_logger(__name__)
 
 
-async def log_requests(request: Request, call_next: Callable) -> Response:
+async def handle_requests(request: Request, call_next: Callable) -> Response:
     """
     Middleware to log incoming HTTP requests and responses.
     Records metrics and handles rate limiting tracking.
@@ -23,7 +23,7 @@ async def log_requests(request: Request, call_next: Callable) -> Response:
 
     blocked = False
     status_code = 200
-
+    #QUES: Not sure if I should use our customer error handlers here
     try:
         response = await call_next(request)
         status_code = response.status_code

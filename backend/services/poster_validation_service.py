@@ -135,9 +135,11 @@ class PosterValidationService:
                     "processed_movies": processed_count,
                     "valid_posters": valid_count,
                     "invalid_posters": invalid_count,
-                    "success_rate": (valid_count / processed_count * 100)
-                    if processed_count > 0
-                    else 0,
+                    "success_rate": (
+                        (valid_count / processed_count * 100)
+                        if processed_count > 0
+                        else 0
+                    ),
                 },
             )
 

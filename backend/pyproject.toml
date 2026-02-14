@@ -16,9 +16,6 @@ dependencies = [
     "slowapi>=0.1.9",
 ]
 
-[tool.setuptools.packages.find]
-include = ["backend*"]
-
 [project.optional-dependencies]
 test = [
     "pytest>=7.4.3",
@@ -43,7 +40,7 @@ addopts = [
     "--tb=short",
     "--strict-markers",
     "--cov=backend",
-    "--cov=frontend",
+    "--cov=../frontend",
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml",
@@ -60,6 +57,17 @@ markers = [
     "api: API related tests",
     "backend: Backend related tests",
 ]
+
+# Ruff linter configuration
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]  # Line too long
+
+[tool.ruff.lint.per-file-ignores]
+"api/routes/*.py" = ["F841"]  # Unused variable in route params (required by slowapi)
 
 # Coverage configuration
 [tool.coverage.run]

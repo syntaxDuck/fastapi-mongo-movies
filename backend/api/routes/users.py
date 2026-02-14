@@ -1,19 +1,22 @@
 from typing import List, Annotated
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from slowapi import Limiter
 from ...schemas.schemas import UserResponse, UserQuery, UserCreate, MessageResponse
 from ...services.user_service import UserService
 from ...repositories.user_repository import UserRepository
-from ...core.exceptions import NotFoundError, DuplicateResourceError
+from ...core.config import settings
 from ...core.logging import get_logger
 from ...core.rate_limiter import rate_limit_key, get_rate_limit_config
 
 logger = get_logger(__name__)
 
-config = get_rate_limit_config()
+rate_limit_config = get_rate_limit_config()
 limiter = Limiter(key_func=rate_limit_key)
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+DEFAULT_LIMIT = settings.DEFAULT_LIST_PAGE_SIZE
+MAX_LIMIT = settings.MAX_PAGE_SIZE
 
 
 async def get_user_repository() -> UserRepository:
@@ -29,10 +32,10 @@ async def get_user_service(
 
 
 @router.get("/", response_model=List[UserResponse])
-@limiter.limit(config.users)
+@limiter.limit(rate_limit_config.users)
 async def get_users(
-    request: Request,
     query: Annotated[UserQuery, Query()],
+    request: Request,
     user_service: UserService = Depends(get_user_service),
 ):
     """
@@ -44,57 +47,28 @@ async def get_users(
     - **limit**: Number of users to return (default: 10)
     - **skip**: Number of users to skip (default: 0)
     """
-    logger.info(
-        f"API: get_users() called with query parameters: {query.model_dump(exclude_none=True)}"
+    return await user_service.get_users(
+        user_id=query.id,
+        name=query.name,
+        email=query.email,
+        limit=query.limit or DEFAULT_LIMIT,
+        skip=query.skip or 0,
     )
-
-    try:
-        users = await user_service.get_users(
-            user_id=query.id,
-            name=query.name,
-            email=query.email,
-            limit=query.limit or 10,
-            skip=query.skip or 0,
-        )
-
-        logger.info(f"API: get_users() successfully retrieved {len(users)} users")
-        return users
-
-    except NotFoundError as e:
-        logger.warning(f"API: get_users() no users found: {e}")
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"API: get_users() unexpected error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-@limiter.limit(config.users)
+@limiter.limit(rate_limit_config.users)
 async def get_user_by_id(
     request: Request,
     user_id: str,
     user_service: UserService = Depends(get_user_service),
 ):
     """Get a specific user by ID."""
-    logger.info(f"API: get_user_by_id() called with user_id={user_id}")
-
-    try:
-        user = await user_service.get_user_by_id(user_id)
-        logger.info(
-            f"API: get_user_by_id() successfully retrieved user: {user.name if hasattr(user, 'name') else 'Unknown'}"
-        )
-        return user
-
-    except NotFoundError as e:
-        logger.warning(f"API: get_user_by_id() user not found: {e}")
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"API: get_user_by_id() unexpected error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+    return await user_service.get_user_by_id(user_id)
 
 
 @router.post("/", response_model=MessageResponse)
-@limiter.limit(config.users)
+@limiter.limit(rate_limit_config.users)
 async def create_user(
     request: Request,
     user_data: UserCreate,
@@ -107,71 +81,27 @@ async def create_user(
     - **email**: User email (required, must be valid email)
     - **password**: User password (required, 6-100 characters)
     """
-    logger.info(
-        f"API: create_user() called with user_data={{name: '{user_data.name}', email: '{user_data.email}'}}"
-    )
-
-    try:
-        response = await user_service.create_user(user_data)
-        logger.info(f"API: create_user() successfully created user: {user_data.email}")
-        return response
-
-    except DuplicateResourceError as e:
-        logger.warning(f"API: create_user() duplicate resource error: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
-    except ValueError as e:
-        logger.warning(f"API: create_user() validation error: {e}")
-        raise HTTPException(status_code=422, detail=str(e))
-    except Exception as e:
-        logger.error(f"API: create_user() unexpected error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+    logger.info(f"users.create | POST | email={user_data.email}")
+    return await user_service.create_user(user_data)
 
 
 @router.get("/email/{email}", response_model=List[UserResponse])
-@limiter.limit(config.users)
+@limiter.limit(rate_limit_config.users)
 async def get_user_by_email(
     request: Request,
     email: str,
     user_service: UserService = Depends(get_user_service),
 ):
     """Get users by email."""
-    logger.info(f"API: get_users_by_email() called with email='{email}'")
-
-    try:
-        users = await user_service.get_users_by_email(email)
-        logger.info(
-            f"API: get_users_by_email() found {len(users)} users with email '{email}'"
-        )
-        return users
-
-    except NotFoundError as e:
-        logger.warning(f"API: get_users_by_email() no users found: {e}")
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"API: get_users_by_email() unexpected error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+    return await user_service.get_users_by_email(email)
 
 
 @router.get("/name/{name}", response_model=List[UserResponse])
-@limiter.limit(config.users)
+@limiter.limit(rate_limit_config.users)
 async def get_user_by_name(
     request: Request,
     name: str,
     user_service: UserService = Depends(get_user_service),
 ):
     """Get users by name."""
-    logger.info(f"API: get_users_by_name() called with name='{name}'")
-
-    try:
-        users = await user_service.get_users_by_name(name)
-        logger.info(
-            f"API: get_users_by_name() found {len(users)} users with name '{name}'"
-        )
-        return users
-
-    except NotFoundError as e:
-        logger.warning(f"API: get_users_by_name() no users found: {e}")
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"API: get_users_by_name() unexpected error: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+    return await user_service.get_users_by_name(name)

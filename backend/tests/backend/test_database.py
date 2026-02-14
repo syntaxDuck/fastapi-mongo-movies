@@ -4,7 +4,7 @@ from pymongo.errors import PyMongoError
 from bson import ObjectId
 
 from backend.database import MongoDBConfig, MongoDBClientHandler
-from tests.fixtures.mongodb_fixtures import (
+from backend.tests.fixtures.mongodb_fixtures import (
     mock_db_config,
     sample_user_data,
 )

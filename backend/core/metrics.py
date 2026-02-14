@@ -174,12 +174,12 @@ class DatabaseMetrics:
                 "by_collection": dict(metrics_24h.by_collection),
             },
             "total_tracked": len(self._operations),
-            "oldest_operation": self._operations[0].timestamp.isoformat()
-            if self._operations
-            else None,
-            "newest_operation": self._operations[-1].timestamp.isoformat()
-            if self._operations
-            else None,
+            "oldest_operation": (
+                self._operations[0].timestamp.isoformat() if self._operations else None
+            ),
+            "newest_operation": (
+                self._operations[-1].timestamp.isoformat() if self._operations else None
+            ),
         }
 
     def reset(self) -> None:
@@ -212,7 +212,7 @@ class OperationTimer:
         self._start_time = time.perf_counter()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type):
         duration_ms = (time.perf_counter() - self._start_time) * 1000
         self._success = exc_type is None
 

@@ -2,14 +2,18 @@
 Database connection management using context manager pattern.
 """
 
-from typing import Optional, Dict, Any
-from pymongo.errors import PyMongoError
-from motor.motor_asyncio import AsyncIOMotorClient
-from urllib.parse import quote, urlencode
+import asyncio
+import time
 from contextlib import asynccontextmanager
+from typing import Any, Dict, Optional
+from urllib.parse import quote, urlencode
+
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.errors import PyMongoError
+
 from .config import settings
-from .logging import get_logger
 from .exceptions import DatabaseError
+from .logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -76,7 +80,7 @@ class DatabaseManager:
             )
 
             retry_attempts = 0
-            max_retries = 3
+            max_retries = settings.MONGODB_MAX_RETRIES
             while retry_attempts < max_retries:
                 try:
                     await cls._client.admin.command("ping")
@@ -90,8 +94,6 @@ class DatabaseManager:
                         f"MongoDB connection attempt {retry_attempts} failed: {e}"
                     )
                     if retry_attempts < max_retries:
-                        import asyncio
-
                         await asyncio.sleep(
                             2**retry_attempts
                         )  # Exponential backoff: 2s, 4s, 8s
@@ -170,7 +172,6 @@ async def get_database_client():
 
     Uses shared pooled client for optimal performance.
     """
-    import time
 
     start_time = None
     try:

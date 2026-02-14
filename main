@@ -1,0 +1,60 @@
+#!/bin/bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+mkdir -p logs
+
+BACKEND=true
+FRONTEND=true
+BACKEND_HOST="localhost"
+BACKEND_PORT=8000
+FRONTEND_HOST="localhost"
+FRONTEND_PORT=3000
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+  -b | --backend)
+    BACKEND=true
+    FRONTEND=false
+    shift
+    ;;
+  -f | --frontend)
+    BACKEND=false
+    FRONTEND=true
+    shift
+    ;;
+  -bf | --both)
+    BACKEND=true
+    FRONTEND=true
+    shift
+    ;;
+  -bp)
+    BACKEND_PORT=$2
+    shift 2
+    ;;
+  -bh)
+    BACKEND_HOST=$2
+    shift 2
+    ;;
+  -fp)
+    FRONTEND_PORT=$2
+    shift 2
+    ;;
+  -fh)
+    FRONTEND_HOST=$2
+    shift 2
+    ;;
+  *) shift ;;
+  esac
+done
+
+[ "$BACKEND" = true ] && uv run --project backend/ uvicorn backend.main:app --reload --host "$BACKEND_HOST" --port "$BACKEND_PORT" &
+[ "$FRONTEND" = true ] && REACT_APP_API_URL="http://$BACKEND_HOST:$BACKEND_PORT" PORT="$FRONTEND_PORT" pnpm --prefix frontend start -- --host "$FRONTEND_HOST"
+
+echo "Backend: http://localhost:$BACKEND_PORT"
+echo "Frontend: http://localhost:$FRONTEND_PORT"
+echo "Docs: http://localhost:$BACKEND_PORT/docs"
+
+wait

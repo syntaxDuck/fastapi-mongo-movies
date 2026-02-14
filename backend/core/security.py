@@ -4,7 +4,6 @@ from fastapi import HTTPException, Security
 from fastapi.security import APIKeyHeader
 from .config import settings
 
-# API Key configuration
 admin_api_key_header = APIKeyHeader(name="X-Admin-API-Key", auto_error=False)
 
 
@@ -12,6 +11,7 @@ async def verify_admin_api_key(api_key: str = Security(admin_api_key_header)):
     """
     Verify the admin API key provided in the request header.
     """
+    #QUES: Probably could use error handlers here
     if not api_key:
         raise HTTPException(status_code=404, detail="Not Found")
 

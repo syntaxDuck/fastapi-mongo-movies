@@ -1,6 +1,7 @@
 import { Movie, Comment } from "../types";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+console.log(API_BASE_URL)
 
 export const movieService = {
   async fetchMovies(params?: Record<string, any>): Promise<Movie[]> {
@@ -21,6 +22,7 @@ export const movieService = {
         }
       }
     });
+
     const response = await fetch(
       `${API_BASE_URL}/movies/?${queryParams.toString()}`,
       {
