@@ -181,3 +181,50 @@ class TestCommentService:
 
         with pytest.raises(NotFoundError, match="No comments found for movie ID '123'"):
             await comment_service.get_comments_by_movie_id("123")
+
+class TestMovieServiceCaching:
+    """Test cases for MovieService caching logic."""
+
+    @pytest.mark.asyncio
+    async def test_get_all_genres_caching(self, movie_service):
+        """Test that get_all_genres uses cache and calls repository only once."""
+        # Reset cache for test
+        movie_service._genres_cache = None
+        movie_service._genres_cache_time = 0
+
+        mock_genres = ["Action", "Drama"]
+        movie_service.movie_repository.get_all_genres = AsyncMock(
+            return_value=mock_genres
+        )
+
+        # First call should hit repository
+        result1 = await movie_service.get_all_genres()
+        assert result1 == mock_genres
+        assert movie_service.movie_repository.get_all_genres.call_count == 1
+
+        # Second call should use cache
+        result2 = await movie_service.get_all_genres()
+        assert result2 == mock_genres
+        assert movie_service.movie_repository.get_all_genres.call_count == 1
+
+    @pytest.mark.asyncio
+    async def test_get_all_types_caching(self, movie_service):
+        """Test that get_all_types uses cache and calls repository only once."""
+        # Reset cache for test
+        movie_service._types_cache = None
+        movie_service._types_cache_time = 0
+
+        mock_types = ["movie", "series"]
+        movie_service.movie_repository.get_all_types = AsyncMock(
+            return_value=mock_types
+        )
+
+        # First call should hit repository
+        result1 = await movie_service.get_all_types()
+        assert result1 == mock_types
+        assert movie_service.movie_repository.get_all_types.call_count == 1
+
+        # Second call should use cache
+        result2 = await movie_service.get_all_types()
+        assert result2 == mock_types
+        assert movie_service.movie_repository.get_all_types.call_count == 1

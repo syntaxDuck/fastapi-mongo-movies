@@ -8,6 +8,17 @@ import styles from "../../styles/components/movies/MovieList.module.css";
 
 const MotionLink = motion(Link);
 
+const overlayVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
+const cardVariants = {
+  hidden: { y: 0, scale: 1 },
+  visible: AnimationVariants.movieCard.whileHover,
+  tap: AnimationVariants.movieCard.whileTap
+};
+
 interface MovieCardProps {
   movie?: Movie;
   disableLink?: boolean;
@@ -38,17 +49,6 @@ const MovieCard: React.FC<MovieCardProps> = memo(({ movie, disableLink = false, 
       <div className={styles.skeletonPoster}></div>
     </div>)
   }
-
-  const overlayVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  const cardVariants = {
-    hidden: { y: 0, scale: 1 },
-    visible: AnimationVariants.movieCard.whileHover,
-    tap: AnimationVariants.movieCard.whileTap
-  };
 
   const content = (
     <>
