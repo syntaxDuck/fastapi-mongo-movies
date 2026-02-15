@@ -3,6 +3,8 @@ Movie Service layer for business logic using proper protocol-based dependency in
 """
 
 
+import time
+
 from ..core.exceptions import NotFoundError
 from ..core.logging import get_logger
 from ..core.validators import (
@@ -22,6 +24,13 @@ logger = get_logger(__name__)
 
 class MovieService:
     """Service layer for movie business logic."""
+
+    # Class-level cache for slow-changing metadata
+    _genres_cache: list[str] | None = None
+    _genres_cache_time: float = 0
+    _types_cache: list[str] | None = None
+    _types_cache_time: float = 0
+    CACHE_TTL = 3600  # 1 hour (3600 seconds)
 
     def __init__(self, movie_repository: MovieRepositoryProtocol) -> None:
         self.movie_repository = movie_repository
@@ -206,18 +215,44 @@ class MovieService:
         return movies
 
     async def get_all_genres(self) -> list[str]:
-        """Get all movie genres"""
-        logger.info("Getting movie genres")
+        """Get all movie genres with in-memory TTL caching."""
+        current_time = time.time()
+        if (
+            MovieService._genres_cache is not None
+            and (current_time - MovieService._genres_cache_time) < MovieService.CACHE_TTL
+        ):
+            logger.debug("Returning movie genres from cache")
+            return list(MovieService._genres_cache)
+
+        logger.info("Getting movie genres from repository")
         genres = await self.movie_repository.get_all_genres()
-        logger.info(f"Found {len(genres)} movie genres")
-        return genres
+
+        # Update cache
+        MovieService._genres_cache = genres
+        MovieService._genres_cache_time = current_time
+
+        logger.info(f"Found {len(genres)} movie genres (cached)")
+        return list(genres)
 
     async def get_all_types(self) -> list[str]:
-        """Get all movie genres"""
-        logger.info("Getting movie types")
-        genres = await self.movie_repository.get_all_types()
-        logger.info(f"Found {len(genres)} movie genres")
-        return genres
+        """Get all movie types with in-memory TTL caching."""
+        current_time = time.time()
+        if (
+            MovieService._types_cache is not None
+            and (current_time - MovieService._types_cache_time) < MovieService.CACHE_TTL
+        ):
+            logger.debug("Returning movie types from cache")
+            return list(MovieService._types_cache)
+
+        logger.info("Getting movie types from repository")
+        types = await self.movie_repository.get_all_types()
+
+        # Update cache
+        MovieService._types_cache = types
+        MovieService._types_cache_time = current_time
+
+        logger.info(f"Found {len(types)} movie types (cached)")
+        return list(types)
 
     async def get_movies_by_genre(
         self,
