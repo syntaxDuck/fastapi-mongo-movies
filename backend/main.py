@@ -1,7 +1,7 @@
 """Main application entry point."""
 
 from .api.main import create_app
-from .core.logging import setup_logging, get_logger
+from .core.logging import get_logger, setup_logging
 
 setup_logging()
 logger = get_logger(__name__)
