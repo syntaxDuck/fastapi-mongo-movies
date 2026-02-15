@@ -272,6 +272,28 @@ export const commentService = {
 
     return await response.json();
   },
+
+  async postComment(
+    movie_id: string,
+    comment: { name: string; email: string; text: string },
+  ): Promise<Comment> {
+    const response = await fetch(`${API_BASE_URL}/comments/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({ movie_id, ...comment }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("API Error:", response.status, errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`,
+      );
+    }
+    return await response.json();
+  },
 };
 
 function processMovies(movies: Movie[]): Movie[] {

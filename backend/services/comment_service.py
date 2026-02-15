@@ -2,11 +2,10 @@
 Comment Service layer for business logic using proper protocol-based dependency injection.
 """
 
-
 from ..core.exceptions import NotFoundError
 from ..core.logging import get_logger
 from ..repositories.protocol import CommentRepositoryProtocol
-from ..schemas.comment import CommentResponse
+from ..schemas import CommentCreate, CommentResponse
 
 logger = get_logger(__name__)
 
@@ -64,13 +63,9 @@ class CommentService:
         self, movie_id: str, limit: int = 10, skip: int = 0
     ) -> list[CommentResponse]:
         """Get comments by movie ID."""
-        logger.debug(
-            f"Getting comments by movie ID: {movie_id}, limit={limit}, skip={skip}"
-        )
+        logger.debug(f"Getting comments by movie ID: {movie_id}, limit={limit}, skip={skip}")
 
-        comments = await self.comment_repository.find_by_movie_id(
-            movie_id, limit=limit, skip=skip
-        )
+        comments = await self.comment_repository.find_by_movie_id(movie_id, limit=limit, skip=skip)
         if not comments:
             logger.info(f"No comments found for movie ID: {movie_id}")
             raise NotFoundError(f"No comments found for movie ID '{movie_id}'")
@@ -84,9 +79,7 @@ class CommentService:
         """Get comments by email."""
         logger.debug(f"Getting comments by email: {email}, limit={limit}, skip={skip}")
 
-        comments = await self.comment_repository.find_by_email(
-            email, limit=limit, skip=skip
-        )
+        comments = await self.comment_repository.find_by_email(email, limit=limit, skip=skip)
         if not comments:
             logger.info(f"No comments found for email: {email}")
             raise NotFoundError(f"No comments found for email '{email}'")
@@ -100,12 +93,27 @@ class CommentService:
         """Get comments by name."""
         logger.debug(f"Getting comments by name: {name}, limit={limit}, skip={skip}")
 
-        comments = await self.comment_repository.find_by_name(
-            name, limit=limit, skip=skip
-        )
+        comments = await self.comment_repository.find_by_name(name, limit=limit, skip=skip)
         if not comments:
             logger.info(f"No comments found for name: {name}")
             raise NotFoundError(f"No comments found for name '{name}'")
 
         logger.info(f"Found {len(comments)} comments for name: {name}")
         return comments
+
+    async def create_comment(self, comment_data: CommentCreate) -> CommentResponse:
+        """Create a new comment."""
+        logger.debug(f"Creating comment for movie: {comment_data.movie_id}")
+
+        comment_id = await self.comment_repository.create_comment(comment_data)
+        if not comment_id:
+            logger.error("Failed to create comment")
+            raise NotFoundError("Failed to create comment")
+
+        logger.info(f"Successfully created comment with ID: {comment_id}")
+        comment = await self.comment_repository.find_by_id(comment_id)
+        if not comment:
+            logger.error(f"Created comment not found: {comment_id}")
+            raise NotFoundError(f"Created comment not found: {comment_id}")
+
+        return comment

@@ -1,5 +1,5 @@
 from .base import MongoQuery
-from .comment import CommentQuery, CommentResponse
+from .comment import CommentCreate, CommentQuery, CommentResponse
 from .common import ErrorResponse, MessageResponse
 from .job import (
     JobResponse,
@@ -18,6 +18,7 @@ __all__ = [
     "UserCreate",
     "UserResponse",
     "CommentQuery",
+    "CommentCreate",
     "CommentResponse",
     "MessageResponse",
     "ErrorResponse",

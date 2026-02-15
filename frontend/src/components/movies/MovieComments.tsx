@@ -25,14 +25,9 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
 
     try {
       setSubmitting(true);
-      const comment: Comment = {
-        _id: Date.now().toString(),
-        movie_id: movieId,
-        ...newComment,
-        date: new Date().toISOString(),
-      };
-
+      const createdComment = await commentService.postComment(movieId, newComment);
       setNewComment({ name: "", email: "", text: "" });
+      refetch();
     } catch (err) {
       console.error("Error submitting comment:", err);
     } finally {

@@ -1,9 +1,10 @@
+from datetime import datetime
 
 from bson import ObjectId
 
 from backend.core.logging import get_logger
 
-from ..schemas.schemas import CommentResponse
+from ..schemas import CommentCreate, CommentResponse
 from .base import BaseRepository
 
 logger = get_logger(__name__)
@@ -17,18 +18,14 @@ class CommentRepository(BaseRepository):
 
     async def find_by_id(self, id: str, **kwargs) -> CommentResponse | None:
         """Find a comment by its ID."""
-        logger.debug(
-            f"CommentRepository.find_by_id() called with id={id}, kwargs={kwargs}"
-        )
+        logger.debug(f"CommentRepository.find_by_id() called with id={id}, kwargs={kwargs}")
         comment = await self._find_by_id(id, **kwargs)
         if comment:
             logger.debug(
                 f"CommentRepository.find_by_id() found comment by {comment.get('name', 'Unknown')} on movie {comment.get('movie_id', 'Unknown')}"
             )
         else:
-            logger.debug(
-                f"CommentRepository.find_by_id() no comment found with id={id}"
-            )
+            logger.debug(f"CommentRepository.find_by_id() no comment found with id={id}")
         return CommentResponse.from_dict(comment) if comment else None
 
     async def find_by_movie_id(self, movie_id: str, **kwargs) -> list[CommentResponse]:
@@ -41,9 +38,7 @@ class CommentRepository(BaseRepository):
             logger.debug(
                 f"CommentRepository.find_by_movie_id() converted movie_id to ObjectId: {movie_id}"
             )
-            logger.debug(
-                f"CommentRepository.find_by_movie_id() executing query: {filter_query}"
-            )
+            logger.debug(f"CommentRepository.find_by_movie_id() executing query: {filter_query}")
             comments = await self._find_many(filter_query, **kwargs)
             logger.debug(
                 f"CommentRepository.find_by_movie_id() found {len(comments)} comments for movie {movie_id}"
@@ -61,9 +56,7 @@ class CommentRepository(BaseRepository):
             f"CommentRepository.find_by_email() called with email='{email}', kwargs={kwargs}"
         )
         filter_query = {"email": email}
-        logger.debug(
-            f"CommentRepository.find_by_email() executing query: {filter_query}"
-        )
+        logger.debug(f"CommentRepository.find_by_email() executing query: {filter_query}")
         comments = await self._find_many(filter_query, **kwargs)
         logger.debug(
             f"CommentRepository.find_by_email() found {len(comments)} comments by email '{email}'"
@@ -72,13 +65,9 @@ class CommentRepository(BaseRepository):
 
     async def find_by_name(self, name: str, **kwargs) -> list[CommentResponse]:
         """Find comments by name."""
-        logger.debug(
-            f"CommentRepository.find_by_name() called with name='{name}', kwargs={kwargs}"
-        )
+        logger.debug(f"CommentRepository.find_by_name() called with name='{name}', kwargs={kwargs}")
         filter_query = {"name": name}
-        logger.debug(
-            f"CommentRepository.find_by_name() executing query: {filter_query}"
-        )
+        logger.debug(f"CommentRepository.find_by_name() executing query: {filter_query}")
         comments = await self._find_many(filter_query, **kwargs)
         logger.debug(
             f"CommentRepository.find_by_name() found {len(comments)} comments by name '{name}'"
@@ -87,9 +76,7 @@ class CommentRepository(BaseRepository):
 
     async def search_comments(self, **kwargs) -> list[CommentResponse]:
         """Search comments with multiple filters."""
-        logger.debug(
-            f"CommentRepository.search_comments() called with kwargs: {kwargs}"
-        )
+        logger.debug(f"CommentRepository.search_comments() called with kwargs: {kwargs}")
         filter_query = {}
 
         if "comment_id" in kwargs:
@@ -116,9 +103,7 @@ class CommentRepository(BaseRepository):
 
         if "name" in kwargs:
             filter_query["name"] = kwargs["name"]
-            logger.debug(
-                f"CommentRepository.search_comments() added name filter: {kwargs['name']}"
-            )
+            logger.debug(f"CommentRepository.search_comments() added name filter: {kwargs['name']}")
 
         if "email" in kwargs:
             filter_query["email"] = kwargs["email"]
@@ -134,3 +119,18 @@ class CommentRepository(BaseRepository):
             f"CommentRepository.search_comments() found {len(comments)} comments matching search criteria"
         )
         return [CommentResponse.from_dict(comment) for comment in comments]
+
+    async def create_comment(self, comment_data: CommentCreate) -> str | None:
+        """Create a new comment."""
+        logger.debug(
+            f"CommentRepository.create_comment() called with data: {comment_data.model_dump()}"
+        )
+        document = comment_data.model_dump()
+        document["movie_id"] = ObjectId(document["movie_id"])
+        document["date"] = datetime.now()
+        comment_id = await self._create_one(document)
+        if comment_id:
+            logger.info(f"CommentRepository.create_comment() created comment with ID: {comment_id}")
+        else:
+            logger.error("CommentRepository.create_comment() failed to create comment")
+        return comment_id

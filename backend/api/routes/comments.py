@@ -10,7 +10,7 @@ from slowapi import Limiter
 from ...core.config import settings
 from ...core.rate_limiter import get_rate_limit_config, rate_limit_key
 from ...repositories.comment_repository import CommentRepository
-from ...schemas import CommentQuery, CommentResponse
+from ...schemas import CommentCreate, CommentQuery, CommentResponse
 from ...services.comment_service import CommentService
 
 rate_limit_config = get_rate_limit_config()
@@ -103,6 +103,17 @@ async def get_comments_by_name(
     """Get comments by name."""
     comment_service = _get_comment_service()
     return await comment_service.get_comments_by_name(name, limit=limit, skip=skip)
+
+
+@router.post("/", response_model=CommentResponse)
+@limiter.limit(rate_limit_config.comments)
+async def create_comment(
+    request: Request,
+    comment_data: CommentCreate,
+):
+    """Create a new comment."""
+    comment_service = _get_comment_service()
+    return await comment_service.create_comment(comment_data)
 
 
 @router.get("/{comment_id}", response_model=CommentResponse)
