@@ -2,11 +2,11 @@
 User Service layer for business logic using proper protocol-based dependency injection.
 """
 
-from typing import List, Optional
-from ..repositories.protocol import UserRepositoryProtocol
-from ..core.security import hash_password
-from ..core.exceptions import NotFoundError, DatabaseError, DuplicateResourceError
+
+from ..core.exceptions import DatabaseError, DuplicateResourceError, NotFoundError
 from ..core.logging import get_logger
+from ..core.security import hash_password
+from ..repositories.protocol import UserRepositoryProtocol
 from ..schemas.schemas import MessageResponse, UserCreate, UserResponse
 
 logger = get_logger(__name__)
@@ -32,12 +32,12 @@ class UserService:
 
     async def get_users(
         self,
-        user_id: Optional[str] = None,
-        name: Optional[str] = None,
-        email: Optional[str] = None,
+        user_id: str | None = None,
+        name: str | None = None,
+        email: str | None = None,
         limit: int = 10,
         skip: int = 0,
-    ) -> List[UserResponse]:
+    ) -> list[UserResponse]:
         """Get users with optional filtering."""
         logger.debug(
             f"Getting users with filters: user_id={user_id}, name={name}, "
@@ -142,7 +142,7 @@ class UserService:
         )
         return user_id
 
-    async def get_users_by_email(self, email: str) -> List[UserResponse]:
+    async def get_users_by_email(self, email: str) -> list[UserResponse]:
         """Get users by email."""
         logger.debug(f"Getting users by email: {email}")
 
@@ -154,7 +154,7 @@ class UserService:
         logger.info(f"Found {len(users)} users with email: {email}")
         return users
 
-    async def get_users_by_name(self, name: str) -> List[UserResponse]:
+    async def get_users_by_name(self, name: str) -> list[UserResponse]:
         """Get users by name."""
         logger.debug(f"Getting users by name: {name}")
 

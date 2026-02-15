@@ -5,7 +5,8 @@ Database connection management using context manager pattern.
 import asyncio
 import time
 from contextlib import asynccontextmanager
-from typing import Any, Dict, Optional
+from threading import Lock
+from typing import Any
 from urllib.parse import quote, urlencode
 
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -21,9 +22,7 @@ logger = get_logger(__name__)
 class DatabaseConfig:
     """MongoDB configuration object."""
 
-    def __init__(
-        self, username: str, password: str, host: str, db_name: str, **kwargs
-    ) -> None:
+    def __init__(self, username: str, password: str, host: str, db_name: str, **kwargs) -> None:
         self._username = username
         self._password = password
         self._host = host
@@ -46,73 +45,81 @@ class DatabaseConfig:
 class DatabaseManager:
     """Singleton manager for MongoDB connection pool."""
 
-    _client: Optional[AsyncIOMotorClient] = None
+    _client: AsyncIOMotorClient | None = None
+    _lock = Lock()
+
+    def __new__(cls) -> "DatabaseManager":
+        if not hasattr(cls, "_instance"):
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     @classmethod
     async def get_client(cls) -> AsyncIOMotorClient:
         """Get shared MongoDB client with connection pooling."""
         if cls._client is None:
-            config = DatabaseConfig(
-                username=settings.DB_USER,
-                password=settings.DB_PASS,
-                host=settings.DB_HOST,
-                db_name=settings.DB_NAME,
-                tls=settings.MONGODB_TLS,
-                tlsAllowInvalidCertificates=settings.MONGODB_TLS_ALLOW_INVALID_CERTS,
-            )
+            with cls._lock:
+                if cls._client is None:
+                    config = DatabaseConfig(
+                        username=settings.DB_USER,
+                        password=settings.DB_PASS,
+                        host=settings.DB_HOST,
+                        db_name=settings.DB_NAME,
+                        tls=settings.MONGODB_TLS,
+                        tlsAllowInvalidCertificates=settings.MONGODB_TLS_ALLOW_INVALID_CERTS,
+                    )
 
-            connection_uri = config.get_connection_uri()
-            cls._client = AsyncIOMotorClient(
-                connection_uri,
-                maxPoolSize=settings.MONGODB_MAX_POOL_SIZE,
-                minPoolSize=5,
-                maxIdleTimeMS=30000,
-                connectTimeoutMS=settings.MONGODB_CONNECTION_TIMEOUT * 1000,
-                socketTimeoutMS=30000,
-                serverSelectionTimeoutMS=10000,
-                retryWrites=True,
-                w="majority",
-                readPreference="secondaryPreferred",
-            )
+                    connection_uri = config.get_connection_uri()
+                    cls._client = AsyncIOMotorClient(
+                        connection_uri,
+                        maxPoolSize=settings.MONGODB_MAX_POOL_SIZE,
+                        minPoolSize=5,
+                        maxIdleTimeMS=30000,
+                        connectTimeoutMS=settings.MONGODB_CONNECTION_TIMEOUT * 1000,
+                        socketTimeoutMS=30000,
+                        serverSelectionTimeoutMS=10000,
+                        retryWrites=True,
+                        w="majority",
+                        readPreference="secondaryPreferred",
+                    )
 
-            logger.info(
-                f"Created pooled MongoDB client with max connections: {settings.MONGODB_MAX_POOL_SIZE}"
-            )
-
-            retry_attempts = 0
-            max_retries = settings.MONGODB_MAX_RETRIES
-            while retry_attempts < max_retries:
-                try:
-                    await cls._client.admin.command("ping")
                     logger.info(
-                        f"Successfully connected to MongoDB with connection pooling (attempt {retry_attempts + 1})"
+                        f"Created pooled MongoDB client with max connections: {settings.MONGODB_MAX_POOL_SIZE}"
                     )
-                    break
-                except Exception as e:
-                    retry_attempts += 1
-                    logger.warning(
-                        f"MongoDB connection attempt {retry_attempts} failed: {e}"
-                    )
-                    if retry_attempts < max_retries:
-                        await asyncio.sleep(
-                            2**retry_attempts
-                        )  # Exponential backoff: 2s, 4s, 8s
-                        logger.info(
-                            f"Retrying MongoDB connection in {2**retry_attempts} seconds..."
-                        )
-                    else:
-                        logger.error(
-                            f"Failed to connect to MongoDB after {max_retries} attempts: {e}"
-                        )
-                        raise DatabaseError(
-                            f"Database connection failed after {max_retries} attempts",
-                            details=str(e),
-                        )
+
+                    retry_attempts = 0
+                    max_retries = settings.MONGODB_MAX_RETRIES
+                    while retry_attempts < max_retries:
+                        try:
+                            await cls._client.admin.command("ping")
+                            logger.info(
+                                f"Successfully connected to MongoDB with connection pooling (attempt {retry_attempts + 1})"
+                            )
+                            break
+                        except Exception as e:
+                            retry_attempts += 1
+                            logger.warning(
+                                f"MongoDB connection attempt {retry_attempts} failed: {e}"
+                            )
+                            if retry_attempts < max_retries:
+                                await asyncio.sleep(
+                                    2**retry_attempts
+                                )  # Exponential backoff: 2s, 4s, 8s
+                                logger.info(
+                                    f"Retrying MongoDB connection in {2**retry_attempts} seconds..."
+                                )
+                            else:
+                                logger.error(
+                                    f"Failed to connect to MongoDB after {max_retries} attempts: {e}"
+                                )
+                                raise DatabaseError(
+                                    f"Database connection failed after {max_retries} attempts",
+                                    details=str(e),
+                                ) from None
 
         return cls._client
 
     @classmethod
-    async def get_pool_status(cls) -> Dict[str, Any]:
+    async def get_pool_status(cls) -> dict[str, Any]:
         """Get connection pool status for monitoring."""
         logger.debug("DatabaseManager.get_pool_status() called")
 
@@ -183,13 +190,9 @@ async def get_database_client():
         logger.error(f"get_database_client() failed to get database client: {e}")
         raise
     except DatabaseError as e:
-        logger.error(
-            f"get_database_client() unexpected error getting database client: {e}"
-        )
+        logger.error(f"get_database_client() unexpected error getting database client: {e}")
         raise
     finally:
         if start_time:
             duration = time.time() - start_time
-            logger.debug(
-                f"get_database_client() database operation completed in {duration:.3f}s"
-            )
+            logger.debug(f"get_database_client() database operation completed in {duration:.3f}s")

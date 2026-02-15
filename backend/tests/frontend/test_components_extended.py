@@ -1,24 +1,24 @@
-import pytest
-from unittest.mock import patch, MagicMock
-import sys
 import os
+import sys
+
+import pytest
 
 # Add frontend directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../frontend"))
 
-from frontend.components.movie_list import MovieList
-from frontend.components.movie_details import (
-    MovieDetail,
-    MovieDetailsHeader,
-    MovieDetailsBody,
-    MoviePlot,
-    MovieDetails,
-)
 from frontend.components.ganeric import (
+    ImdbRating,
     TomatoesCriticRating,
     TomatoesViewerRating,
-    ImdbRating,
 )
+from frontend.components.movie_details import (
+    MovieDetail,
+    MovieDetails,
+    MovieDetailsBody,
+    MovieDetailsHeader,
+    MoviePlot,
+)
+from frontend.components.movie_list import MovieList
 
 
 class TestMovieListComponent:

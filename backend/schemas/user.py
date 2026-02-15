@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -10,11 +9,11 @@ logger = get_logger(__name__)
 class UserQuery(BaseModel):
     """Query parameters for user endpoints."""
 
-    id: Optional[str] = Field(None, alias="_id", description="Filter by user ID")
-    name: Optional[str] = Field(None, description="Filter by user name")
-    email: Optional[EmailStr] = Field(None, description="Filter by user email")
-    limit: Optional[int] = Field(None, description="Number of users to return")
-    skip: Optional[int] = Field(0, description="Number of records to skip")
+    id: str | None = Field(None, alias="_id", description="Filter by user ID")
+    name: str | None = Field(None, description="Filter by user name")
+    email: EmailStr | None = Field(None, description="Filter by user email")
+    limit: int | None = Field(None, description="Number of users to return")
+    skip: int | None = Field(0, description="Number of records to skip")
 
 
 class UserCreate(BaseModel):
@@ -32,7 +31,7 @@ class UserResponse(BaseModel):
 
     id: str = Field(..., alias="_id")
     name: str
-    email: Optional[EmailStr] = None
+    email: EmailStr | None = None
 
     @classmethod
     def from_dict(cls, data: dict) -> "UserResponse":

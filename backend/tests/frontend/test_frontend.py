@@ -1,14 +1,16 @@
-import pytest
-from unittest.mock import patch, MagicMock
-import sys
+import contextlib
 import os
+import sys
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Add the frontend directory to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../frontend"))
 
-from frontend.data import fetch_movies, process_movies, fetch_comments
+from api.models import CommentQuery, MovieQuery
+from frontend.data import fetch_comments, fetch_movies, process_movies
 from frontend.helper import build_movie_list
-from api.models import MovieQuery, CommentQuery
 
 
 class TestDataModule:
@@ -212,7 +214,7 @@ class TestFrontendMain:
             main_module = import_module("frontend.main")
 
             # Simulate the global movies list using setattr
-            setattr(main_module, "movies", [])
+            main_module.movies = []
 
             # Call the function logic directly
             # Note: This is a simplified test since FastHTML routing is complex to mock
@@ -252,11 +254,8 @@ class TestFrontendComponents:
             components = ["ganeric", "movie_details", "movie_list"]
 
             for component in components:
-                try:
+                with contextlib.suppress(ImportError):
                     import_module(f"frontend.components.{component}")
-                except ImportError:
-                    # Component may not exist or have dependencies - that's okay
-                    pass
 
         except ImportError as e:
             pytest.skip(f"Frontend dependencies not available: {e}")

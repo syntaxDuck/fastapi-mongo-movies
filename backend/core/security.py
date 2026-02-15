@@ -1,7 +1,9 @@
 import hashlib
 import secrets
+
 from fastapi import HTTPException, Security
 from fastapi.security import APIKeyHeader
+
 from .config import settings
 
 admin_api_key_header = APIKeyHeader(name="X-Admin-API-Key", auto_error=False)

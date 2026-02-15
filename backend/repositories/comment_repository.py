@@ -1,8 +1,10 @@
-from typing import List, Optional
+
 from bson import ObjectId
-from .base import BaseRepository
+
 from backend.core.logging import get_logger
+
 from ..schemas.schemas import CommentResponse
+from .base import BaseRepository
 
 logger = get_logger(__name__)
 
@@ -13,7 +15,7 @@ class CommentRepository(BaseRepository):
     def __init__(self) -> None:
         super().__init__("sample_mflix", "comments")
 
-    async def find_by_id(self, id: str, **kwargs) -> Optional[CommentResponse]:
+    async def find_by_id(self, id: str, **kwargs) -> CommentResponse | None:
         """Find a comment by its ID."""
         logger.debug(
             f"CommentRepository.find_by_id() called with id={id}, kwargs={kwargs}"
@@ -29,7 +31,7 @@ class CommentRepository(BaseRepository):
             )
         return CommentResponse.from_dict(comment) if comment else None
 
-    async def find_by_movie_id(self, movie_id: str, **kwargs) -> List[CommentResponse]:
+    async def find_by_movie_id(self, movie_id: str, **kwargs) -> list[CommentResponse]:
         """Find comments by movie ID."""
         logger.debug(
             f"CommentRepository.find_by_movie_id() called with movie_id={movie_id}, kwargs={kwargs}"
@@ -53,7 +55,7 @@ class CommentRepository(BaseRepository):
             )
             return []
 
-    async def find_by_email(self, email: str, **kwargs) -> List[CommentResponse]:
+    async def find_by_email(self, email: str, **kwargs) -> list[CommentResponse]:
         """Find comments by email."""
         logger.debug(
             f"CommentRepository.find_by_email() called with email='{email}', kwargs={kwargs}"
@@ -68,7 +70,7 @@ class CommentRepository(BaseRepository):
         )
         return [CommentResponse.from_dict(comment) for comment in comments]
 
-    async def find_by_name(self, name: str, **kwargs) -> List[CommentResponse]:
+    async def find_by_name(self, name: str, **kwargs) -> list[CommentResponse]:
         """Find comments by name."""
         logger.debug(
             f"CommentRepository.find_by_name() called with name='{name}', kwargs={kwargs}"
@@ -83,7 +85,7 @@ class CommentRepository(BaseRepository):
         )
         return [CommentResponse.from_dict(comment) for comment in comments]
 
-    async def search_comments(self, **kwargs) -> List[CommentResponse]:
+    async def search_comments(self, **kwargs) -> list[CommentResponse]:
         """Search comments with multiple filters."""
         logger.debug(
             f"CommentRepository.search_comments() called with kwargs: {kwargs}"

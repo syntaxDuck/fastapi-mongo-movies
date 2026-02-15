@@ -3,16 +3,15 @@ Poster Validation Service for enhanced poster URL validation with background job
 """
 
 import asyncio
-import httpx
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
-from dataclasses import dataclass
 import time
+from dataclasses import dataclass
+from datetime import datetime
 
+import httpx
+
+from ..core.logging import get_logger
 from ..repositories.movie_repository import MovieRepository
 from ..schemas.schemas import MovieResponse
-from ..core.logging import get_logger
-from ..core.exceptions import NotFoundError, DatabaseError
 
 logger = get_logger(__name__)
 
@@ -23,13 +22,13 @@ class PosterValidationResult:
 
     movie_id: str
     is_valid: bool
-    poster_url: Optional[str] = None
-    validation_timestamp: Optional[datetime] = None
-    http_status: Optional[int] = None
-    content_type: Optional[str] = None
-    response_time_ms: Optional[float] = None
-    file_size_bytes: Optional[int] = None
-    error_reason: Optional[str] = None
+    poster_url: str | None = None
+    validation_timestamp: datetime | None = None
+    http_status: int | None = None
+    content_type: str | None = None
+    response_time_ms: float | None = None
+    file_size_bytes: int | None = None
+    error_reason: str | None = None
 
 
 @dataclass
@@ -41,7 +40,7 @@ class ValidationStats:
     valid_posters: int
     invalid_posters: int
     validation_success_rate: float
-    last_validation_date: Optional[datetime] = None
+    last_validation_date: datetime | None = None
 
 
 class PosterValidationService:
@@ -163,7 +162,7 @@ class PosterValidationService:
 
     async def validate_movie_poster(
         self, movie_id: str
-    ) -> Optional[PosterValidationResult]:
+    ) -> PosterValidationResult | None:
         """
         Validate poster for a specific movie with enhanced checks.
 
@@ -211,7 +210,7 @@ class PosterValidationService:
 
     async def revalidate_movie_poster(
         self, movie_id: str
-    ) -> Optional[PosterValidationResult]:
+    ) -> PosterValidationResult | None:
         """
         Revalidate poster for specific movie and update database.
 
@@ -284,7 +283,7 @@ class PosterValidationService:
             logger.error(f"Failed to get validation statistics: {e}")
             raise
 
-    async def get_invalid_posters(self, limit: int = 50) -> List[MovieResponse]:
+    async def get_invalid_posters(self, limit: int = 50) -> list[MovieResponse]:
         """
         Get list of movies with invalid posters.
 
@@ -318,10 +317,10 @@ class PosterValidationService:
 
     async def _validate_poster_batch(
         self,
-        movies: List[MovieResponse],
+        movies: list[MovieResponse],
         concurrent_requests: int,
         update_database: bool,
-    ) -> List[PosterValidationResult]:
+    ) -> list[PosterValidationResult]:
         """
         Validate posters for a batch of movies concurrently.
 

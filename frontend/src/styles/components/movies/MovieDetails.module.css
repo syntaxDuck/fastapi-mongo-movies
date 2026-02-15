@@ -187,6 +187,11 @@
   color: var(--text-secondary);
   background: var(--bg-card);
   border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
 }
 
 .loading {

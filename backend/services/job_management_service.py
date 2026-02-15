@@ -3,16 +3,18 @@ Job Management Service for background job tracking and progress monitoring.
 """
 
 import asyncio
-from typing import Dict, Any, Optional, List
-from datetime import datetime, timedelta, timezone
-from dataclasses import dataclass, field
+import contextlib
 import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from ..core.logging import get_logger
 
 logger = get_logger(__name__)
 
-#TODO: Make periodic jobs that trigger on time
+
+# TODO: Make periodic jobs that trigger on time
 @dataclass
 class JobStatus:
     """Background job status information."""
@@ -20,18 +22,18 @@ class JobStatus:
     job_id: str
     job_type: str
     status: str  # 'queued', 'running', 'completed', 'failed', 'cancelled'
-    parameters: Dict[str, Any]
+    parameters: dict[str, Any]
     progress_percentage: float = 0.0
     total_items: int = 0
     processed_items: int = 0
     success_count: int = 0
     error_count: int = 0
-    errors: List[str] = field(default_factory=list)
-    created_at: datetime = field(default_factory=lambda x=timezone.utc: datetime.now(x))
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    estimated_remaining_minutes: Optional[float] = None
-    result: Optional[Dict[str, Any]] = None
+    errors: list[str] = field(default_factory=list)
+    created_at: datetime = field(default_factory=lambda x=UTC: datetime.now(x))
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    estimated_remaining_minutes: float | None = None
+    result: dict[str, Any] | None = None
 
 
 class JobManagementService:
@@ -39,8 +41,8 @@ class JobManagementService:
 
     def __init__(self) -> None:
         # In-memory job storage (in production, use Redis or database)
-        self.jobs: Dict[str, JobStatus] = {}
-        self._cleanup_task: Optional[asyncio.Task] = None
+        self.jobs: dict[str, JobStatus] = {}
+        self._cleanup_task: asyncio.Task | None = None
         self._start_cleanup_task()
 
     def _start_cleanup_task(self) -> None:
@@ -54,7 +56,7 @@ class JobManagementService:
             try:
                 await asyncio.sleep(3600)
 
-                cutoff_time = datetime.now(timezone.utc) - timedelta(hours=24)
+                cutoff_time = datetime.now(UTC) - timedelta(hours=24)
                 jobs_to_remove = [
                     job_id
                     for job_id, job in self.jobs.items()
@@ -73,7 +75,7 @@ class JobManagementService:
                 logger.error(f"Error in job cleanup task: {e}")
                 await asyncio.sleep(300)  # Wait 5 minutes on error
 
-    async def create_job(self, job_type: str, parameters: Dict[str, Any]) -> str:
+    async def create_job(self, job_type: str, parameters: dict[str, Any]) -> str:
         """
         Create a new background job.
 
@@ -86,16 +88,14 @@ class JobManagementService:
         """
         job_id = str(uuid.uuid4())
 
-        job = JobStatus(
-            job_id=job_id, job_type=job_type, status="queued", parameters=parameters
-        )
+        job = JobStatus(job_id=job_id, job_type=job_type, status="queued", parameters=parameters)
 
         self.jobs[job_id] = job
 
         logger.info(f"Created job {job_id} of type {job_type}")
         return job_id
 
-    async def get_job_status(self, job_id: str) -> Optional[JobStatus]:
+    async def get_job_status(self, job_id: str) -> JobStatus | None:
         """
         Get job status by ID.
 
@@ -106,9 +106,8 @@ class JobManagementService:
             JobStatus or None if not found
         """
         job = self.jobs.get(job_id)
-        if job:
-            if job.status == "running" and job.started_at:
-                await self._update_estimated_remaining_time(job)
+        if job and job.status == "running" and job.started_at:
+            await self._update_estimated_remaining_time(job)
 
         return job
 
@@ -119,7 +118,7 @@ class JobManagementService:
         total_items: int,
         success_count: int = 0,
         error_count: int = 0,
-        errors: Optional[List[str]] = None,
+        errors: list[str] | None = None,
     ) -> None:
         """
         Update job progress.
@@ -140,7 +139,7 @@ class JobManagementService:
         # Update job status to running if this is the first progress update
         if job.status == "queued":
             job.status = "running"
-            job.started_at = datetime.now(timezone.utc)
+            job.started_at = datetime.now(UTC)
             logger.info(f"Job {job_id} started running")
 
         # Update progress metrics
@@ -161,7 +160,7 @@ class JobManagementService:
 
         logger.debug(f"Updated job {job_id} progress: {job.progress_percentage:.1f}%")
 
-    async def complete_job(self, job_id: str, result: Dict[str, Any]) -> None:
+    async def complete_job(self, job_id: str, result: dict[str, Any]) -> None:
         """
         Mark job as completed with results.
 
@@ -175,7 +174,7 @@ class JobManagementService:
             return
 
         job.status = "completed"
-        job.completed_at = datetime.now(timezone.utc)
+        job.completed_at = datetime.now(UTC)
         job.result = result
         job.progress_percentage = 100.0
 
@@ -195,7 +194,7 @@ class JobManagementService:
             return
 
         job.status = "failed"
-        job.completed_at = datetime.now(timezone.utc)
+        job.completed_at = datetime.now(UTC)
         job.errors.append(error_message)
 
         logger.error(f"Job {job_id} failed: {error_message}")
@@ -218,12 +217,12 @@ class JobManagementService:
             return False
 
         job.status = "cancelled"
-        job.completed_at = datetime.now(timezone.utc)
+        job.completed_at = datetime.now(UTC)
 
         logger.info(f"Job {job_id} cancelled")
         return True
 
-    async def get_all_jobs(self, job_type: Optional[str] = None) -> List[JobStatus]:
+    async def get_all_jobs(self, job_type: str | None = None) -> list[JobStatus]:
         """
         Get all jobs, optionally filtered by type.
 
@@ -243,7 +242,7 @@ class JobManagementService:
 
         return jobs
 
-    async def get_job_statistics(self) -> Dict[str, Any]:
+    async def get_job_statistics(self) -> dict[str, Any]:
         """
         Get job statistics.
 
@@ -292,13 +291,11 @@ class JobManagementService:
             return
 
         # Calculate elapsed time
-        elapsed_time = datetime.now(timezone.utc) - job.started_at
+        elapsed_time = datetime.now(UTC) - job.started_at
         elapsed_minutes = elapsed_time.total_seconds() / 60
 
         # Calculate processing rate (items per minute)
-        processing_rate = (
-            job.processed_items / elapsed_minutes if elapsed_minutes > 0 else 0
-        )
+        processing_rate = job.processed_items / elapsed_minutes if elapsed_minutes > 0 else 0
 
         if processing_rate > 0 and job.total_items > job.processed_items:
             remaining_items = job.total_items - job.processed_items
@@ -340,9 +337,7 @@ class JobManagementService:
         """
         if self._cleanup_task:
             self._cleanup_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._cleanup_task
-            except asyncio.CancelledError:
-                pass
 
         logger.info("Job management service shutdown")

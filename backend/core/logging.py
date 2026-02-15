@@ -5,6 +5,7 @@ Logging configuration for the application.
 import logging
 import sys
 from pathlib import Path
+
 from .config import settings
 
 

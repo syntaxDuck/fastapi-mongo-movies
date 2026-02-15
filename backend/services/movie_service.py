@@ -2,12 +2,20 @@
 Movie Service layer for business logic using proper protocol-based dependency injection.
 """
 
-from typing import List, Optional
 
-from ..schemas.schemas import MovieResponse
-from ..repositories.protocol import MovieRepositoryProtocol
 from ..core.exceptions import NotFoundError
 from ..core.logging import get_logger
+from ..core.validators import (
+    validate_limit,
+    validate_modifier,
+    validate_non_empty_string,
+    validate_rating,
+    validate_skip,
+    validate_year,
+    validate_year_required,
+)
+from ..repositories.protocol import MovieRepositoryProtocol
+from ..schemas.schemas import MovieResponse
 
 logger = get_logger(__name__)
 
@@ -32,33 +40,22 @@ class MovieService:
 
     async def search_movies_multiple_criteria(
         self,
-        movie_id: Optional[str] = None,
-        title: Optional[str] = None,
-        movie_type: Optional[str] = None,
-        genres: Optional[List[str]] = None,
-        year: Optional[int] = None,
+        movie_id: str | None = None,
+        title: str | None = None,
+        movie_type: str | None = None,
+        genres: list[str] | None = None,
+        year: int | None = None,
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
-        sort_by: Optional[str] = None,
-        sort_order: Optional[str] = "asc",
-    ) -> List[MovieResponse]:
+        sort_by: str | None = None,
+        sort_order: str | None = "asc",
+    ) -> list[MovieResponse]:
         """Get movies with optional filtering."""
 
-        if limit < 0 or limit > 1000:
-            logger.warning(
-                f"MovieService.get_movies() invalid limit parameter: {limit}, using default 10"
-            )
-            limit = 10
-        if skip < 0:
-            logger.warning(
-                f"MovieService.get_movies() invalid skip parameter: {skip}, using default 0"
-            )
-            skip = 0
-        if year is not None and (year < 1800 or year > 2100):
-            logger.warning(
-                f"MovieService.get_movies() suspicious year parameter: {year}"
-            )
+        limit = validate_limit(limit)
+        skip = validate_skip(skip)
+        year = validate_year(year)
 
         logger.debug(
             f"Getting movies with filters: movie_id={movie_id}, title={title}, "
@@ -94,26 +91,14 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
-        sort_by: Optional[str] = None,
-        sort_order: Optional[str] = "asc",
-    ) -> List[MovieResponse]:
+        sort_by: str | None = None,
+        sort_order: str | None = "asc",
+    ) -> list[MovieResponse]:
         """Get movies by type."""
 
-        # Parameter validation logging
-        if not movie_type or not movie_type.strip():
-            logger.warning(
-                "MovieService.get_movies_by_type() empty movie_type parameter"
-            )
-        if limit < 0 or limit > 1000:
-            logger.warning(
-                f"MovieService.get_movies_by_type() invalid limit parameter: {limit}, using default 10"
-            )
-            limit = 10
-        if skip < 0:
-            logger.warning(
-                f"MovieService.get_movies_by_type() invalid skip parameter: {skip}, using default 0"
-            )
-            skip = 0
+        movie_type = validate_non_empty_string(movie_type, "movie_type") or movie_type
+        limit = validate_limit(limit)
+        skip = validate_skip(skip)
 
         logger.debug(
             f"Getting movies by type: {movie_type}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"
@@ -145,31 +130,15 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
-        sort_by: Optional[str] = None,
-        sort_order: Optional[str] = "asc",
-    ) -> List[MovieResponse]:
-        """Get movies by year."""
+        sort_by: str | None = None,
+        sort_order: str | None = "asc",
+    ) -> list[MovieResponse]:
+        """Get movies by rating."""
 
-        # Parameter validation logging
-        if rating < 0 or rating > 10:
-            logger.warning(
-                f"MovieService.get_movies_by_rating() suspicious rating parameter: {rating}"
-            )
-        if limit < 0 or limit > 1000:
-            logger.warning(
-                f"MovieService.get_movies_by_rating() invalid limit parameter: {limit}, using default 10"
-            )
-            limit = 10
-        if skip < 0:
-            logger.warning(
-                f"MovieService.get_movies_by_rating() invalid skip parameter: {skip}, using default 0"
-            )
-            skip = 0
-        if mod not in ["eq", "ne", "gt", "gte", "lt", "lte"]:
-            logger.warning(
-                f"MovieService.get_movies_by_rating() invalid mod parameter: {mod}, using default eq"
-            )
-            mod = "eq"
+        rating = validate_rating(rating)
+        mod = validate_modifier(mod)
+        limit = validate_limit(limit)
+        skip = validate_skip(skip)
 
         logger.debug(
             f"Getting movies by rating: {rating}, modifier: {mod}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"
@@ -202,31 +171,15 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
-        sort_by: Optional[str] = None,
-        sort_order: Optional[str] = "asc",
-    ) -> List[MovieResponse]:
+        sort_by: str | None = None,
+        sort_order: str | None = "asc",
+    ) -> list[MovieResponse]:
         """Get movies by year."""
 
-        # Parameter validation logging
-        if year < 1800 or year > 2100:
-            logger.warning(
-                f"MovieService.get_movies_by_year() suspicious year parameter: {year}"
-            )
-        if limit < 0 or limit > 1000:
-            logger.warning(
-                f"MovieService.get_movies_by_year() invalid limit parameter: {limit}, using default 10"
-            )
-            limit = 10
-        if skip < 0:
-            logger.warning(
-                f"MovieService.get_movies_by_year() invalid skip parameter: {skip}, using default 0"
-            )
-            skip = 0
-        if mod not in ["eq", "ne", "gt", "gte", "lt", "lte"]:
-            logger.warning(
-                f"MovieService.get_movies_by_year() invalid mod parameter: {mod}, using default eq"
-            )
-            mod = "eq"
+        year = validate_year_required(year)
+        mod = validate_modifier(mod)
+        limit = validate_limit(limit)
+        skip = validate_skip(skip)
 
         logger.debug(
             f"Getting movies by year: {year}, modifier: {mod}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"
@@ -252,14 +205,14 @@ class MovieService:
         )
         return movies
 
-    async def get_all_genres(self) -> List[str]:
+    async def get_all_genres(self) -> list[str]:
         """Get all movie genres"""
         logger.info("Getting movie genres")
         genres = await self.movie_repository.get_all_genres()
         logger.info(f"Found {len(genres)} movie genres")
         return genres
 
-    async def get_all_types(self) -> List[str]:
+    async def get_all_types(self) -> list[str]:
         """Get all movie genres"""
         logger.info("Getting movie types")
         genres = await self.movie_repository.get_all_types()
@@ -272,24 +225,14 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
-        sort_by: Optional[str] = None,
-        sort_order: Optional[str] = "asc",
-    ) -> List[MovieResponse]:
+        sort_by: str | None = None,
+        sort_order: str | None = "asc",
+    ) -> list[MovieResponse]:
         """Get movies by genre."""
 
-        # Parameter validation logging
-        if not genre or not genre.strip():
-            logger.warning("MovieService.get_movies_by_genre() empty genre parameter")
-        if limit < 0 or limit > 1000:
-            logger.warning(
-                f"MovieService.get_movies_by_genre() invalid limit parameter: {limit}, using default 10"
-            )
-            limit = 10
-        if skip < 0:
-            logger.warning(
-                f"MovieService.get_movies_by_genre() invalid skip parameter: {skip}, using default 0"
-            )
-            skip = 0
+        genre = validate_non_empty_string(genre, "genre") or genre
+        limit = validate_limit(limit)
+        skip = validate_skip(skip)
 
         logger.debug(
             f"Getting movies by genre: {genre}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"
@@ -319,30 +262,18 @@ class MovieService:
         limit: int = 10,
         skip: int = 0,
         include_invalid_posters: bool = False,
-        sort_by: Optional[str] = None,
-        sort_order: Optional[str] = "asc",
-    ) -> List[MovieResponse]:
+        sort_by: str | None = None,
+        sort_order: str | None = "asc",
+    ) -> list[MovieResponse]:
         """Search movies by text search."""
 
-        # Parameter validation logging
-        if not search_text or not search_text.strip():
-            logger.warning(
-                "MovieService.search_movies_by_text() empty search_text parameter"
-            )
-        if len(search_text) > 200:
+        search_text = validate_non_empty_string(search_text, "search_text") or search_text
+        if search_text and len(search_text) > 200:
             logger.warning(
                 f"MovieService.search_movies_by_text() very long search_text: {len(search_text)} characters"
             )
-        if limit < 0 or limit > 1000:
-            logger.warning(
-                f"MovieService.search_movies_by_text() invalid limit parameter: {limit}, using default 10"
-            )
-            limit = 10
-        if skip < 0:
-            logger.warning(
-                f"MovieService.search_movies_by_text() invalid skip parameter: {skip}, using default 0"
-            )
-            skip = 0
+        limit = validate_limit(limit)
+        skip = validate_skip(skip)
 
         logger.debug(
             f"Searching movies by text: {search_text}, limit={limit}, skip={skip}, include_invalid_posters={include_invalid_posters}, sort_by={sort_by}, sort_order={sort_order}"

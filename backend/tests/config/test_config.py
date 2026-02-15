@@ -1,7 +1,5 @@
-import pytest
-from unittest.mock import patch
 import os
-from dataclasses import dataclass
+from unittest.mock import patch
 
 from config.Config import Config, config
 
@@ -14,6 +12,7 @@ class TestConfig:
         with patch.dict(os.environ, {}, clear=True):
             # Reload config to test with empty environment
             from importlib import reload
+
             import config.Config
 
             reload(config.Config)

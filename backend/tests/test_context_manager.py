@@ -3,7 +3,9 @@ Simple test of the new context manager approach.
 """
 
 import asyncio
+
 import pytest
+
 from backend.core.database import get_database_client
 from backend.repositories.movie_repository import MovieRepository
 

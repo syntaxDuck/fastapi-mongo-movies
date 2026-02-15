@@ -1,7 +1,7 @@
-import pytest
-from unittest.mock import patch, MagicMock
-import sys
 import os
+import sys
+
+import pytest
 
 # Add frontend directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../frontend"))
@@ -44,7 +44,7 @@ class TestHelperModuleExtended:
         assert len(result) == 4
 
         # Check that each movie item is properly structured
-        for i, movie_item in enumerate(result):
+        for _i, movie_item in enumerate(result):
             # The function should create Li elements with Img and Span
             assert hasattr(movie_item, "tag") or hasattr(movie_item, "__class__")
             # Should contain movie poster and title information

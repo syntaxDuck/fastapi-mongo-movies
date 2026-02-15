@@ -1,12 +1,11 @@
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from fastapi.testclient import TestClient
-from unittest.mock import AsyncMock, patch, MagicMock
 from bson import ObjectId
-from fastapi import HTTPException
-import json
+from fastapi.testclient import TestClient
 
 from backend.api.main import app, get_mongo_connection
-from backend.api.models import Movie, MovieQuery, User, UserQuery, Comment, CommentQuery
+from backend.api.models import CommentQuery, MovieQuery
 from backend.tests.fixtures.mongodb_fixtures import (
     sample_user_data,
 )
@@ -35,7 +34,7 @@ class TestMongoConnectionDependency:
                 mock_settings.DB_PASS = "test_pass"
                 mock_settings.DB_HOST = "test.mongodb.com"
 
-                connection = await get_mongo_connection()
+                await get_mongo_connection()
 
                 mock_config_class.assert_called_once_with(
                     username="test_user",
@@ -93,9 +92,7 @@ class TestMovieEndpointsExtended:
     @pytest.mark.asyncio
     async def test_read_movies_invalid_object_id(self, client, mock_db_handler):
         """Test movie retrieval with invalid ObjectId."""
-        mock_db_handler.fetch_documents = AsyncMock(
-            side_effect=Exception("Invalid ObjectId")
-        )
+        mock_db_handler.fetch_documents = AsyncMock(side_effect=Exception("Invalid ObjectId"))
 
         with patch("api.main.get_mongo_connection", return_value=mock_db_handler):
             response = client.get("/movies?id=invalid_id")
@@ -110,8 +107,8 @@ class TestMovieEndpointsExtended:
             side_effect=Exception("Database connection failed")
         )
 
-        with patch("api.main.get_mongo_connection", return_value=mock_db_handler):
-            with pytest.raises(Exception):
+        with patch("api.main.get_mongo_connection", return_value=mock_db_handler):  # noqa: SIM117
+            with pytest.raises(Exception):  # noqa: B017
                 client.get("/movies")
 
     @pytest.mark.api
@@ -137,9 +134,7 @@ class TestMovieEndpointsExtended:
 
     @pytest.mark.api
     @pytest.mark.asyncio
-    async def test_read_movies_complex_filtering(
-        self, client, mock_db_handler, sample_movie_data
-    ):
+    async def test_read_movies_complex_filtering(self, client, mock_db_handler, sample_movie_data):
         """Test movie retrieval with complex filtering combinations."""
         sample_movies = [
             {
@@ -174,18 +169,14 @@ class TestMovieEndpointsExtended:
 
         with patch("api.main.get_mongo_connection", return_value=mock_db_handler):
             query = CommentQuery(movie_id=None, limit=10, skip=0)
-            response = client.get(
-                "/comments", params=query.model_dump(exclude_none=True)
-            )
+            response = client.get("/comments", params=query.model_dump(exclude_none=True))
             assert response.status_code == 404
 
     @pytest.mark.api
     @pytest.mark.asyncio
     async def test_read_comments_invalid_movie_id(self, client, mock_db_handler):
         """Test comment retrieval with invalid movie ObjectId."""
-        mock_db_handler.fetch_documents = AsyncMock(
-            side_effect=Exception("Invalid ObjectId")
-        )
+        mock_db_handler.fetch_documents = AsyncMock(side_effect=Exception("Invalid ObjectId"))
 
         with patch("api.main.get_mongo_connection", return_value=mock_db_handler):
             response = client.get("/comments?movie_id=invalid_id")
@@ -195,12 +186,10 @@ class TestMovieEndpointsExtended:
     @pytest.mark.asyncio
     async def test_read_comments_database_error(self, client, mock_db_handler):
         """Test comment retrieval with database error."""
-        mock_db_handler.fetch_documents = AsyncMock(
-            side_effect=Exception("Database error")
-        )
+        mock_db_handler.fetch_documents = AsyncMock(side_effect=Exception("Database error"))
 
-        with patch("api.main.get_mongo_connection", return_value=mock_db_handler):
-            with pytest.raises(Exception):
+        with patch("api.main.get_mongo_connection", return_value=mock_db_handler):  # noqa: SIM117
+            with pytest.raises(Exception):  # noqa: B017
                 client.get("/comments")
 
     @pytest.mark.api
@@ -217,9 +206,7 @@ class TestMovieEndpointsExtended:
     @pytest.mark.asyncio
     async def test_read_users_invalid_object_id(self, client, mock_db_handler):
         """Test user retrieval with invalid ObjectId."""
-        mock_db_handler.fetch_documents = AsyncMock(
-            side_effect=Exception("Invalid ObjectId")
-        )
+        mock_db_handler.fetch_documents = AsyncMock(side_effect=Exception("Invalid ObjectId"))
 
         with patch("api.main.get_mongo_connection", return_value=mock_db_handler):
             response = client.get("/users?_id=invalid_id")
@@ -229,12 +216,10 @@ class TestMovieEndpointsExtended:
     @pytest.mark.asyncio
     async def test_read_users_database_error(self, client, mock_db_handler):
         """Test user retrieval with database error."""
-        mock_db_handler.fetch_documents = AsyncMock(
-            side_effect=Exception("Database error")
-        )
+        mock_db_handler.fetch_documents = AsyncMock(side_effect=Exception("Database error"))
 
-        with patch("api.main.get_mongo_connection", return_value=mock_db_handler):
-            with pytest.raises(Exception):
+        with patch("api.main.get_mongo_connection", return_value=mock_db_handler):  # noqa: SIM117
+            with pytest.raises(Exception):  # noqa: B017
                 client.get("/users")
 
     @pytest.mark.api
@@ -255,12 +240,10 @@ class TestMovieEndpointsExtended:
     @pytest.mark.asyncio
     async def test_create_user_database_error_on_check(self, client, mock_db_handler):
         """Test user creation when database fails during existence check."""
-        mock_db_handler.fetch_documents = AsyncMock(
-            side_effect=Exception("Database error")
-        )
+        mock_db_handler.fetch_documents = AsyncMock(side_effect=Exception("Database error"))
 
-        with patch("api.main.get_mongo_connection", return_value=mock_db_handler):
-            with pytest.raises(Exception):
+        with patch("api.main.get_mongo_connection", return_value=mock_db_handler):  # noqa: SIM117
+            with pytest.raises(Exception):  # noqa: B017
                 client.post("/users/", json=sample_user_data)
 
     @pytest.mark.api
@@ -284,9 +267,7 @@ class TestMovieEndpointsExtended:
     @pytest.mark.asyncio
     async def test_create_user_general_exception(self, client, mock_db_handler):
         """Test user creation with general exception."""
-        mock_db_handler.fetch_documents = AsyncMock(
-            side_effect=Exception("Unexpected error")
-        )
+        mock_db_handler.fetch_documents = AsyncMock(side_effect=Exception("Unexpected error"))
 
         with patch("api.main.get_mongo_connection", return_value=mock_db_handler):
             response = client.post("/users/", json=sample_user_data)
@@ -295,17 +276,13 @@ class TestMovieEndpointsExtended:
 
     @pytest.mark.api
     @pytest.mark.asyncio
-    async def test_create_user_database_exception_on_insert(
-        self, client, mock_db_handler
-    ):
+    async def test_create_user_database_exception_on_insert(self, client, mock_db_handler):
         """Test user creation when database raises exception during insert."""
         mock_db_handler.fetch_documents = AsyncMock(return_value=[])  # No existing user
-        mock_db_handler.insert_documents = AsyncMock(
-            side_effect=Exception("Insert failed")
-        )
+        mock_db_handler.insert_documents = AsyncMock(side_effect=Exception("Insert failed"))
 
-        with patch("api.main.get_mongo_connection", return_value=mock_db_handler):
-            with pytest.raises(Exception):
+        with patch("api.main.get_mongo_connection", return_value=mock_db_handler):  # noqa: SIM117
+            with pytest.raises(Exception):  # noqa: B017
                 client.post("/users/", json=sample_user_data)
 
 
@@ -428,7 +405,6 @@ class TestAPIValidationAndEdgeCases:
             mock_connection.return_value = mock_handler
             mock_handler.fetch_documents = AsyncMock(return_value=[])
 
-            import asyncio
             import threading
 
             def make_request():

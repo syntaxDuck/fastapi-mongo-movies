@@ -1,27 +1,28 @@
-from typing import Optional, Any
+from typing import Any
+
 from .logging import get_logger
 
 logger = get_logger(__name__)
 
 
-class AppException(Exception):
+class AppError(Exception):
     """Base exception for the application."""
 
-    def __init__(self, message: str, details: Optional[str] = None):
+    def __init__(self, message: str, details: str | None = None):
         super().__init__(message)
         self.message = message
         self.details = details
-        logger.error(f"AppException: {message}. Details: {details or 'None'}")
+        logger.error(f"AppError: {message}. Details: {details or 'None'}")
 
 
-class DatabaseError(AppException):
+class DatabaseError(AppError):
     """Raised when database operations fail."""
 
     def __init__(
         self,
         message: str,
-        details: Optional[str] = None,
-        operation: Optional[str] = None,
+        details: str | None = None,
+        operation: str | None = None,
     ):
         super().__init__(message, details)
         self.operation = operation
@@ -30,14 +31,14 @@ class DatabaseError(AppException):
         )
 
 
-class NotFoundError(AppException):
+class NotFoundError(AppError):
     """Raised when a resource is not found."""
 
     def __init__(
         self,
         message: str,
-        resource_type: Optional[str] = None,
-        resource_id: Optional[str] = None,
+        resource_type: str | None = None,
+        resource_id: str | None = None,
     ):
         super().__init__(message)
         self.resource_type = resource_type
@@ -47,26 +48,24 @@ class NotFoundError(AppException):
         )
 
 
-class ValidationError(AppException):
+class ValidationError(AppError):
     """Raised when validation fails."""
 
-    def __init__(self, message: str, field: Optional[str] = None, value: Any = None):
+    def __init__(self, message: str, field: str | None = None, value: Any = None):
         super().__init__(message)
         self.field = field
         self.value = value
-        logger.warning(
-            f"ValidationError: {message}. Field: {field or 'None'}, Value: {value}"
-        )
+        logger.warning(f"ValidationError: {message}. Field: {field or 'None'}, Value: {value}")
 
 
-class DuplicateResourceError(AppException):
+class DuplicateResourceError(AppError):
     """Raised when trying to create a duplicate resource."""
 
     def __init__(
         self,
         message: str,
-        resource_type: Optional[str] = None,
-        identifier: Optional[str] = None,
+        resource_type: str | None = None,
+        identifier: str | None = None,
     ):
         super().__init__(message)
         self.resource_type = resource_type

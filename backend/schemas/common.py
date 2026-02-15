@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -13,4 +12,4 @@ class ErrorResponse(BaseModel):
     """Error response model."""
 
     detail: str
-    error_code: Optional[str] = None
+    error_code: str | None = None

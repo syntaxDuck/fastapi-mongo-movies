@@ -53,8 +53,8 @@ done
 [ "$BACKEND" = true ] && uv run --project backend/ uvicorn backend.main:app --reload --host "$BACKEND_HOST" --port "$BACKEND_PORT" &
 [ "$FRONTEND" = true ] && REACT_APP_API_URL="http://$BACKEND_HOST:$BACKEND_PORT" PORT="$FRONTEND_PORT" pnpm --prefix frontend start -- --host "$FRONTEND_HOST"
 
-echo "Backend: http://localhost:$BACKEND_PORT"
-echo "Frontend: http://localhost:$FRONTEND_PORT"
-echo "Docs: http://localhost:$BACKEND_PORT/docs"
+echo "Backend: http://$BACKEND_HOST:$BACKEND_PORT"
+echo "Frontend: http://$FRONTEND_HOST:$FRONTEND_PORT"
+echo "Docs: http://$BACKEND_HOST:$BACKEND_PORT/docs"
 
 wait

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -7,12 +6,12 @@ from pydantic import BaseModel, EmailStr, Field
 class CommentQuery(BaseModel):
     """Query parameters for comment endpoints."""
 
-    id: Optional[str] = Field(None, alias="_id", description="Filter by comment ID")
-    name: Optional[str] = Field(None, description="Filter by comment name")
-    email: Optional[EmailStr] = Field(None, description="Filter by comment email")
-    movie_id: Optional[str] = Field(None, description="Filter by movie ID")
-    limit: Optional[int] = Field(10, description="Number of comments to return")
-    skip: Optional[int] = Field(0, description="Number of records to skip")
+    id: str | None = Field(None, alias="_id", description="Filter by comment ID")
+    name: str | None = Field(None, description="Filter by comment name")
+    email: EmailStr | None = Field(None, description="Filter by comment email")
+    movie_id: str | None = Field(None, description="Filter by movie ID")
+    limit: int | None = Field(10, description="Number of comments to return")
+    skip: int | None = Field(0, description="Number of records to skip")
 
 
 class CommentResponse(BaseModel):

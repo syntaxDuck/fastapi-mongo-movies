@@ -1,16 +1,16 @@
-import pytest
 import asyncio
-from unittest.mock import AsyncMock, patch, MagicMock
-from pymongo.errors import PyMongoError, ConnectionFailure, ServerSelectionTimeoutError
-from motor.motor_asyncio import AsyncIOMotorClient
-from bson import ObjectId
-import sys
 import os
+import sys
+from unittest.mock import AsyncMock, patch
+
+import pytest
+from bson import ObjectId
+from pymongo.errors import ConnectionFailure, PyMongoError, ServerSelectionTimeoutError
 
 # Add backend directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../backend"))
 
-from backend.database import MongoDBConfig, MongoDBClientHandler
+from backend.database import MongoDBClientHandler, MongoDBConfig
 
 
 class TestMongoDBConfigExtended:

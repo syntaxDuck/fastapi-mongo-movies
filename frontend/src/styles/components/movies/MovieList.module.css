@@ -273,6 +273,11 @@
   margin: var(--space-6) 0;
   border: 1px solid var(--border-primary);
   backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
 }
 
 .loading {

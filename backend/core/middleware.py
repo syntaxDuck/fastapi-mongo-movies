@@ -3,8 +3,10 @@ Request logging middleware for API requests.
 """
 
 import time
+from collections.abc import Callable
+
 from fastapi import Request, Response
-from typing import Callable
+
 from .logging import get_logger
 from .rate_limiter import get_real_ip
 from .request_metrics import get_request_metrics

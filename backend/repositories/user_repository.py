@@ -2,11 +2,13 @@
 User Repository layer using context manager pattern.
 """
 
-from typing import List, Optional
+
 from bson import ObjectId
-from .base import BaseRepository
+
 from backend.core.logging import get_logger
+
 from ..schemas.schemas import MessageResponse, UserCreate, UserResponse
+from .base import BaseRepository
 
 logger = get_logger(__name__)
 
@@ -17,7 +19,7 @@ class UserRepository(BaseRepository):
     def __init__(self) -> None:
         super().__init__("sample_mflix", "users")
 
-    async def find_by_id(self, id: str, **kwargs) -> Optional[UserResponse]:
+    async def find_by_id(self, id: str, **kwargs) -> UserResponse | None:
         """Find a user by their ID."""
         logger.debug(
             f"UserRepository.find_by_id() called with id={id}, kwargs={kwargs}"
@@ -31,7 +33,7 @@ class UserRepository(BaseRepository):
             logger.debug(f"UserRepository.find_by_id() no user found with id={id}")
         return UserResponse.from_dict(user) if user else None
 
-    async def find_by_email(self, email: str, **kwargs) -> List[UserResponse]:
+    async def find_by_email(self, email: str, **kwargs) -> list[UserResponse]:
         """Find users by email."""
         logger.debug(
             f"UserRepository.find_by_email() called with email='{email}', kwargs={kwargs}"
@@ -44,7 +46,7 @@ class UserRepository(BaseRepository):
         )
         return [UserResponse.from_dict(user) for user in users]
 
-    async def find_by_name(self, name: str, **kwargs) -> List[UserResponse]:
+    async def find_by_name(self, name: str, **kwargs) -> list[UserResponse]:
         """Find users by name."""
         logger.debug(
             f"UserRepository.find_by_name() called with name='{name}', kwargs={kwargs}"
@@ -65,7 +67,7 @@ class UserRepository(BaseRepository):
         logger.debug(f"UserRepository.email_exists() result for {email}: {exists}")
         return exists
 
-    async def search_users(self, **kwargs) -> List[UserResponse]:
+    async def search_users(self, **kwargs) -> list[UserResponse]:
         """Search users with multiple filters."""
         logger.debug(f"UserRepository.search_users() called with kwargs: {kwargs}")
         filter_query = {}
@@ -91,7 +93,7 @@ class UserRepository(BaseRepository):
         users = await self._find_many(filter_query, **kwargs)
         return [UserResponse.from_dict(user) for user in users]
 
-    async def create_user(self, user_data: UserCreate) -> Optional[MessageResponse]:
+    async def create_user(self, user_data: UserCreate) -> MessageResponse | None:
         """Create a new user."""
         user_data_dict = user_data.model_dump()
         logger.debug(

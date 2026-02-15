@@ -4,10 +4,10 @@ Tracks HTTP requests by IP for monitoring and security analysis.
 """
 
 from collections import defaultdict
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from threading import Lock
-from typing import Any, Dict, List, Optional
-from dataclasses import dataclass, field
+from typing import Any, Optional
 
 
 @dataclass
@@ -29,10 +29,10 @@ class IpMetrics:
 
     total_requests: int = 0
     blocked_requests: int = 0
-    first_seen: Optional[datetime] = None
-    last_seen: Optional[datetime] = None
-    by_path: Dict[str, int] = field(default_factory=lambda: defaultdict(int))
-    by_status: Dict[str, int] = field(default_factory=lambda: defaultdict(int))
+    first_seen: datetime | None = None
+    last_seen: datetime | None = None
+    by_path: dict[str, int] = field(default_factory=lambda: defaultdict(int))
+    by_status: dict[str, int] = field(default_factory=lambda: defaultdict(int))
 
 
 class RequestMetrics:
@@ -46,15 +46,13 @@ class RequestMetrics:
             with cls._lock:
                 if cls._instance is None:
                     cls._instance = super().__new__(cls)
-                    cls._instance._initialized = False
         return cls._instance
 
     def __init__(self) -> None:
-        if self._initialized:
+        if getattr(self, "_initialized", False):
             return
-        self._requests: List[RequestMetric] = []
-        self._ip_metrics: Dict[str, IpMetrics] = {}
-        self._lock = Lock()
+        self._requests: list[RequestMetric] = []
+        self._ip_metrics: dict[str, IpMetrics] = {}
         self._initialized = True
         self._max_history = 50000
 
@@ -125,7 +123,7 @@ class RequestMetrics:
         ip_metrics.by_path[metric.path] += 1
         ip_metrics.by_status[str(metric.status_code)] += 1
 
-    def get_recent_requests(self, limit: int = 100) -> List[Dict[str, Any]]:
+    def get_recent_requests(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get recent requests."""
         with self._lock:
             recent = self._requests[-limit:]
@@ -142,20 +140,16 @@ class RequestMetrics:
                 for m in reversed(recent)
             ]
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """Get summary of all request metrics."""
         now = datetime.now()
 
         with self._lock:
-            requests_1h = [
-                r for r in self._requests if r.timestamp >= now - timedelta(hours=1)
-            ]
-            requests_24h = [
-                r for r in self._requests if r.timestamp >= now - timedelta(hours=24)
-            ]
+            requests_1h = [r for r in self._requests if r.timestamp >= now - timedelta(hours=1)]
+            requests_24h = [r for r in self._requests if r.timestamp >= now - timedelta(hours=24)]
 
-            unique_ips_1h = set(r.ip for r in requests_1h)
-            unique_ips_24h = set(r.ip for r in requests_24h)
+            unique_ips_1h = {r.ip for r in requests_1h}
+            unique_ips_24h = {r.ip for r in requests_24h}
 
             blocked_1h = sum(1 for r in requests_1h if r.blocked)
             blocked_24h = sum(1 for r in requests_24h if r.blocked)
@@ -174,7 +168,7 @@ class RequestMetrics:
                 "by_endpoint": dict(by_endpoint),
             }
 
-    def get_ip_details(self, ip: str) -> Optional[Dict[str, Any]]:
+    def get_ip_details(self, ip: str) -> dict[str, Any] | None:
         """Get detailed metrics for a specific IP."""
         with self._lock:
             if ip not in self._ip_metrics:
@@ -185,17 +179,13 @@ class RequestMetrics:
                 "ip": ip,
                 "total_requests": metrics.total_requests,
                 "blocked_requests": metrics.blocked_requests,
-                "first_seen": (
-                    metrics.first_seen.isoformat() if metrics.first_seen else None
-                ),
-                "last_seen": (
-                    metrics.last_seen.isoformat() if metrics.last_seen else None
-                ),
+                "first_seen": (metrics.first_seen.isoformat() if metrics.first_seen else None),
+                "last_seen": (metrics.last_seen.isoformat() if metrics.last_seen else None),
                 "by_path": dict(metrics.by_path),
                 "by_status": dict(metrics.by_status),
             }
 
-    def get_top_ips(self, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_top_ips(self, limit: int = 10) -> list[dict[str, Any]]:
         """Get top IPs by request count."""
         with self._lock:
             sorted_ips = sorted(
@@ -212,7 +202,7 @@ class RequestMetrics:
                 for ip, metrics in sorted_ips[:limit]
             ]
 
-    def get_blocked_ips(self) -> List[Dict[str, Any]]:
+    def get_blocked_ips(self) -> list[dict[str, Any]]:
         """Get IPs with blocked requests."""
         with self._lock:
             return [
@@ -220,9 +210,7 @@ class RequestMetrics:
                     "ip": ip,
                     "blocked_requests": metrics.blocked_requests,
                     "total_requests": metrics.total_requests,
-                    "last_seen": (
-                        metrics.last_seen.isoformat() if metrics.last_seen else None
-                    ),
+                    "last_seen": (metrics.last_seen.isoformat() if metrics.last_seen else None),
                 }
                 for ip, metrics in self._ip_metrics.items()
                 if metrics.blocked_requests > 0

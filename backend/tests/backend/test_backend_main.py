@@ -1,6 +1,7 @@
-import pytest
 import asyncio
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 from bson import ObjectId
 
 from backend.main import main
@@ -132,12 +133,10 @@ class TestBackendMain:
             mock_handler.__aexit__ = AsyncMock(return_value=None)
 
             # Mock insertion failure
-            mock_handler.insert_documents = AsyncMock(
-                side_effect=Exception("Insert failed")
-            )
+            mock_handler.insert_documents = AsyncMock(side_effect=Exception("Insert failed"))
 
             with (
-                patch("builtins.print") as mock_print,
+                patch("builtins.print"),
                 pytest.raises(Exception, match="Insert failed"),
             ):
                 await main()
@@ -165,13 +164,11 @@ class TestBackendMain:
             mock_handler_class.return_value = mock_handler
 
             # Mock context manager exception
-            mock_handler.__aenter__ = AsyncMock(
-                side_effect=Exception("Connection failed")
-            )
+            mock_handler.__aenter__ = AsyncMock(side_effect=Exception("Connection failed"))
             mock_handler.__aexit__ = AsyncMock(return_value=None)
 
             with (
-                patch("builtins.print") as mock_print,
+                patch("builtins.print"),
                 pytest.raises(Exception, match="Connection failed"),
             ):
                 await main()

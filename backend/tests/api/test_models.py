@@ -1,9 +1,7 @@
-import pytest
-from unittest.mock import patch, AsyncMock
 from datetime import datetime
-from bson import ObjectId
 
-from api.models import Movie, User, Comment, MovieQuery, UserQuery, CommentQuery
+from api.models import Comment, CommentQuery, Movie, MovieQuery, User, UserQuery
+from bson import ObjectId
 
 
 class TestMovieModel:

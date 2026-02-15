@@ -4,9 +4,10 @@ Test script for Poster Validation API functionality.
 
 import asyncio
 import sys
-from backend.services.poster_validation_service import PosterValidationService
-from backend.services.job_management_service import JobManagementService
+
 from backend.core.logging import get_logger
+from backend.services.job_management_service import JobManagementService
+from backend.services.poster_validation_service import PosterValidationService
 
 logger = get_logger(__name__)
 
@@ -52,7 +53,7 @@ async def test_poster_validation_service():
 
         # Test validation statistics
         stats = await poster_service.get_validation_statistics()
-        print(f"✅ Validation statistics retrieved:")
+        print("✅ Validation statistics retrieved:")
         print(f"   - Total movies: {stats.total_movies}")
         print(f"   - Movies with posters: {stats.movies_with_posters}")
         print(f"   - Valid posters: {stats.valid_posters}")
@@ -61,7 +62,7 @@ async def test_poster_validation_service():
 
         # Test job statistics
         job_stats = await job_service.get_job_statistics()
-        print(f"✅ Job statistics retrieved:")
+        print("✅ Job statistics retrieved:")
         print(f"   - Total jobs: {job_stats['total_jobs']}")
         print(f"   - Running jobs: {job_stats['running_jobs']}")
         print(f"   - Completed jobs: {job_stats['completed_jobs']}")

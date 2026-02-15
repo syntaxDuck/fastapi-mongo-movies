@@ -1,11 +1,12 @@
 import asyncio
-import pytest
-import mongomock
-from typing import AsyncGenerator, Generator
-from bson import ObjectId
+from collections.abc import Generator
 from unittest.mock import AsyncMock
 
-from backend.database import MongoDBConfig, MongoDBClientHandler
+import mongomock
+import pytest
+from bson import ObjectId
+
+from backend.database import MongoDBConfig
 
 
 @pytest.fixture

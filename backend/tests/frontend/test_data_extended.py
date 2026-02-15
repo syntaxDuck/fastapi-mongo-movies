@@ -1,14 +1,15 @@
-import pytest
-from unittest.mock import patch, MagicMock, Mock
-import requests
-import sys
 import os
+import sys
+from unittest.mock import MagicMock, patch
+
+import pytest
+import requests
 
 # Add frontend directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../frontend"))
 
-from frontend.data import fetch_movies, fetch_comments, process_movies
-from api.models import MovieQuery, CommentQuery
+from api.models import CommentQuery, MovieQuery
+from frontend.data import fetch_comments, fetch_movies, process_movies
 
 
 class TestDataModuleExtended:

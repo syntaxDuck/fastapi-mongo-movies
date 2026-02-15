@@ -1,10 +1,10 @@
 # from ..backend.repositories.base import BaseRepository
-from backend.repositories.movie_repository import MovieRepository
-from backend.core.database import DatabaseManager
 import asyncio
 
 import requests
 
+from backend.core.database import DatabaseManager
+from backend.repositories.movie_repository import MovieRepository
 
 LOGGING_ENABLED = False
 
@@ -36,9 +36,7 @@ async def main():
                     broken.append(movie)
                 else:
                     verified.append(movie)
-                print(
-                    f"{count} - {movie.title}:{movie.id} poster url returned {r.status_code}"
-                )
+                print(f"{count} - {movie.title}:{movie.id} poster url returned {r.status_code}")
                 break
             except Exception:
                 print(f"{count} - {movie.title}:{movie.id} Error getting poster")
@@ -69,8 +67,7 @@ async def main():
 
     print(f"\n\n\n\n{failed}")
     with open("failed_updated.txt", "w") as file:
-        for movie in failed:
-            file.write("\n".join(map(str, failed)))
+        file.write("\n".join(map(str, failed)))
 
     await DatabaseManager.close_all_connections()
 

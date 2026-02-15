@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.__VERSION__: str = self.get_version_number
-        print("Configuration loaded successfully")
 
     # Database settings
     DB_HOST: str = Field(default="", description="MongoDB host URL")

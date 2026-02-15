@@ -2,10 +2,10 @@
 Comment Service layer for business logic using proper protocol-based dependency injection.
 """
 
-from typing import List, Optional
-from ..repositories.protocol import CommentRepositoryProtocol
+
 from ..core.exceptions import NotFoundError
 from ..core.logging import get_logger
+from ..repositories.protocol import CommentRepositoryProtocol
 from ..schemas.comment import CommentResponse
 
 logger = get_logger(__name__)
@@ -31,13 +31,13 @@ class CommentService:
 
     async def get_comments(
         self,
-        comment_id: Optional[str] = None,
-        movie_id: Optional[str] = None,
-        name: Optional[str] = None,
-        email: Optional[str] = None,
+        comment_id: str | None = None,
+        movie_id: str | None = None,
+        name: str | None = None,
+        email: str | None = None,
         limit: int = 10,
         skip: int = 0,
-    ) -> List[CommentResponse]:
+    ) -> list[CommentResponse]:
         """Get comments with optional filtering."""
         logger.debug(
             f"Getting comments with filters: comment_id={comment_id}, movie_id={movie_id}, "
@@ -62,7 +62,7 @@ class CommentService:
 
     async def get_comments_by_movie_id(
         self, movie_id: str, limit: int = 10, skip: int = 0
-    ) -> List[CommentResponse]:
+    ) -> list[CommentResponse]:
         """Get comments by movie ID."""
         logger.debug(
             f"Getting comments by movie ID: {movie_id}, limit={limit}, skip={skip}"
@@ -80,7 +80,7 @@ class CommentService:
 
     async def get_comments_by_email(
         self, email: str, limit: int = 10, skip: int = 0
-    ) -> List[CommentResponse]:
+    ) -> list[CommentResponse]:
         """Get comments by email."""
         logger.debug(f"Getting comments by email: {email}, limit={limit}, skip={skip}")
 
@@ -96,7 +96,7 @@ class CommentService:
 
     async def get_comments_by_name(
         self, name: str, limit: int = 10, skip: int = 0
-    ) -> List[CommentResponse]:
+    ) -> list[CommentResponse]:
         """Get comments by name."""
         logger.debug(f"Getting comments by name: {name}, limit={limit}, skip={skip}")
 

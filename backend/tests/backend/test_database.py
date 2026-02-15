@@ -1,13 +1,10 @@
-import pytest
 from unittest.mock import AsyncMock, patch
-from pymongo.errors import PyMongoError
-from bson import ObjectId
 
-from backend.database import MongoDBConfig, MongoDBClientHandler
-from backend.tests.fixtures.mongodb_fixtures import (
-    mock_db_config,
-    sample_user_data,
-)
+import pytest
+from bson import ObjectId
+from pymongo.errors import PyMongoError
+
+from backend.database import MongoDBClientHandler, MongoDBConfig
 
 
 class TestMongoDBConfig:

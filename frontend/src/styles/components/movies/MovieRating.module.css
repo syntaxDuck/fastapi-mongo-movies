@@ -4,6 +4,8 @@
   display: flex;
   align-items:center;
   flex-direction: column;
+  min-width: 0;
+  text-align: center;
 }
 
 .ratingInfo strong {
@@ -11,12 +13,20 @@
   font-size: 1.1rem;
   margin-bottom: var(--space-1);
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .ratingInfo p {
   margin: 0;
   font-size: 0.9rem;
   color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .tomatoesCriticRating,
@@ -25,6 +35,7 @@
   display: flex;
   align-items: center;
   justify-content: space-evenly;
+  flex-wrap: wrap;
   height: 100%;
   width: 100%;
   gap: var(--space-2);
@@ -33,6 +44,8 @@
   box-shadow: var(--shadow-md);
   color: var(--text-primary);
   transition: all var(--transition-normal);
+  padding: var(--space-3);
+  box-sizing: border-box;
 }
 
 .tomatoesCriticRating:hover,
@@ -44,19 +57,60 @@
 }
 
 .imdbRating img {
+  width: 50px;
+  height: 50px;
   max-width: 30%;
-  height: fit-content;
+  object-fit: contain;
   border-radius: var(--radius-md);
 }
 
 .tomatoesCriticRating img {
+  width: 40px;
+  height: 40px;
   max-width: 25%;
-  height: fit-content;
+  object-fit: contain;
   border-radius: var(--radius-md);
 }
 
 .tomatoesViewerRating img {
+  width: 35px;
+  height: 35px;
   max-width: 20%;
-  height: fit-content;
+  object-fit: contain;
   border-radius: var(--radius-md);
+}
+
+@media (max-width: 480px) {
+  .imdbRating img {
+    width: 32px;
+    height: 32px;
+    max-width: 30%;
+  }
+
+  .tomatoesCriticRating img {
+    width: 28px;
+    height: 28px;
+    max-width: 25%;
+  }
+
+  .tomatoesViewerRating img {
+    width: 24px;
+    height: 24px;
+    max-width: 20%;
+  }
+
+  .ratingInfo strong {
+    font-size: 0.8rem;
+  }
+
+  .ratingInfo p {
+    font-size: 0.7rem;
+  }
+
+  .tomatoesCriticRating,
+  .tomatoesViewerRating,
+  .imdbRating {
+    padding: var(--space-2);
+    gap: var(--space-1);
+  }
 }

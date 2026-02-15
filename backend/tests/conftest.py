@@ -2,17 +2,17 @@
 Test configuration and fixtures for the restructured application.
 """
 
-import pytest
 import asyncio
-from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 from mongomock import MongoClient
 
+from backend.repositories.comment_repository import CommentRepository
 from backend.repositories.movie_repository import MovieRepository
 from backend.repositories.user_repository import UserRepository
-from backend.repositories.comment_repository import CommentRepository
+from backend.services.comment_service import CommentService
 from backend.services.movie_service import MovieService
 from backend.services.user_service import UserService
-from backend.services.comment_service import CommentService
 
 
 @pytest.fixture

@@ -5,10 +5,10 @@ Tracks query operations for monitoring and performance analysis.
 
 import time
 from collections import defaultdict
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from threading import Lock
-from typing import Any, Dict, Optional
-from dataclasses import dataclass, field
+from typing import Any, Optional
 
 
 @dataclass
@@ -20,7 +20,7 @@ class OperationMetric:
     duration_ms: float
     timestamp: datetime
     success: bool
-    filters: Optional[Dict[str, Any]] = None
+    filters: dict[str, Any] | None = None
 
 
 @dataclass
@@ -31,8 +31,8 @@ class AggregatedMetrics:
     total_duration_ms: float = 0
     successful_operations: int = 0
     failed_operations: int = 0
-    by_operation: Dict[str, int] = field(default_factory=lambda: defaultdict(int))
-    by_collection: Dict[str, int] = field(default_factory=lambda: defaultdict(int))
+    by_operation: dict[str, int] = field(default_factory=lambda: defaultdict(int))
+    by_collection: dict[str, int] = field(default_factory=lambda: defaultdict(int))
     avg_duration_ms: float = 0
 
 
@@ -51,7 +51,7 @@ class DatabaseMetrics:
         return cls._instance
 
     def __init__(self) -> None:
-        if self._initialized:
+        if getattr(self, "_initialized", False):
             return
         self._operations: list[OperationMetric] = []
         self._lock = Lock()
@@ -64,7 +64,7 @@ class DatabaseMetrics:
         collection: str,
         duration_ms: float,
         success: bool = True,
-        filters: Optional[Dict[str, Any]] = None,
+        filters: dict[str, Any] | None = None,
     ) -> None:
         """Record a database operation."""
         with self._lock:
@@ -81,9 +81,7 @@ class DatabaseMetrics:
             if len(self._operations) > self._max_history:
                 self._operations = self._operations[-self._max_history :]
 
-    def _sanitize_filters(
-        self, filters: Optional[Dict[str, Any]]
-    ) -> Optional[Dict[str, Any]]:
+    def _sanitize_filters(self, filters: dict[str, Any] | None) -> dict[str, Any] | None:
         """Remove sensitive data from filters for logging."""
         if not filters:
             return None
@@ -93,7 +91,7 @@ class DatabaseMetrics:
             for k, v in filters.items()
         }
 
-    def get_recent_operations(self, limit: int = 100) -> list[Dict[str, Any]]:
+    def get_recent_operations(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get recent operations."""
         with self._lock:
             recent = self._operations[-limit:]
@@ -111,9 +109,9 @@ class DatabaseMetrics:
 
     def get_aggregated_metrics(
         self,
-        since: Optional[datetime] = None,
-        operation: Optional[str] = None,
-        collection: Optional[str] = None,
+        since: datetime | None = None,
+        operation: str | None = None,
+        collection: str | None = None,
     ) -> AggregatedMetrics:
         """Get aggregated metrics for a time window."""
         with self._lock:
@@ -133,15 +131,9 @@ class DatabaseMetrics:
 
             if filtered_ops:
                 metrics.total_duration_ms = sum(op.duration_ms for op in filtered_ops)
-                metrics.avg_duration_ms = (
-                    metrics.total_duration_ms / metrics.total_operations
-                )
-                metrics.successful_operations = sum(
-                    1 for op in filtered_ops if op.success
-                )
-                metrics.failed_operations = sum(
-                    1 for op in filtered_ops if not op.success
-                )
+                metrics.avg_duration_ms = metrics.total_duration_ms / metrics.total_operations
+                metrics.successful_operations = sum(1 for op in filtered_ops if op.success)
+                metrics.failed_operations = sum(1 for op in filtered_ops if not op.success)
 
                 for op in filtered_ops:
                     metrics.by_operation[op.operation] += 1
@@ -149,7 +141,7 @@ class DatabaseMetrics:
 
             return metrics
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """Get a summary of all metrics."""
         now = datetime.now()
 
@@ -200,7 +192,7 @@ class OperationTimer:
         self,
         operation: str,
         collection: str,
-        filters: Optional[Dict[str, Any]] = None,
+        filters: dict[str, Any] | None = None,
     ):
         self.operation = operation
         self.collection = collection

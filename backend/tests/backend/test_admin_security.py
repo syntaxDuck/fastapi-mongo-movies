@@ -1,9 +1,10 @@
+from datetime import datetime
+
 import pytest
 from fastapi.testclient import TestClient
+
 from backend.api.main import create_app
-from backend.core.config import settings
 from backend.services.poster_validation_service import ValidationStats
-from datetime import datetime
 
 
 @pytest.fixture

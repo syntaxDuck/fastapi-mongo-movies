@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 
@@ -12,45 +11,45 @@ logger = get_logger(__name__)
 class MovieQuery(MongoQuery, BaseModel):
     """Query parameters for movie endpoints."""
 
-    id: Optional[str] = Field(None, alias="_id", description="Filter by movie ID")
-    genres: Optional[list[str]] = Field(None, description="Filter by movie genres")
-    runtime: Optional[int] = Field(None, description="Filter by movie runtime")
-    cast: Optional[list[str]] = Field(None, description="Filter by movie cast")
-    num_mflix_comments: Optional[int] = Field(
+    id: str | None = Field(None, alias="_id", description="Filter by movie ID")
+    genres: list[str] | None = Field(None, description="Filter by movie genres")
+    runtime: int | None = Field(None, description="Filter by movie runtime")
+    cast: list[str] | None = Field(None, description="Filter by movie cast")
+    num_mflix_comments: int | None = Field(
         None, description="Filter by number of comments"
     )
-    title: Optional[str] = Field(None, description="Filter by movie title")
-    countries: Optional[list[str]] = Field(
+    title: str | None = Field(None, description="Filter by movie title")
+    countries: list[str] | None = Field(
         None, description="Filter by movie countries"
     )
-    released: Optional[datetime] = Field(
+    released: datetime | None = Field(
         None, description="Filter by movie release date"
     )
-    directors: Optional[list[str]] = Field(
+    directors: list[str] | None = Field(
         None, description="Filter by movie directors"
     )
-    writers: Optional[list[str]] = Field(None, description="Filter by movie writers")
-    awards: Optional[dict] = Field(None, description="Filter by movie awards")
-    lastupdated: Optional[datetime] = Field(
+    writers: list[str] | None = Field(None, description="Filter by movie writers")
+    awards: dict | None = Field(None, description="Filter by movie awards")
+    lastupdated: datetime | None = Field(
         None, description="Filter by last updated date"
     )
-    year: Optional[int] = Field(None, description="Filter by movie year")
-    type: Optional[str] = Field(None, description="Filter by movie type")
-    search: Optional[str] = Field(
+    year: int | None = Field(None, description="Filter by movie year")
+    type: str | None = Field(None, description="Filter by movie type")
+    search: str | None = Field(
         None, description="Search movies by text in title, plot, etc."
     )
-    include_invalid_posters: Optional[bool] = Field(
+    include_invalid_posters: bool | None = Field(
         False, description="Include movies with invalid posters"
     )
-    sort_by: Optional[str] = Field(
+    sort_by: str | None = Field(
         None,
         description="Field to sort by (title, year, released, runtime, num_mflix_comments, lastupdated, imdb.rating, imdb.votes, tomatoes.viewer.rating, tomatoes.critic.rating)",
     )
-    sort_order: Optional[str] = Field(
+    sort_order: str | None = Field(
         "asc", description="Sort order: 'asc' for ascending, 'desc' for descending"
     )
-    limit: Optional[int] = Field(10, description="Number of movies to return")
-    skip: Optional[int] = Field(0, description="Number of records to skip")
+    limit: int | None = Field(10, description="Number of movies to return")
+    skip: int | None = Field(0, description="Number of records to skip")
 
     @field_validator("sort_by")
     @classmethod
@@ -90,25 +89,25 @@ class MovieResponse(BaseModel):
     """Response model for movie data."""
 
     id: str = Field(..., alias="_id")
-    plot: Optional[str] = None
-    genres: Optional[list[str]] = None
-    runtime: Optional[int] = None
-    cast: Optional[list[str]] = None
-    num_mflix_comments: Optional[int] = None
-    poster: Optional[HttpUrl] = None
+    plot: str | None = None
+    genres: list[str] | None = None
+    runtime: int | None = None
+    cast: list[str] | None = None
+    num_mflix_comments: int | None = None
+    poster: HttpUrl | None = None
     title: str
-    fullplot: Optional[str] = None
-    countries: Optional[list[str]] = None
-    released: Optional[datetime] = None
-    directors: Optional[list[str]] = None
-    writers: Optional[list[str]] = None
-    awards: Optional[dict] = None
-    lastupdated: Optional[datetime] = None
-    year: Optional[int] = None
-    imdb: Optional[dict] = None
-    type: Optional[str] = None
-    tomatoes: Optional[dict] = None
-    valid_poster: Optional[bool] = None
+    fullplot: str | None = None
+    countries: list[str] | None = None
+    released: datetime | None = None
+    directors: list[str] | None = None
+    writers: list[str] | None = None
+    awards: dict | None = None
+    lastupdated: datetime | None = None
+    year: int | None = None
+    imdb: dict | None = None
+    type: str | None = None
+    tomatoes: dict | None = None
+    valid_poster: bool | None = None
 
     @field_validator("year", mode="before")
     @classmethod
