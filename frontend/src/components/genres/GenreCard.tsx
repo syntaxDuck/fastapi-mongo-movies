@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Link } from "react-router-dom";
 import { Image, Badge } from "../ui";
 import { Movie } from "../../types";
@@ -9,7 +9,7 @@ interface GenreCardProps {
   movie?: Movie,
 }
 
-const GenreCard: React.FC<GenreCardProps> = ({ genre, movie }) => {
+const GenreCard: React.FC<GenreCardProps> = memo(({ genre, movie }) => {
 
   if (!movie) {
     return (<div className={`${styles.genreCard} ${styles.skeleton}`}>
@@ -49,6 +49,8 @@ const GenreCard: React.FC<GenreCardProps> = ({ genre, movie }) => {
       </Link>
     </div>
   )
-}
+});
+
+GenreCard.displayName = "GenreCard";
 
 export default GenreCard

@@ -14,6 +14,17 @@ interface MovieCardProps {
   onMovieClick?: (movieId: string) => void;
 }
 
+const overlayVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
+
+const cardVariants = {
+  hidden: { y: 0, scale: 1 },
+  visible: AnimationVariants.movieCard.whileHover,
+  tap: AnimationVariants.movieCard.whileTap
+};
+
 /**
  * Optimized MovieCard component with memoization to prevent unnecessary re-renders.
  * Enhanced with focus states and keyboard accessibility for better UX.
@@ -38,17 +49,6 @@ const MovieCard: React.FC<MovieCardProps> = memo(({ movie, disableLink = false, 
       <div className={styles.skeletonPoster}></div>
     </div>)
   }
-
-  const overlayVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  const cardVariants = {
-    hidden: { y: 0, scale: 1 },
-    visible: AnimationVariants.movieCard.whileHover,
-    tap: AnimationVariants.movieCard.whileTap
-  };
 
   const content = (
     <>

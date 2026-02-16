@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useMemo, memo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Movie } from "../../types";
@@ -14,7 +14,18 @@ interface MovieListProps {
   disableCardLink?: boolean;
 }
 
-const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, disableCardLink = false }) => {
+const listContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const MovieList: React.FC<MovieListProps> = memo(({ filter, onMovieSelect = null, disableCardLink = false }) => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("search");
 
@@ -32,7 +43,7 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
     isFetchingNextPage,
   } = useMovies(queryParams);
 
-  const movies = data?.pages.flat() ?? [];
+  const movies = useMemo(() => data?.pages.flat() ?? [], [data?.pages]);
 
   const handleMovieClick = useCallback((movieId: string) => {
     if (onMovieSelect) {
@@ -83,16 +94,7 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
         layout
         initial="hidden"
         animate="visible"
-        variants={{
-          hidden: { opacity: 0 },
-          visible: {
-            opacity: 1,
-            transition: {
-              staggerChildren: 0.1,
-              delayChildren: 0.2,
-            },
-          },
-        }}
+        variants={listContainerVariants}
       >
         <AnimatePresence mode="popLayout">
           {movies.map((movie, index) => (
@@ -107,12 +109,6 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
                 ease: [0.4, 0, 0.2, 1],
                 delay: index * 0.05,
               }}
-              whileHover={{
-                y: -6,
-                scale: 1.02,
-                transition: { duration: 0.2 },
-              }}
-              whileTap={{ scale: 0.98 }}
             >
               <MovieCard
                 onMovieClick={handleMovieClick}
@@ -152,6 +148,8 @@ const MovieList: React.FC<MovieListProps> = ({ filter, onMovieSelect = null, dis
       )}
     </div>
   );
-};
+});
+
+MovieList.displayName = "MovieList";
 
 export default MovieList;
