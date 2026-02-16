@@ -46,7 +46,6 @@ fastapi-mongo-movies/
 │   ├── core/              # Config, DB manager, logging, exceptions
 │   └── tests/             # Backend tests + Playwright frontend tests
 ├── Dockerfile.backend
-├── Dockerfile.frontend
 ├── .env
 └── README.md
 ```
@@ -182,7 +181,7 @@ Key local URLs:
 - Backend API: `http://localhost:8000`
 - OpenAPI docs: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
-- Health check: `http://localhost:8000/health`
+- Health check: `http://localhost:8000/admin/health`
 
 ## Testing
 
@@ -221,8 +220,10 @@ Comments (`/comments`)
 - `GET /comments/movie/{movie_id}`
 - `GET /comments/email/{email}`
 - `GET /comments/name/{name}`
+- `POST /comments/`
 
-Admin (`/admin`)
+Admin (`/admin`) - requires `X-API-Key` header
+- `GET /admin/health`
 - `POST /admin/movies/validate-posters`
 - `GET /admin/movies/validate-posters/{job_id}`
 - `GET /admin/movies/validate-posters/statistics`
@@ -230,8 +231,16 @@ Admin (`/admin`)
 - `POST /admin/movies/{movie_id}/validate-poster`
 - `POST /admin/movies/validate-posters/revalidate/{movie_id}`
 - `DELETE /admin/jobs/{job_id}`
+- `GET /admin/db-stats`
+- `DELETE /admin/db-stats`
+- `GET /admin/request-metrics`
+- `DELETE /admin/request-metrics`
+- `GET /admin/request-metrics/ip/{ip}`
+- `GET /admin/request-metrics/blocked`
 
 For exact schemas and query params, use `http://localhost:8000/docs`.
+
+**Note:** Admin endpoints require `X-API-Key` header with a valid API key.
 
 ## Frontend Routes
 - `/` home
@@ -250,6 +259,6 @@ Development-only routes (only in development mode):
 
 ## Troubleshooting
 - If frontend is unreachable, verify `pnpm --prefix frontend start` is running (or start via `uv run main.py -bf`).
-- If API calls fail, confirm backend health at `http://localhost:8000/health`.
+- If API calls fail, confirm backend health at `http://localhost:8000/admin/health`.
 - If Mongo connection fails, re-check `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` and TLS settings in `.env`.
 - For logs, inspect `logs/app.log` and `logs/errors.log`.
