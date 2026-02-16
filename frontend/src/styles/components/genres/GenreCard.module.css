@@ -93,7 +93,8 @@
   z-index: 10;
 }
 
-.genreCard:hover .genreOverlay {
+.genreCard:hover .genreOverlay,
+.genreLink:focus-within .genreOverlay {
   opacity: 1;
   transform: translateY(0);
 }
