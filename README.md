@@ -11,39 +11,43 @@ The demo above shows navigation across the app, movie search, movie details, and
 - Layered backend architecture: `API -> Service -> Repository -> Database`
 - Async MongoDB access with connection pooling via Motor
 - React frontend with route transitions using Framer Motion
+- React Query (TanStack Query) for data caching
 - Feature routes for movies, genres, top-rated, recent, and about pages
 - Admin API for poster validation jobs and job status management
-- Python and frontend tests in `tests/` and `frontend` test setup
+- Python tests in `backend/tests/` and Playwright tests in `backend/tests/frontend/`
 
 ## Tech Stack
 - Backend: FastAPI, Motor, Pydantic v2, Uvicorn
-- Frontend: React 18, TypeScript, React Router, Framer Motion, CSS Modules
-- Tooling: `uv` for Python dependency/runtime management, npm for frontend
+- Frontend: React 18, TypeScript, React Router, TanStack Query, Framer Motion, CSS Modules
+- Tooling: `uv` for Python dependency/runtime management, `pnpm` for frontend
 - Database: MongoDB (`sample_mflix`-style collections)
 
 ## Repository Structure
 ```text
 fastapi-mongo-movies/
-├── main                      # Service launcher script (executable)
-├── frontend/                 # React frontend
+├── main                      # Bash script to run backend + frontend
+├── frontend/                 # React frontend (pnpm)
 │   ├── src/
 │   │   ├── components/     # Domain + UI components
-│   │   ├── styles/         # CSS modules
-│   │   ├── services/       # API client layer
+│   │   ├── styles/        # CSS modules
+│   │   ├── services/      # API client layer
+│   │   ├── hooks/         # React Query hooks
 │   │   └── utils/         # Frontend utilities
 │   └── package.json
-├── backend/                 # FastAPI backend
+├── backend/                 # FastAPI backend (uv)
 │   ├── pyproject.toml     # Python package config
 │   ├── .env               # Environment variables
 │   ├── main.py            # FastAPI application entry
 │   ├── api/               # FastAPI app + route modules
 │   │   └── routes/        # movies, users, comments, admin
 │   ├── services/          # Business logic layer
-│   ├── repositories/      # Data access layer
+│   ├── repositories/     # Data access layer
 │   ├── schemas/           # Pydantic request/response schemas
 │   ├── core/              # Config, DB manager, logging, exceptions
-│   └── tests/             # Backend tests
-├── Dockerfile
+│   └── tests/             # Backend tests + Playwright frontend tests
+├── Dockerfile.backend
+├── Dockerfile.frontend
+├── .env
 └── README.md
 ```
 
@@ -121,7 +125,7 @@ app.add_exception_handler(Exception, generic_exception_handler)    # 500
 ## Setup
 ```bash
 # Install frontend dependencies
-cd frontend && npm install && cd ..
+cd frontend && pnpm install && cd ..
 
 # Install backend dependencies (uses pyproject.toml in backend/)
 cd backend && uv sync && cd ..
@@ -189,7 +193,7 @@ cd backend && uv run pytest
 
 Frontend tests:
 ```bash
-cd frontend && npm test
+cd frontend && pnpm test
 ```
 
 ## API Surface (Summary)
@@ -231,32 +235,21 @@ For exact schemas and query params, use `http://localhost:8000/docs`.
 
 ## Frontend Routes
 - `/` home
-- `/movies`
-- `/movie/:movieId`
-- `/genres`
-- `/genres/:genre`
-- `/top-rated`
-- `/recent`
-- `/about`
-- `/debug`
+- `/movies` - browse all movies with filters
+- `/movie/:movieId` - movie details
+- `/genres` - genre overview
+- `/genres/:genre` - movies by genre
+- `/top-rated` - filtered view (rating >= 8)
+- `/recent` - filtered view (year >= 2000)
+- `/about` - about page
+- `/debug` - API debug view
 
-Development-only routes are also available in development mode (`/dev`, `/spinners-test`).
-
-## Docker
-Development stack:
-```bash
-docker-compose up -d
-```
-
-Production stack:
-```bash
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-See `DOCKER.md` for details.
+Development-only routes (only in development mode):
+- `/dev` - development tools
+- `/spinners-test` - spinner component testing
 
 ## Troubleshooting
-- If frontend is unreachable, verify `npm --prefix frontend start` is running (or start via `uv run main.py -bf`).
+- If frontend is unreachable, verify `pnpm --prefix frontend start` is running (or start via `uv run main.py -bf`).
 - If API calls fail, confirm backend health at `http://localhost:8000/health`.
 - If Mongo connection fails, re-check `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` and TLS settings in `.env`.
 - For logs, inspect `logs/app.log` and `logs/errors.log`.
