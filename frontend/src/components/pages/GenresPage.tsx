@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Movie } from "../../types";
 import { movieService } from "../../services/api";
@@ -15,11 +15,11 @@ const GenresPage: React.FC = () => {
     return genreTypes.map((genre) => ({ genre }));
   }, [genreTypes]);
 
-  const handleRetry = () => {
+  const handleRetry = useCallback(() => {
     refetch();
-  };
+  }, [refetch]);
 
-  const loadGenres = async () => {
+  const loadGenres = useCallback(async () => {
     if (!genreTypes) return;
     
     const genreMoviesPromises = genreTypes.map(async (genre) => {
@@ -53,7 +53,7 @@ const GenresPage: React.FC = () => {
     }
 
     return finalGenres;
-  };
+  }, [genreTypes]);
 
   if (isLoading) {
     return (
@@ -138,7 +138,23 @@ interface GenresContentProps {
   loadGenres: () => Promise<{ genre: string; movie: Movie }[] | undefined>;
 }
 
-const GenresContent: React.FC<GenresContentProps> = ({ genreTypes, loadGenres }) => {
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const GenresContent: React.FC<GenresContentProps> = React.memo(({ genreTypes, loadGenres }) => {
   const [genres, setGenres] = React.useState<{ genre: string; movie: Movie }[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -153,22 +169,6 @@ const GenresContent: React.FC<GenresContentProps> = ({ genreTypes, loadGenres })
     };
     fetchGenreMovies();
   }, [genreTypes, loadGenres]);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0 },
-  };
 
   if (loading) {
     return (
@@ -252,6 +252,8 @@ const GenresContent: React.FC<GenresContentProps> = ({ genreTypes, loadGenres })
       </motion.div>
     </div>
   );
-};
+});
+
+GenresContent.displayName = "GenresContent";
 
 export default GenresPage;

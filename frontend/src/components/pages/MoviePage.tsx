@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, scale, Variants } from "framer-motion";
 import MovieDetails from "../movies/MovieDetails";
 import MovieList from "../movies/MovieList";
@@ -28,62 +28,62 @@ interface MoviePageProps {
   filter?: MovieFilters;
 }
 
+const movieListVariants: Variants = {
+  hidden: {
+    x: -400,
+    opacity: 0
+  },
+  visible: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      ease: "easeIn",
+      type: "spring",
+      stiffness: 350,
+      damping: 28
+    }
+  },
+};
+
+const badgesVariants: Variants = {
+  hidden: {
+    transition: {
+      staggerChildren: 0.2
+    }
+  },
+  visible: {
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const badgeVariants: Variants = {
+  hidden: {
+    x: 300,
+    opacity: 0
+  },
+  visible: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      ease: "easeIn",
+      type: "spring",
+      stiffness: 350,
+      damping: 28
+    }
+  },
+};
+
 const MoviePage: React.FC<MoviePageProps> = ({ filter }) => {
   const [selectedMovie, setSelectedMovie] = useState("");
 
-  const handleMovieSelect = (movieId: string) => {
+  const handleMovieSelect = useCallback((movieId: string) => {
     setSelectedMovie(movieId)
-  }
+  }, []);
 
   const isDesktop = useMediaQuery('(min-width: 1025px)');
-
-  const movieListVariants: Variants = {
-    hidden: {
-      x: -400,
-      opacity: 0
-    },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        ease: "easeIn",
-        type: "spring",
-        stiffness: 350,
-        damping: 28
-      }
-    },
-  }
-
-  const badgesVariants: Variants = {
-    hidden: {
-      transition: {
-        staggerChildren: 0.2
-      }
-    },
-    visible: {
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.2
-      }
-    }
-  }
-
-  const badgeVariants: Variants = {
-    hidden: {
-      x: 300,
-      opacity: 0
-    },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        ease: "easeIn",
-        type: "spring",
-        stiffness: 350,
-        damping: 28
-      }
-    },
-  };
 
   //BUG: Movie Page Container error screen currently isn't styled properly
   return (
