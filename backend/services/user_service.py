@@ -3,7 +3,12 @@ User Service layer for business logic using proper protocol-based dependency inj
 """
 
 
-from ..core.exceptions import DatabaseError, DuplicateResourceError, NotFoundError
+from ..core.exceptions import (
+    DatabaseError,
+    DuplicateResourceError,
+    NotFoundError,
+    ValidationError,
+)
 from ..core.logging import get_logger
 from ..core.security import hash_password
 from ..repositories.protocol import UserRepositoryProtocol
@@ -70,56 +75,45 @@ class UserService:
             )
 
         password = user_data.password
-        if len(password) < 6:
-            logger.warning(
-                f"UserService.create_user() weak password: length={len(password)} for email='{email}'"
+        if len(password) < 8:
+            raise ValidationError(
+                "Password must be at least 8 characters long", field="password"
             )
         if len(password) > 100:
-            logger.warning(
-                f"UserService.create_user() excessive password length: {len(password)} for email='{email}'"
+            raise ValidationError(
+                "Password must not exceed 100 characters", field="password"
             )
         if password.lower() in [
             "password",
+            "12345678",
             "123456",
             "qwerty",
             "admin",
             "letmein",
             "welcome",
         ]:
-            logger.warning(
-                f"UserService.create_user() common insecure password used for email='{email}'"
+            raise ValidationError(
+                "This password is too common and insecure", field="password"
             )
 
         name = user_data.name
-        if len(password) == len(name) and password.lower() == name.lower():
-            logger.warning(
-                f"UserService.create_user() password same as username for email='{email}'"
+        if name and len(password) == len(name) and password.lower() == name.lower():
+            raise ValidationError(
+                "Password cannot be the same as the name", field="password"
             )
 
-        if name:
-            if len(name.strip()) < 1:
-                logger.warning(
-                    f"UserService.create_user() empty name for email='{email}'"
-                )
-            if len(name) > 100:
-                logger.warning(
-                    f"UserService.create_user() long name: {len(name)} characters for email='{email}'"
-                )
-            if name.lower() in [
-                "admin",
-                "administrator",
-                "root",
-                "test",
-                "user",
-                "guest",
-            ]:
-                logger.warning(
-                    f"UserService.create_user() potentially problematic name: '{name}' for email='{email}'"
-                )
-        else:
-            logger.warning(
-                f"UserService.create_user() missing name for email='{email}'"
-            )
+        if not name or not name.strip():
+            raise ValidationError("Name is required", field="name")
+
+        if len(name) > 100:
+            raise ValidationError("Name must not exceed 100 characters", field="name")
+
+        if name.lower() in [
+            "admin",
+            "administrator",
+            "root",
+        ]:
+            raise ValidationError(f"The name '{name}' is reserved", field="name")
 
         if await self.user_repository.email_exists(email):
             logger.warning(
