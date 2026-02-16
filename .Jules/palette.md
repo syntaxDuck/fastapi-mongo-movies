@@ -13,3 +13,7 @@
 ## 2026-02-14 - Keyboard Parity for Hover-Only Content
 **Learning:** Interactive components that reveal content only on hover (such as movie titles in `MovieCard`) are inaccessible to keyboard and screen reader users. Using Framer Motion's `whileFocus` (or `whileFocusWithin`) in conjunction with `whileHover` and shared variants ensures visual parity. For non-link interactives, adding `tabIndex={0}`, `role="button"`, and handling `Enter`/`Space` keys is essential for a complete accessible experience.
 **Action:** Always ensure hover-triggered overlays also respond to focus. Implement proper keyboard handlers and ARIA roles for any custom interactive elements that aren't natively focusable.
+
+## 2026-02-15 - Minimalist Accessibility with focus-within
+**Learning:** For components that already have established CSS-based hover transitions (like `GenreCard`), adding accessibility for keyboard users can be achieved with minimal overhead by using the CSS `:focus-within` pseudo-class. This provides a lightweight alternative to full Framer Motion refactoring when only simple visibility toggling is needed, while still fulfilling accessibility requirements.
+**Action:** Use `:focus-within` on parent link/button containers to reveal absolute-positioned children that are otherwise only visible on hover.

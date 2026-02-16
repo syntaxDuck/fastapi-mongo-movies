@@ -21,7 +21,11 @@ const GenreCard: React.FC<GenreCardProps> = ({ genre, movie }) => {
   return (
     <div className={styles.genreCard}>
       <h3 className={styles.genreTitle}>{genre}</h3>
-      <Link to={`/genres/${genre}`} className={styles.genreLink}>
+      <Link
+        to={`/genres/${genre}`}
+        className={styles.genreLink}
+        aria-label={`Explore ${genre} movies`}
+      >
         <Image
           src={movie.poster}
           alt={movie.title}
