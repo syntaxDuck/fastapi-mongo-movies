@@ -22,7 +22,7 @@ class UserCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(
-        ..., min_length=6, max_length=100, description="User password"
+        ..., min_length=8, max_length=100, description="User password"
     )
 
 

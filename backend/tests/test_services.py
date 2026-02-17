@@ -6,7 +6,11 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from backend.core.exceptions import DuplicateResourceError, NotFoundError
+from backend.core.exceptions import (
+    DuplicateResourceError,
+    NotFoundError,
+    ValidationError,
+)
 from backend.schemas.schemas import MessageResponse, UserCreate
 
 
@@ -133,6 +137,44 @@ class TestUserService:
         with pytest.raises(
             DuplicateResourceError,
             match="User with email 'existing@example.com' already exists",
+        ):
+            await user_service.create_user(user_data)
+
+    @pytest.mark.asyncio
+    async def test_create_user_weak_password(self, user_service):
+        """Test creating a user with a weak password (schema level)."""
+        from pydantic import ValidationError as PydanticValidationError
+
+        with pytest.raises(PydanticValidationError):
+            UserCreate(
+                name="Weak User",
+                email="weak@example.com",
+                password="123",
+            )
+
+    @pytest.mark.asyncio
+    async def test_create_user_common_password(self, user_service):
+        """Test creating a user with a common password."""
+        user_data = UserCreate(
+            name="Common User",
+            email="common@example.com",
+            password="password",
+        )
+
+        with pytest.raises(ValidationError, match="Password is too common and insecure"):
+            await user_service.create_user(user_data)
+
+    @pytest.mark.asyncio
+    async def test_create_user_password_matches_name(self, user_service):
+        """Test creating a user where password matches name."""
+        user_data = UserCreate(
+            name="JohnDoe123",
+            email="johndoe@example.com",
+            password="JohnDoe123",
+        )
+
+        with pytest.raises(
+            ValidationError, match="Password cannot be the same as the name"
         ):
             await user_service.create_user(user_data)
 
