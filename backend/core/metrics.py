@@ -4,7 +4,7 @@ Tracks query operations for monitoring and performance analysis.
 """
 
 import time
-from collections import defaultdict
+from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from threading import Lock
@@ -53,10 +53,10 @@ class DatabaseMetrics:
     def __init__(self) -> None:
         if getattr(self, "_initialized", False):
             return
-        self._operations: list[OperationMetric] = []
+        self._max_history = 10000
+        self._operations: deque[OperationMetric] = deque(maxlen=self._max_history)
         self._lock = Lock()
         self._initialized = True
-        self._max_history = 10000
 
     def record_operation(
         self,
@@ -78,9 +78,6 @@ class DatabaseMetrics:
             )
             self._operations.append(metric)
 
-            if len(self._operations) > self._max_history:
-                self._operations = self._operations[-self._max_history :]
-
     def _sanitize_filters(self, filters: dict[str, Any] | None) -> dict[str, Any] | None:
         """Remove sensitive data from filters for logging."""
         if not filters:
@@ -94,18 +91,20 @@ class DatabaseMetrics:
     def get_recent_operations(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get recent operations."""
         with self._lock:
-            recent = self._operations[-limit:]
-            return [
-                {
+            result = []
+            # Deque reversed iteration is O(1) per element
+            for i, m in enumerate(reversed(self._operations)):
+                if i >= limit:
+                    break
+                result.append({
                     "operation": m.operation,
                     "collection": m.collection,
                     "duration_ms": round(m.duration_ms, 2),
                     "timestamp": m.timestamp.isoformat(),
                     "success": m.success,
                     "filters": m.filters,
-                }
-                for m in reversed(recent)
-            ]
+                })
+            return result
 
     def get_aggregated_metrics(
         self,
@@ -118,26 +117,29 @@ class DatabaseMetrics:
             if since is None:
                 since = datetime.now() - timedelta(hours=1)
 
-            filtered_ops = [
-                op
-                for op in self._operations
-                if op.timestamp >= since
-                and (operation is None or op.operation == operation)
-                and (collection is None or op.collection == collection)
-            ]
-
             metrics = AggregatedMetrics()
-            metrics.total_operations = len(filtered_ops)
 
-            if filtered_ops:
-                metrics.total_duration_ms = sum(op.duration_ms for op in filtered_ops)
-                metrics.avg_duration_ms = metrics.total_duration_ms / metrics.total_operations
-                metrics.successful_operations = sum(1 for op in filtered_ops if op.success)
-                metrics.failed_operations = sum(1 for op in filtered_ops if not op.success)
+            # Iterate backwards and stop when timestamps are older than 'since'
+            # This is O(K) where K is number of items within the time window
+            # instead of O(N) where N is the total history size.
+            for op in reversed(self._operations):
+                if op.timestamp < since:
+                    break
 
-                for op in filtered_ops:
+                if (operation is None or op.operation == operation) and \
+                   (collection is None or op.collection == collection):
+                    metrics.total_operations += 1
+                    metrics.total_duration_ms += op.duration_ms
+                    if op.success:
+                        metrics.successful_operations += 1
+                    else:
+                        metrics.failed_operations += 1
+
                     metrics.by_operation[op.operation] += 1
                     metrics.by_collection[op.collection] += 1
+
+            if metrics.total_operations > 0:
+                metrics.avg_duration_ms = metrics.total_duration_ms / metrics.total_operations
 
             return metrics
 

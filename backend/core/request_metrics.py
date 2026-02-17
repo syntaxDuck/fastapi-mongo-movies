@@ -3,7 +3,7 @@ User request metrics tracking module.
 Tracks HTTP requests by IP for monitoring and security analysis.
 """
 
-from collections import defaultdict
+from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from threading import Lock
@@ -51,10 +51,10 @@ class RequestMetrics:
     def __init__(self) -> None:
         if getattr(self, "_initialized", False):
             return
-        self._requests: list[RequestMetric] = []
+        self._max_history = 50000
+        self._requests: deque[RequestMetric] = deque(maxlen=self._max_history)
         self._ip_metrics: dict[str, IpMetrics] = {}
         self._initialized = True
-        self._max_history = 50000
 
     def record_request(
         self,
@@ -77,10 +77,6 @@ class RequestMetrics:
                 blocked=blocked,
             )
             self._requests.append(metric)
-
-            if len(self._requests) > self._max_history:
-                self._requests = self._requests[-self._max_history :]
-
             self._update_ip_metrics(metric)
 
     def _normalize_path(self, path: str) -> str:
@@ -126,9 +122,11 @@ class RequestMetrics:
     def get_recent_requests(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get recent requests."""
         with self._lock:
-            recent = self._requests[-limit:]
-            return [
-                {
+            result = []
+            for i, m in enumerate(reversed(self._requests)):
+                if i >= limit:
+                    break
+                result.append({
                     "ip": m.ip,
                     "method": m.method,
                     "path": m.path,
@@ -136,31 +134,46 @@ class RequestMetrics:
                     "duration_ms": round(m.duration_ms, 2),
                     "timestamp": m.timestamp.isoformat(),
                     "blocked": m.blocked,
-                }
-                for m in reversed(recent)
-            ]
+                })
+            return result
 
     def get_summary(self) -> dict[str, Any]:
         """Get summary of all request metrics."""
         now = datetime.now()
+        since_1h = now - timedelta(hours=1)
+        since_24h = now - timedelta(hours=24)
 
         with self._lock:
-            requests_1h = [r for r in self._requests if r.timestamp >= now - timedelta(hours=1)]
-            requests_24h = [r for r in self._requests if r.timestamp >= now - timedelta(hours=24)]
-
-            unique_ips_1h = {r.ip for r in requests_1h}
-            unique_ips_24h = {r.ip for r in requests_24h}
-
-            blocked_1h = sum(1 for r in requests_1h if r.blocked)
-            blocked_24h = sum(1 for r in requests_24h if r.blocked)
-
+            # Optimized summary generation using single backwards pass
+            requests_1h_count = 0
+            requests_24h_count = 0
+            unique_ips_1h = set()
+            unique_ips_24h = set()
+            blocked_1h = 0
+            blocked_24h = 0
             by_endpoint = defaultdict(int)
-            for r in requests_1h:
-                by_endpoint[r.path] += 1
+
+            for r in reversed(self._requests):
+                if r.timestamp < since_24h:
+                    break
+
+                # Within 24h
+                requests_24h_count += 1
+                unique_ips_24h.add(r.ip)
+                if r.blocked:
+                    blocked_24h += 1
+
+                # Within 1h
+                if r.timestamp >= since_1h:
+                    requests_1h_count += 1
+                    unique_ips_1h.add(r.ip)
+                    if r.blocked:
+                        blocked_1h += 1
+                    by_endpoint[r.path] += 1
 
             return {
-                "total_requests_1h": len(requests_1h),
-                "total_requests_24h": len(requests_24h),
+                "total_requests_1h": requests_1h_count,
+                "total_requests_24h": requests_24h_count,
                 "unique_ips_1h": len(unique_ips_1h),
                 "unique_ips_24h": len(unique_ips_24h),
                 "blocked_requests_1h": blocked_1h,
