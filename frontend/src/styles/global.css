@@ -48,3 +48,22 @@
   white-space: nowrap;
   border-width: 0;
 }
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: var(--space-4);
+  background: var(--primary-600);
+  color: white;
+  padding: var(--space-2) var(--space-4);
+  z-index: var(--z-toast);
+  transition: top var(--transition-normal);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  font-weight: var(--font-semibold);
+  box-shadow: var(--shadow-lg), var(--glow-primary);
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: none;
+}

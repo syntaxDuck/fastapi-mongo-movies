@@ -75,8 +75,11 @@ const AppWithTransitions: React.FC = () => {
 
   return (
     <div className="app">
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <NavBar />
-      <main className="view-port">
+      <main id="main-content" className="view-port">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={
