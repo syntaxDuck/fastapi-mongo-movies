@@ -87,6 +87,25 @@ const MovieList: React.FC<MovieListProps> = memo(({ filter, onMovieSelect = null
     return <div className={styles.error}>Failed to load movies</div>;
   }
 
+  if (movies.length === 0 && !isLoading) {
+    return (
+      <div className={styles.movieListContainer}>
+        <motion.div
+          className={styles.emptyState}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className={styles.emptyIcon}>🔍</div>
+          <h3 className={styles.emptyTitle}>No movies found</h3>
+          <p className={styles.emptyMessage}>
+            We couldn't find any movies matching your current search or filters. Try adjusting them to discover more films.
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.movieListContainer}>
       <motion.div
