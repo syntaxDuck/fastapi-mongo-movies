@@ -1,11 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from slowapi import Limiter
 
 from ...core.config import settings
 from ...core.logging import get_logger
 from ...core.rate_limiter import get_rate_limit_config, rate_limit_key
+from ...core.security import verify_admin_api_key
 from ...repositories.user_repository import UserRepository
 from ...schemas import MessageResponse, UserCreate, UserQuery, UserResponse
 from ...services.user_service import UserService
@@ -43,6 +44,7 @@ def _get_user_service() -> UserService:
 async def get_users(
     query: Annotated[UserQuery, Query()],
     request: Request,
+    api_key: Annotated[str, Depends(verify_admin_api_key)],
 ):
     """
     Retrieve users with optional filtering and pagination.
@@ -68,6 +70,7 @@ async def get_users(
 async def get_user_by_id(
     request: Request,
     user_id: str,
+    api_key: Annotated[str, Depends(verify_admin_api_key)],
 ):
     """Get a specific user by ID."""
     user_service = _get_user_service()
@@ -85,7 +88,7 @@ async def create_user(
 
     - **name**: User name (required, 1-100 characters)
     - **email**: User email (required, must be valid email)
-    - **password**: User password (required, 6-100 characters)
+    - **password**: User password (required, 8-100 characters)
     """
     user_service = _get_user_service()
     logger.info(f"users.create | POST | email={user_data.email}")
@@ -97,6 +100,7 @@ async def create_user(
 async def get_user_by_email(
     request: Request,
     email: str,
+    api_key: Annotated[str, Depends(verify_admin_api_key)],
 ):
     """Get users by email."""
     user_service = _get_user_service()
@@ -108,6 +112,7 @@ async def get_user_by_email(
 async def get_user_by_name(
     request: Request,
     name: str,
+    api_key: Annotated[str, Depends(verify_admin_api_key)],
 ):
     """Get users by name."""
     user_service = _get_user_service()

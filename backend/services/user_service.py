@@ -3,7 +3,12 @@ User Service layer for business logic using proper protocol-based dependency inj
 """
 
 
-from ..core.exceptions import DatabaseError, DuplicateResourceError, NotFoundError
+from ..core.exceptions import (
+    DatabaseError,
+    DuplicateResourceError,
+    NotFoundError,
+    ValidationError,
+)
 from ..core.logging import get_logger
 from ..core.security import hash_password
 from ..repositories.protocol import UserRepositoryProtocol
@@ -70,33 +75,42 @@ class UserService:
             )
 
         password = user_data.password
-        if len(password) < 6:
+        if len(password) < 8:
             logger.warning(
                 f"UserService.create_user() weak password: length={len(password)} for email='{email}'"
             )
+            raise ValidationError("Password must be at least 8 characters long", field="password")
+
         if len(password) > 100:
             logger.warning(
                 f"UserService.create_user() excessive password length: {len(password)} for email='{email}'"
             )
+            raise ValidationError("Password too long", field="password")
+
         if password.lower() in [
             "password",
+            "12345678",
             "123456",
+            "qwertyui",
             "qwerty",
+            "adminadmin",
             "admin",
-            "letmein",
-            "welcome",
+            "letmein123",
+            "welcome123",
         ]:
             logger.warning(
                 f"UserService.create_user() common insecure password used for email='{email}'"
             )
+            raise ValidationError("Password is too common and insecure", field="password")
 
         name = user_data.name
-        if len(password) == len(name) and password.lower() == name.lower():
-            logger.warning(
-                f"UserService.create_user() password same as username for email='{email}'"
-            )
-
         if name:
+            if password.lower() == name.lower():
+                logger.warning(
+                    f"UserService.create_user() password same as username for email='{email}'"
+                )
+                raise ValidationError("Password cannot be the same as the name", field="password")
+
             if len(name.strip()) < 1:
                 logger.warning(
                     f"UserService.create_user() empty name for email='{email}'"
