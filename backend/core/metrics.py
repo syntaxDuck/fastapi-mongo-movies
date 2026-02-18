@@ -4,9 +4,10 @@ Tracks query operations for monitoring and performance analysis.
 """
 
 import time
-from collections import defaultdict
+from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from itertools import islice
 from threading import Lock
 from typing import Any, Optional
 
@@ -53,10 +54,10 @@ class DatabaseMetrics:
     def __init__(self) -> None:
         if getattr(self, "_initialized", False):
             return
-        self._operations: list[OperationMetric] = []
+        self._max_history = 10000
+        self._operations: deque[OperationMetric] = deque(maxlen=self._max_history)
         self._lock = Lock()
         self._initialized = True
-        self._max_history = 10000
 
     def record_operation(
         self,
@@ -78,9 +79,6 @@ class DatabaseMetrics:
             )
             self._operations.append(metric)
 
-            if len(self._operations) > self._max_history:
-                self._operations = self._operations[-self._max_history :]
-
     def _sanitize_filters(self, filters: dict[str, Any] | None) -> dict[str, Any] | None:
         """Remove sensitive data from filters for logging."""
         if not filters:
@@ -92,9 +90,15 @@ class DatabaseMetrics:
         }
 
     def get_recent_operations(self, limit: int = 100) -> list[dict[str, Any]]:
-        """Get recent operations."""
+        """Get recent operations.
+
+        Performance: O(limit) by using islice on reversed deque.
+        """
         with self._lock:
-            recent = self._operations[-limit:]
+            # Optimization: Use islice on reversed deque for O(limit) access
+            recent = list(islice(reversed(self._operations), limit))
+            # Put back in chronological order for the return list
+            recent.reverse()
             return [
                 {
                     "operation": m.operation,
@@ -113,18 +117,26 @@ class DatabaseMetrics:
         operation: str | None = None,
         collection: str | None = None,
     ) -> AggregatedMetrics:
-        """Get aggregated metrics for a time window."""
+        """Get aggregated metrics for a time window.
+
+        Performance: O(k) where k is the number of records within the time window,
+        thanks to early exit on chronological data.
+        """
         with self._lock:
             if since is None:
                 since = datetime.now() - timedelta(hours=1)
 
-            filtered_ops = [
-                op
-                for op in self._operations
-                if op.timestamp >= since
-                and (operation is None or op.operation == operation)
-                and (collection is None or op.collection == collection)
-            ]
+            filtered_ops = []
+            # Optimization: since self._operations is ordered by timestamp,
+            # we can iterate backwards and stop as soon as we reach an old record.
+            for op in reversed(self._operations):
+                if op.timestamp < since:
+                    break
+
+                if (operation is None or op.operation == operation) and (
+                    collection is None or op.collection == collection
+                ):
+                    filtered_ops.append(op)
 
             metrics = AggregatedMetrics()
             metrics.total_operations = len(filtered_ops)

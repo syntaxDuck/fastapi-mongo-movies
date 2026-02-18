@@ -3,9 +3,10 @@ User request metrics tracking module.
 Tracks HTTP requests by IP for monitoring and security analysis.
 """
 
-from collections import defaultdict
+from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from itertools import islice
 from threading import Lock
 from typing import Any, Optional
 
@@ -51,10 +52,10 @@ class RequestMetrics:
     def __init__(self) -> None:
         if getattr(self, "_initialized", False):
             return
-        self._requests: list[RequestMetric] = []
+        self._max_history = 50000
+        self._requests: deque[RequestMetric] = deque(maxlen=self._max_history)
         self._ip_metrics: dict[str, IpMetrics] = {}
         self._initialized = True
-        self._max_history = 50000
 
     def record_request(
         self,
@@ -77,10 +78,6 @@ class RequestMetrics:
                 blocked=blocked,
             )
             self._requests.append(metric)
-
-            if len(self._requests) > self._max_history:
-                self._requests = self._requests[-self._max_history :]
-
             self._update_ip_metrics(metric)
 
     def _normalize_path(self, path: str) -> str:
@@ -124,9 +121,15 @@ class RequestMetrics:
         ip_metrics.by_status[str(metric.status_code)] += 1
 
     def get_recent_requests(self, limit: int = 100) -> list[dict[str, Any]]:
-        """Get recent requests."""
+        """Get recent requests.
+
+        Performance: O(limit) by using islice on reversed deque.
+        """
         with self._lock:
-            recent = self._requests[-limit:]
+            # Optimization: Use islice on reversed deque for O(limit) access
+            recent = list(islice(reversed(self._requests), limit))
+            # Put back in chronological order for the return list
+            recent.reverse()
             return [
                 {
                     "ip": m.ip,
@@ -141,26 +144,44 @@ class RequestMetrics:
             ]
 
     def get_summary(self) -> dict[str, Any]:
-        """Get summary of all request metrics."""
+        """Get summary of all request metrics.
+
+        Performance: O(k) where k is the number of records within the last 24h,
+        utilizing a single-pass reversed iteration with early exit.
+        """
         now = datetime.now()
+        cutoff_1h = now - timedelta(hours=1)
+        cutoff_24h = now - timedelta(hours=24)
 
         with self._lock:
-            requests_1h = [r for r in self._requests if r.timestamp >= now - timedelta(hours=1)]
-            requests_24h = [r for r in self._requests if r.timestamp >= now - timedelta(hours=24)]
-
-            unique_ips_1h = {r.ip for r in requests_1h}
-            unique_ips_24h = {r.ip for r in requests_24h}
-
-            blocked_1h = sum(1 for r in requests_1h if r.blocked)
-            blocked_24h = sum(1 for r in requests_24h if r.blocked)
-
+            count_1h = 0
+            count_24h = 0
+            unique_ips_1h = set()
+            unique_ips_24h = set()
+            blocked_1h = 0
+            blocked_24h = 0
             by_endpoint = defaultdict(int)
-            for r in requests_1h:
-                by_endpoint[r.path] += 1
+
+            # Optimization: Use single pass with early exit for aggregation
+            for r in reversed(self._requests):
+                if r.timestamp < cutoff_24h:
+                    break
+
+                count_24h += 1
+                unique_ips_24h.add(r.ip)
+                if r.blocked:
+                    blocked_24h += 1
+
+                if r.timestamp >= cutoff_1h:
+                    count_1h += 1
+                    unique_ips_1h.add(r.ip)
+                    if r.blocked:
+                        blocked_1h += 1
+                    by_endpoint[r.path] += 1
 
             return {
-                "total_requests_1h": len(requests_1h),
-                "total_requests_24h": len(requests_24h),
+                "total_requests_1h": count_1h,
+                "total_requests_24h": count_24h,
                 "unique_ips_1h": len(unique_ips_1h),
                 "unique_ips_24h": len(unique_ips_24h),
                 "blocked_requests_1h": blocked_1h,
