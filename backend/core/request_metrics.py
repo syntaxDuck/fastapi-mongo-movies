@@ -3,9 +3,10 @@ User request metrics tracking module.
 Tracks HTTP requests by IP for monitoring and security analysis.
 """
 
-from collections import defaultdict
+from collections import deque, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from itertools import islice
 from threading import Lock
 from typing import Any, Optional
 
@@ -51,10 +52,10 @@ class RequestMetrics:
     def __init__(self) -> None:
         if getattr(self, "_initialized", False):
             return
-        self._requests: list[RequestMetric] = []
+        self._max_history = 50000
+        self._requests: deque[RequestMetric] = deque(maxlen=self._max_history)
         self._ip_metrics: dict[str, IpMetrics] = {}
         self._initialized = True
-        self._max_history = 50000
 
     def record_request(
         self,
@@ -77,9 +78,6 @@ class RequestMetrics:
                 blocked=blocked,
             )
             self._requests.append(metric)
-
-            if len(self._requests) > self._max_history:
-                self._requests = self._requests[-self._max_history :]
 
             self._update_ip_metrics(metric)
 
@@ -126,7 +124,7 @@ class RequestMetrics:
     def get_recent_requests(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get recent requests."""
         with self._lock:
-            recent = self._requests[-limit:]
+            # Optimized to O(limit) using islice and reversed deque
             return [
                 {
                     "ip": m.ip,
@@ -137,16 +135,26 @@ class RequestMetrics:
                     "timestamp": m.timestamp.isoformat(),
                     "blocked": m.blocked,
                 }
-                for m in reversed(recent)
+                for m in islice(reversed(self._requests), limit)
             ]
 
     def get_summary(self) -> dict[str, Any]:
         """Get summary of all request metrics."""
         now = datetime.now()
+        since_1h = now - timedelta(hours=1)
+        since_24h = now - timedelta(hours=24)
 
         with self._lock:
-            requests_1h = [r for r in self._requests if r.timestamp >= now - timedelta(hours=1)]
-            requests_24h = [r for r in self._requests if r.timestamp >= now - timedelta(hours=24)]
+            # Optimized with early exit for timestamp-based filtering
+            requests_1h = []
+            requests_24h = []
+
+            for r in reversed(self._requests):
+                if r.timestamp < since_24h:
+                    break
+                requests_24h.append(r)
+                if r.timestamp >= since_1h:
+                    requests_1h.append(r)
 
             unique_ips_1h = {r.ip for r in requests_1h}
             unique_ips_24h = {r.ip for r in requests_24h}

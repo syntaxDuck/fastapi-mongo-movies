@@ -4,9 +4,10 @@ Tracks query operations for monitoring and performance analysis.
 """
 
 import time
-from collections import defaultdict
+from collections import deque, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from itertools import islice
 from threading import Lock
 from typing import Any, Optional
 
@@ -53,10 +54,10 @@ class DatabaseMetrics:
     def __init__(self) -> None:
         if getattr(self, "_initialized", False):
             return
-        self._operations: list[OperationMetric] = []
+        self._max_history = 10000
+        self._operations: deque[OperationMetric] = deque(maxlen=self._max_history)
         self._lock = Lock()
         self._initialized = True
-        self._max_history = 10000
 
     def record_operation(
         self,
@@ -78,9 +79,6 @@ class DatabaseMetrics:
             )
             self._operations.append(metric)
 
-            if len(self._operations) > self._max_history:
-                self._operations = self._operations[-self._max_history :]
-
     def _sanitize_filters(self, filters: dict[str, Any] | None) -> dict[str, Any] | None:
         """Remove sensitive data from filters for logging."""
         if not filters:
@@ -94,7 +92,7 @@ class DatabaseMetrics:
     def get_recent_operations(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get recent operations."""
         with self._lock:
-            recent = self._operations[-limit:]
+            # Optimized to O(limit) using islice and reversed deque
             return [
                 {
                     "operation": m.operation,
@@ -104,7 +102,7 @@ class DatabaseMetrics:
                     "success": m.success,
                     "filters": m.filters,
                 }
-                for m in reversed(recent)
+                for m in islice(reversed(self._operations), limit)
             ]
 
     def get_aggregated_metrics(
@@ -118,13 +116,15 @@ class DatabaseMetrics:
             if since is None:
                 since = datetime.now() - timedelta(hours=1)
 
-            filtered_ops = [
-                op
-                for op in self._operations
-                if op.timestamp >= since
-                and (operation is None or op.operation == operation)
-                and (collection is None or op.collection == collection)
-            ]
+            # Optimized to O(recent_ops) by iterating backwards and early exit
+            filtered_ops = []
+            for op in reversed(self._operations):
+                if op.timestamp < since:
+                    break
+                if (operation is None or op.operation == operation) and (
+                    collection is None or op.collection == collection
+                ):
+                    filtered_ops.append(op)
 
             metrics = AggregatedMetrics()
             metrics.total_operations = len(filtered_ops)
