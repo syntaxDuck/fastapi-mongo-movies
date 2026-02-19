@@ -17,8 +17,9 @@ def test_admin_stats_unauthorized_no_key(client, mocker):
     """Test accessing admin endpoint without API key."""
     mocker.patch("backend.core.config.settings.ADMIN_API_KEY", "test-key")
     response = client.get("/admin/movies/validate-posters/statistics")
-    assert response.status_code == 403
-    assert response.json()["detail"] == "Admin API Key is missing"
+    # Intentional 404 for security through obscurity
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Not Found"
 
 
 def test_admin_stats_unauthorized_wrong_key(client, mocker):
@@ -28,8 +29,9 @@ def test_admin_stats_unauthorized_wrong_key(client, mocker):
         "/admin/movies/validate-posters/statistics",
         headers={"X-Admin-API-Key": "wrong-key"},
     )
-    assert response.status_code == 403
-    assert response.json()["detail"] == "Invalid Admin API Key"
+    # Intentional 404 for security through obscurity
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Not Found"
 
 
 def test_admin_stats_locked(client, mocker):
@@ -39,8 +41,9 @@ def test_admin_stats_locked(client, mocker):
         "/admin/movies/validate-posters/statistics",
         headers={"X-Admin-API-Key": "any-key"},
     )
-    assert response.status_code == 403
-    assert response.json()["detail"] == "Admin API is locked (no API key configured)"
+    # Intentional 404 for security through obscurity
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Not Found"
 
 
 @pytest.mark.asyncio
@@ -71,3 +74,10 @@ async def test_admin_stats_authorized(client, mocker):
     data = response.json()
     assert data["total_movies"] == 100
     assert data["validation_success_rate"] == 87.5
+
+
+def test_users_list_unauthorized(client, mocker):
+    """Test accessing users list without API key."""
+    mocker.patch("backend.core.config.settings.ADMIN_API_KEY", "test-key-32-chars-long-security-key")
+    response = client.get("/users")
+    assert response.status_code == 404

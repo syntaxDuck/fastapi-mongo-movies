@@ -12,6 +12,7 @@ admin_api_key_header = APIKeyHeader(name="X-Admin-API-Key", auto_error=False)
 async def verify_admin_api_key(api_key: str = Security(admin_api_key_header)):
     """
     Verify the admin API key provided in the request header.
+    Returns 404 for missing or invalid keys to provide security through obscurity.
     """
     #QUES: Probably could use error handlers here
     if not api_key:

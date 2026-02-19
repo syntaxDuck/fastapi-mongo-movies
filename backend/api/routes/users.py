@@ -1,11 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from slowapi import Limiter
 
 from ...core.config import settings
 from ...core.logging import get_logger
 from ...core.rate_limiter import get_rate_limit_config, rate_limit_key
+from ...core.security import verify_admin_api_key
 from ...repositories.user_repository import UserRepository
 from ...schemas import MessageResponse, UserCreate, UserQuery, UserResponse
 from ...services.user_service import UserService
@@ -38,7 +39,7 @@ def _get_user_service() -> UserService:
     return _user_service
 
 
-@router.get("/", response_model=list[UserResponse])
+@router.get("/", response_model=list[UserResponse], dependencies=[Depends(verify_admin_api_key)])
 @limiter.limit(rate_limit_config.users)
 async def get_users(
     query: Annotated[UserQuery, Query()],
@@ -63,7 +64,9 @@ async def get_users(
     )
 
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get(
+    "/{user_id}", response_model=UserResponse, dependencies=[Depends(verify_admin_api_key)]
+)
 @limiter.limit(rate_limit_config.users)
 async def get_user_by_id(
     request: Request,
@@ -92,7 +95,11 @@ async def create_user(
     return await user_service.create_user(user_data)
 
 
-@router.get("/email/{email}", response_model=list[UserResponse])
+@router.get(
+    "/email/{email}",
+    response_model=list[UserResponse],
+    dependencies=[Depends(verify_admin_api_key)],
+)
 @limiter.limit(rate_limit_config.users)
 async def get_user_by_email(
     request: Request,
@@ -103,7 +110,11 @@ async def get_user_by_email(
     return await user_service.get_users_by_email(email)
 
 
-@router.get("/name/{name}", response_model=list[UserResponse])
+@router.get(
+    "/name/{name}",
+    response_model=list[UserResponse],
+    dependencies=[Depends(verify_admin_api_key)],
+)
 @limiter.limit(rate_limit_config.users)
 async def get_user_by_name(
     request: Request,
