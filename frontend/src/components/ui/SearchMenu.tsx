@@ -233,7 +233,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                 animate={isExpanded ? "expanded" : "collapsed"}
                 transition={{ duration: 0.3 }}
               >
-                {isExpanded ? '▲' : '▼'}
+                ▼
               </motion.span>
             </Button>
             

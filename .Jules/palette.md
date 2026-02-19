@@ -17,3 +17,11 @@
 ## 2026-02-15 - Minimalist Accessibility with focus-within
 **Learning:** For components that already have established CSS-based hover transitions (like `GenreCard`), adding accessibility for keyboard users can be achieved with minimal overhead by using the CSS `:focus-within` pseudo-class. This provides a lightweight alternative to full Framer Motion refactoring when only simple visibility toggling is needed, while still fulfilling accessibility requirements.
 **Action:** Use `:focus-within` on parent link/button containers to reveal absolute-positioned children that are otherwise only visible on hover.
+
+## 2026-02-19 - Rotation Animation Sync
+**Learning:** For UI components that reveal or hide content (e.g., `SearchMenu` expansion indicator), swapping text characters (like `▲` to `▼`) while simultaneously applying a 180-degree rotation animation causes a "double flip" effect that results in the icon pointing in the same direction.
+**Action:** Use a single static icon/character (e.g., `▼`) and let the rotation animation handle the directional change to ensure visual consistency and smooth state transitions.
+
+## 2026-02-19 - Interactive Feedback for Length Limits
+**Learning:** Users often encounter frustration when submitting long-form content (like comments) that exceeds unstated backend limits. Providing a `maxLength` attribute and a visual character counter improves the UX by offering immediate feedback and preventing submission errors.
+**Action:** Always include a character counter and `maxLength` for text areas. Use a consistent `.charCounter` style and the `useId` hook for accessible label association.

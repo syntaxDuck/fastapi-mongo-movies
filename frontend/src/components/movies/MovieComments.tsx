@@ -1,6 +1,5 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useId } from "react";
 import { commentService } from "../../services/api";
-import { Comment } from "../../types";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input, Button } from "../ui";
 import styles from "../../styles/components/movies/MovieComments.module.css";
@@ -12,6 +11,7 @@ interface MovieCommentsProps {
 
 const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
   const { data: comments = [], isLoading, error, refetch } = useMovieComments(movieId);
+  const commentInputId = useId();
   const [newComment, setNewComment] = useState({
     name: "",
     email: "",
@@ -25,7 +25,7 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
 
     try {
       setSubmitting(true);
-      const createdComment = await commentService.postComment(movieId, newComment);
+      await commentService.postComment(movieId, newComment);
       setNewComment({ name: "", email: "", text: "" });
       refetch();
     } catch (err) {
@@ -203,11 +203,11 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
           />
         </div>
         <div className={styles.formField}>
-          <label htmlFor="comment-text" className={styles.formLabel}>
+          <label htmlFor={commentInputId} className={styles.formLabel}>
             Comment <span className={styles.required}>*</span>
           </label>
           <textarea
-            id="comment-text"
+            id={commentInputId}
             placeholder="Share your thoughts about this movie..."
             className={styles.formTextarea}
             value={newComment.text}
@@ -216,7 +216,11 @@ const MovieComments: React.FC<MovieCommentsProps> = ({ movieId = "" }) => {
             }
             rows={3}
             required
+            maxLength={1000}
           />
+          <div className={styles.charCounter}>
+            {newComment.text.length}/1000
+          </div>
         </div>
         <Button
           type="submit"
