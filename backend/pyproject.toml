@@ -101,3 +101,8 @@ directory = "htmlcov"
 
 [tool.coverage.xml]
 output = "coverage.xml"
+
+[dependency-groups]
+dev = [
+    "py-spy>=0.4.1",
+]
